@@ -3,6 +3,16 @@ import path from "path"
 import { promises as fs } from "fs"
 import { registryItemSchema } from "shadcn/registry"
 
+// Use the registry.json file to generate static paths.
+export const generateStaticParams = async () => {
+  const registryData = await import("@/registry.json");
+  const registry = registryData.default;
+
+  return registry.items.map((item) => ({
+    name: item.name,
+  }));
+};
+
 // This route shows an example for serving a component using a route handler.
 export async function GET(
   request: Request,
