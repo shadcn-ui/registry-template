@@ -7,15 +7,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "registry:build": "node ~/code/shadcn/ui/packages/shadcn/dist/index.js build"
+    "registry:build": "shadcn build"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.11",
     "@radix-ui/react-label": "^2.1.4",
+    "@radix-ui/react-scroll-area": "^1.2.6",
     "@radix-ui/react-slot": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "lucide-react": "^0.487.0",
     "next": "15.3.1",
+    "next-themes": "^0.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "shadcn": "^2.4.1",
@@ -38,6 +42,11 @@
     "overrides": {
       "@types/react": "19.1.2",
       "@types/react-dom": "19.1.2"
-    }
-  }
+    },
+    "onlyBuiltDependencies": [
+      "msw",
+      "sharp"
+    ]
+  },
+  "packageManager": "pnpm@10.8.0+sha512.0e82714d1b5b43c74610193cb20734897c1d00de89d0e18420aebc5977fa13d780a9cb05734624e81ebd81cc876cd464794850641c48b9544326b5622ca29971"
 }
