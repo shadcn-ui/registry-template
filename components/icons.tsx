@@ -1,4 +1,4 @@
-type IconProps = React.HTMLAttributes<SVGElement>
+import { type IconProps } from "@/types/block";
 
 interface LogoProps extends Partial<IconProps> {
   height?: number

@@ -23,7 +23,7 @@ export const siteConfig = {
     },
     registry: {
       twitter: "https://twitter.com/rbadillap",
-      github: "https://github.com/rbadillap/registry-template",
+      github: "https://github.com/rbadillap/registry-template-v4",
       docs: "https://ui.shadcn.com/docs/registry",
     },
   },

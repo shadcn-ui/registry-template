@@ -14,8 +14,6 @@ import { BlocksNav } from "@/components/blocks-nav"
 import { siteConfig } from "@/config/site"
 
 export const metadata: Metadata = {
-  title: siteConfig.title,
-  description: siteConfig.description,
   openGraph: {
     images: [
       {
