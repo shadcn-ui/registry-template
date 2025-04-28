@@ -12,5 +12,6 @@ export type Block = {
     url: string;
     icon: string;
   };
+  files?: { path: string; content?: string; type?: string }[];
 };
 

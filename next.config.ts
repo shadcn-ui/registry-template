@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    useCache: true,
+  },
 };
 
 export default nextConfig;

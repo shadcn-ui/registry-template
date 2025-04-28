@@ -5,7 +5,7 @@ import { PartnerLogo } from "@/components/partner-logos";
 
 const blocks: Block[] = [
   {
-    id: "validate-license-key",
+    id: "example-with-css",
     title: "Validate License Key",
     description: "Allow users to access your private components by validating their license key.",
     provider: {

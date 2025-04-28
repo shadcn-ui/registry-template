@@ -1,15 +1,29 @@
 'use client';
 
-import { createContext, useContext, useState } from "react";
-import { type Block } from "@/types/block";
+import { createContext, useContext, useState, useMemo, Fragment } from "react";
+import Image from "next/image";
 import { Tabs, TabsTrigger, TabsList, TabsContent } from "@/components/ui/tabs";
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from "@/components/ui/resizable";
-import Image from "next/image";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Sidebar, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarProvider } from "@/components/ui/sidebar";
+import { type Block } from "@/types/block";
+import { ChevronRight, File, Folder, Copy } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CodeDisplay } from "@/components/code-display";
+import { type Tree, findFirstFile, pathsToTree } from "@/lib/registry";
+import { type Code } from "@/lib/code";
 
 type BlockViewerContext = {
+  // states
   view: "preview" | "code" | "docs";
   setView: (view: "preview" | "code" | "docs") => void;
+  activeFile: string;
+  setActiveFile: (file: string) => void;
+
+  // primitives
   block: Block;
+  tree: Tree[];
+  code: Code[];
 }
 
 const BlockViewerContext = createContext<BlockViewerContext | null>(null);
@@ -22,12 +36,28 @@ function useBlockViewer() {
   return context;
 }
 
-function BlockViewerProvider({ block, children }: { block: Block, children: React.ReactNode }) {
+function BlockViewerProvider(
+  { 
+    block, 
+    children, 
+    tree, 
+    code 
+  }: { 
+    block: Block, 
+    children: React.ReactNode, 
+    tree: Tree[], 
+    code: Code[] 
+  }
+) {
   const [view, setView] = useState<"preview" | "code" | "docs">("preview");
   const [currentBlock] = useState<Block>(block);
 
+  const [activeFile, setActiveFile] = useState<BlockViewerContext['activeFile']>(() => {
+    return findFirstFile(tree) || '';
+  });
+
   return (
-    <BlockViewerContext.Provider value={{ view, setView, block: currentBlock }}>
+    <BlockViewerContext.Provider value={{ view, setView, activeFile, setActiveFile, block: currentBlock, tree, code }}>
       <div
         id={currentBlock.id}
         data-view={view}
@@ -75,16 +105,118 @@ function BlockToolbar() {
   )
 }
 
-function BlockCode() {
-  const { block } = useBlockViewer();
+function FileTree({ level = 0, items }: { level?: number; items?: Tree[] }) {
+  const { tree, activeFile, setActiveFile } = useBlockViewer();
+  const filesToRender = items || tree;
+
   return (
-    <TabsContent value="code">
-      <div>
-        <h2>Code</h2>
-        <pre>{JSON.stringify(block, null, 2)}</pre>
+    <>
+      {filesToRender.map((file, index) => (
+        <Fragment key={`${file.name}-${index}`}>
+          {file.type === 'folder' ? (
+            <SidebarMenuItem>
+              <Collapsible
+                key={`${file.name}-${index}`}
+                className="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
+                // TODO: smartly open the first folder
+                // defaultOpen={file.children?.length && file.children.length > 0}
+                defaultOpen
+                >
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton
+                    className={cn(
+                      "whitespace-nowrap rounded-none pl-[--index]", 
+                      "hover:bg-zinc-700 hover:text-white focus-visible:bg-zinc-700 focus-visible:text-white active:bg-zinc-700",
+                      "active:text-white data-[active=true]:bg-zinc-700 data-[active=true]:text-white", 
+                      "data-[state=open]:hover:bg-zinc-700 data-[state=open]:hover:text-white"
+                    )}
+                    style={
+                      {
+                        "--index": `${level * 1.2}rem`,
+                      } as React.CSSProperties
+                    }
+                  >
+                    <ChevronRight className="h-4 w-4 transition-transform" />
+                    <Folder className="h-4 w-4" />
+                    <span className="text-sm">{file.name}</span>
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub
+                    className="w-full p-0"
+                  >
+                    {file.children && <FileTree level={level + 1} items={file.children} />}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </Collapsible>
+            </SidebarMenuItem>
+          ) : (
+            <SidebarMenuButton
+              isActive={file.name === activeFile}
+              onClick={() => file.name && setActiveFile(file.name)}
+              className={cn(
+                "whitespace-nowrap rounded-none pl-[--index]", 
+                "hover:bg-zinc-700 hover:text-white focus:bg-zinc-700 focus:text-white focus-visible:bg-zinc-700", 
+                "focus-visible:text-white active:bg-zinc-700 active:text-white data-[active=true]:bg-zinc-700 ", 
+                "data-[active=true]:text-white data-[state=open]:hover:bg-gray-700 data-[state=open]:hover:text-white"
+              )}
+              data-index={index}
+              style={
+                {
+                  "--index": `${level * 1.2}rem`,
+                } as React.CSSProperties
+              }
+            >
+              <ChevronRight className="invisible" />
+              <File className="h-4 w-4" />
+              {file.name}
+            </SidebarMenuButton>
+          )}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
+function BlockCode() {
+  const { code, activeFile } = useBlockViewer();
+
+  return (
+    <TabsContent value="code" className="flex-1">
+      <div className="mr-[14px] flex overflow-hidden rounded-xl bg-background/80 text-accent-foreground group-data-[view=preview]/block-view-wrapper:hidden md:h-[var(--height)]">
+        <div className="w-[280px]">
+          <SidebarProvider className="flex !min-h-full flex-col">
+            <Sidebar
+              collapsible="none"
+              className="w-full flex-1 border-r border-zinc-700 bg-zinc-900 text-white"
+            >
+
+              <SidebarGroupLabel className="h-12 rounded-none border-b border-zinc-700 px-4 text-sm text-white">
+                Files
+              </SidebarGroupLabel>
+              <SidebarGroup className="p-0 pt-5">
+                <SidebarGroupContent>
+                  <SidebarMenu className="gap-1.5">
+                    <FileTree />
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </Sidebar>
+          </SidebarProvider>
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex h-12 items-center gap-2 border-b border-zinc-700 bg-zinc-900 px-4 text-sm font-medium">
+            <File className="size-4" />
+            <span>{activeFile}</span>
+            <div className="ml-auto flex items-center gap-2">
+              <Copy className="size-4" />
+            </div>
+          </div>
+          <CodeDisplay code={code.find((file) => file.name === activeFile) as Code} />
+        </div>
       </div>
     </TabsContent>
-  )
+  );
 }
 
 function BlockDocs() {
@@ -141,9 +273,16 @@ function BlockPreview() {
   )
 }
 
-function BlockViewer({ block }: { block: Block }) {
+function BlockViewer({ block, tree: rawTree, code }: { block: Block, tree: Tree[], code: Code[] }) {
+  const processedTree = useMemo(() => {
+    if (block.files) {
+      return pathsToTree(block.files);
+    }
+    return rawTree;
+  }, [block.files, rawTree]);
+
   return (
-    <BlockViewerProvider block={block}>
+    <BlockViewerProvider block={block} tree={processedTree} code={code}>
       <BlockToolbar />
       <BlockPreview />
       <BlockCode />
