@@ -7,6 +7,7 @@ import { ShareCastButton } from "@/registry/mini-app/blocks/share-cast-button/sh
 import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/add-miniapp-button";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { Clipboard as ClipboardIcon, Check as CheckIcon } from "lucide-react";
+import { Button } from "@/registry/mini-app/ui/button";
 
 function InstallSnippet({ installName }: { installName: string }) {
   const [tab, setTab] = React.useState<"pnpm" | "npm">("pnpm");
@@ -23,30 +24,33 @@ function InstallSnippet({ installName }: { installName: string }) {
 
   return (
     <div className="mt-4">
-      <div className="flex border rounded-t-md overflow-hidden text-sm font-mono">
-        <button
-          className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100" : ""}`}
-          onClick={() => setTab("pnpm")}
-        >
-          pnpm
-        </button>
-        <button
-          className={`px-3 py-1 ${tab === "npm" ? "bg-gray-100" : ""}`}
-          onClick={() => setTab("npm")}
-        >
-          npm
-        </button>
+      <div className="flex border rounded-t-md justify-between overflow-hidden">
+        <div className="flex  text-sm font-mono">
+          <button
+            className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100" : ""}`}
+            onClick={() => setTab("pnpm")}
+          >
+            pnpm
+          </button>
+          <button
+            className={`px-3 py-1 ${tab === "npm" ? "bg-gray-100" : ""}`}
+            onClick={() => setTab("npm")}
+          >
+            npm
+          </button>
+        </div>
+        <Button variant="ghost" size="icon" onClick={handleCopy}>
+          {copied ? (
+            <CheckIcon className="w-4 h-4" />
+          ) : (
+            <ClipboardIcon className="w-4 h-4" />
+          )}
+        </Button>
       </div>
       <div className="relative">
         <pre className="bg-gray-800 text-white p-4 rounded-b-md overflow-x-auto">
           <code>{command}</code>
         </pre>
-        <button
-          onClick={handleCopy}
-          className="absolute top-2 right-2 p-1 bg-gray-700 rounded-sm hover:bg-gray-600"
-        >
-          {copied ? <CheckIcon className="w-4 h-4 text-green-400" /> : <ClipboardIcon className="w-4 h-4 text-gray-200" />}
-        </button>
       </div>
     </div>
   );
@@ -57,6 +61,7 @@ export default function Home() {
   useMiniAppSdk();
 
   const items = [
+    // installName must be same name as in registry.json
     {
       title: "A simple token transfer button",
       component: (
