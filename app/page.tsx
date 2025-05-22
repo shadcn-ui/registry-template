@@ -10,6 +10,30 @@ import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 export default function Home() {
   useMiniAppSdk();
 
+  const items = [
+    {
+      title: "A simple token transfer button",
+      component: (
+        <DaimoPayTransferButton
+          text="Donate $1 to Protocol Guild"
+          toAddress="0x32e3C7fD24e175701A35c224f2238d18439C7dBC"
+          amount="1"
+        />
+      ),
+      innerClass: "flex items-center justify-center min-h-[400px] relative",
+    },
+    {
+      title: "Share text and link in a cast",
+      component: (
+        <ShareCastButton
+          text="Share hellno/mini-app-ui"
+          url="https://hellno-mini-app-ui.vercel.app"
+        />
+      ),
+      innerClass: "flex items-center justify-center min-h-[500px] relative",
+    },
+  ];
+
   return (
     <div className="max-w-3xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
       <header className="flex flex-col gap-1">
@@ -22,36 +46,17 @@ export default function Home() {
         </p>
       </header>
       <main className="flex flex-col flex-1 gap-8">
-        <div className="flex flex-col gap-4 border rounded-lg p-4 min-h-[450px] relative">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm text-muted-foreground sm:pl-3">
-              A simple token transfer button
-            </h2>
-            <OpenInVibesEngineeringButton className="w-fit" />
+        {items.map((item, index) => (
+          <div key={index} className="flex flex-col gap-4 border rounded-lg p-4 min-h-[450px] relative">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm text-muted-foreground sm:pl-3">{item.title}</h2>
+              <OpenInVibesEngineeringButton className="w-fit" />
+            </div>
+            <div className={item.innerClass}>
+              {item.component}
+            </div>
           </div>
-          <div className="flex items-center justify-center min-h-[400px] relative">
-            <DaimoPayTransferButton
-              text="Donate $1 to Protocol Guild"
-              toAddress="0x32e3C7fD24e175701A35c224f2238d18439C7dBC"
-              amount="1"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4 border rounded-lg p-4 min-h-[450px] relative">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm text-muted-foreground sm:pl-3">
-              Share text and link in a cast
-            </h2>
-            <OpenInVibesEngineeringButton className="w-fit" />
-          </div>
-          <div className="flex items-center justify-center min-h-[500px] relative">
-            <ShareCastButton
-              text="Share hellno/mini-app-ui"
-              url="https://hellno-mini-app-ui.vercel.app"
-            />
-          </div>
-        </div>
+        ))}
       </main>
     </div>
   );
