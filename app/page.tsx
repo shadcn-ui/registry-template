@@ -16,7 +16,7 @@ function InstallSnippet({ installName }: { installName: string }) {
 
   return (
     <div className="mt-4">
-      <div className="flex border rounded-md overflow-hidden text-sm font-mono">
+      <div className="flex border rounded-t-md overflow-hidden text-sm font-mono">
         <button
           className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100" : ""}`}
           onClick={() => setTab("pnpm")}
@@ -30,7 +30,7 @@ function InstallSnippet({ installName }: { installName: string }) {
           npm
         </button>
       </div>
-      <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto">
+      <pre className="bg-gray-800 text-white p-4 rounded-b-md overflow-x-auto">
         <code>{command}</code>
       </pre>
     </div>
