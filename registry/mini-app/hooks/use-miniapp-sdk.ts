@@ -6,7 +6,7 @@ export function useMiniAppSdk() {
 
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [context, setContext] = useState<Context.FrameContext>();
-  const [isFramePinned, setIsFramePinned] = useState(false);
+  const [isMiniAppSaved, setIsMiniAppSaved] = useState(false);
   const [lastEvent, setLastEvent] = useState("");
   const [pinFrameResponse, setPinFrameResponse] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -18,7 +18,7 @@ export function useMiniAppSdk() {
       setLastEvent(
         `frameAdded${notificationDetails ? ", notifications enabled" : ""}`,
       );
-      setIsFramePinned(true);
+      setIsMiniAppSaved(true);
     });
 
     sdk.on("frameAddRejected", ({ reason }) => {
@@ -27,7 +27,7 @@ export function useMiniAppSdk() {
 
     sdk.on("frameRemoved", () => {
       setLastEvent("frameRemoved");
-      setIsFramePinned(false);
+      setIsMiniAppSaved(false);
     });
 
     sdk.on("notificationsEnabled", ({ notificationDetails }) => {
@@ -53,7 +53,7 @@ export function useMiniAppSdk() {
       const frameContext = await sdk.context;
       if (frameContext) {
         setContext(frameContext);
-        setIsFramePinned(frameContext.client.added);
+        setIsMiniAppSaved(frameContext.client.added);
       }
     };
 
@@ -83,7 +83,7 @@ export function useMiniAppSdk() {
     context,
     pinFrame,
     pinFrameResponse,
-    isFramePinned,
+    isMiniAppSaved,
     lastEvent,
     sdk,
     isSDKLoaded,
