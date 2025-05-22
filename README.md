@@ -1,20 +1,95 @@
 # hellno/mini-app-ui
 
-A collection of components, hooks and utilities for mini apps using shadcn.
-Goal is to add value to mini app development in the user experience where the Farcaster clients don't have standards yet. This library aims to provide a consistent and user-friendly interface for mini apps, making it easier for developers to create engaging and functional applications.
+A collection of components, hooks, and utilities for mini apps.  
+Focus: consistent UX across Farcaster clients where no standards exist.
 
-https://hellno-mini-app-ui.vercel.app
+Website: [https://hellno-mini-app-ui.vercel.app](https://hellno-mini-app-ui.vercel.app)
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Develop: Add to the Registry](#develop-add-to-the-registry)
+- [Scripts](#scripts)
+- [License](#license)
+
+```
+
+⸻
 
 ## Getting Started
-... how to install all components etc...
 
-## License
+### Install All Components
 
-Licensed under the MIT license.
+```bash
+pnpm dlx shadcn@latest add --all https://hellno-mini-app-ui.vercel.app/r
+```
 
-## todo add components
-- [ ] daimo-pay-button
-- [ ] share on Warpcast
-- [ ] show balance of address x on chain y
-- [ ] list of pfps
-- [ ] some neynar example maybe?
+### Install a Single Component
+
+```bash
+pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/<item>.json
+```
+
+
+⸻
+
+Develop ➜ Add to the registry
+	1.	Create files
+
+registry/mini-app/<name>/<name>.tsx
+registry/mini-app/<name>/use-<name>.ts   # optional hook
+
+
+	2.	Describe item – registry/mini-app/<name>/registry-item.json
+
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "<name>",
+  "type": "registry:block",
+  "title": "<Readable title>",
+  "description": "<Short pitch>",
+  "files": [
+    { "path": "registry/mini-app/<name>/<name>.tsx", "type": "registry:component" },
+    { "path": "registry/mini-app/<name>/use-<name>.ts", "type": "registry:hook" }
+  ],
+  "dependencies": ["@radix-ui/react-slot", "lucide-react"],
+  "registryDependencies": []
+}
+
+
+	3.	Reference item once – append in registry.json
+
+{ "$ref": "registry/mini-app/<name>/registry-item.json" }
+
+
+	4.	Commit
+The repo runs a Husky pre-commit hook:
+
+pnpm lint           # ESLint + Prettier
+pnpm registry:build # shadcn build ➜ public/r
+
+The hook lints, generates fresh public/r/*.json, and blocks the commit on failure.
+
+	5.	Push & deploy
+Vercel auto-deploys; the CLI fetches from
+https://hellno-mini-app-ui.vercel.app/r.
+
+⸻
+
+Scripts
+
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "registry:build": "shadcn build",
+    "lint": "eslint . --fix"
+  }
+}
+
+
+⸻
+
+License
+
+MIT

@@ -28,64 +28,32 @@
       ]
     },
     {
-      "name": "example-form",
+      "name": "share-cast-button",
       "type": "registry:component",
-      "title": "Example Form",
-      "description": "A contact form with Zod validation.",
+      "title": "Share Cast Button",
+      "description": "A button for sharing a cast",
       "dependencies": ["zod"],
-      "registryDependencies": ["button", "input", "label", "textarea", "card"],
+      "registryDependencies": ["button", "use-miniapp-sdk"],
       "files": [
         {
-          "path": "registry/mini-app/blocks/example-form/example-form.tsx",
+          "path": "registry/mini-app/blocks/share-cast-button/share-cast-button.tsx",
           "type": "registry:component"
         }
       ]
     },
     {
-      "name": "complex-component",
-      "type": "registry:component",
-      "title": "Complex Component",
-      "description": "A complex component showing hooks, libs and components.",
-      "registryDependencies": ["card"],
+      "name": "use-miniapp-sdk",
+      "type": "registry:hook",
+      "title": "useMiniAppSdk",
+      "description": "Hook for Farcaster MiniApp SDK context and state",
       "files": [
         {
-          "path": "registry/mini-app/blocks/complex-component/page.tsx",
-          "type": "registry:page",
-          "target": "app/pokemon/page.tsx"
-        },
-        {
-          "path": "registry/mini-app/blocks/complex-component/components/pokemon-card.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/mini-app/blocks/complex-component/components/pokemon-image.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/mini-app/blocks/complex-component/lib/pokemon.ts",
-          "type": "registry:lib"
-        },
-        {
-          "path": "registry/mini-app/blocks/complex-component/hooks/use-pokemon.ts",
+          "path": "registry/mini-app/hooks/use-miniapp-sdk.ts",
           "type": "registry:hook"
         }
-      ]
-    },
-    {
-      "name": "example-with-css",
-      "type": "registry:component",
-      "title": "Example with CSS",
-      "description": "A login form with a CSS file.",
-      "files": [
-        {
-          "path": "registry/mini-app/blocks/example-with-css/example-card.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/mini-app/blocks/example-with-css/example-card.css",
-          "type": "registry:component"
-        }
-      ]
+      ],
+      "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
+      "registryDependencies": []
     }
   ]
 }

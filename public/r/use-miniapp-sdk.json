@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-miniapp-sdk",
+  "type": "registry:hook",
+  "title": "useMiniAppSdk",
+  "description": "Hook for Farcaster MiniApp SDK context and state",
+  "dependencies": [
+    "@farcaster/frame-core",
+    "@farcaster/frame-sdk",
+    "@farcaster/frame-sdk",
+    "@farcaster/frame-core"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/mini-app/hooks/use-miniapp-sdk.ts",
+      "content": "import { useCallback, useEffect, useState } from \"react\";\nimport sdk from \"@farcaster/frame-sdk\";\nimport type { FrameContext } from \"@farcaster/frame-core/src/context\";\nimport type { FrameNotificationDetails } from \"@farcaster/frame-core/src/schemas\";\n\nexport function useMiniAppSdk() {\n  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);\n\n  const [isSDKLoaded, setIsSDKLoaded] = useState(false);\n  const [context, setContext] = useState<FrameContext>();\n  const [isFramePinned, setIsFramePinned] = useState(false);\n  const [notificationDetails, setNotificationDetails] =\n    useState<FrameNotificationDetails | null>(null);\n  const [lastEvent, setLastEvent] = useState(\"\");\n  const [pinFrameResponse, setPinFrameResponse] = useState(\"\");\n  const [isSigningIn, setIsSigningIn] = useState(false);\n\n  useEffect(() => {\n    if (!sdk) return;\n\n    sdk.on(\"frameAdded\", ({ notificationDetails }) => {\n      setLastEvent(\n        `frameAdded${notificationDetails ? \", notifications enabled\" : \"\"}`,\n      );\n      setIsFramePinned(true);\n      if (notificationDetails) setNotificationDetails(notificationDetails);\n    });\n\n    sdk.on(\"frameAddRejected\", ({ reason }) => {\n      setLastEvent(`frameAddRejected, reason ${reason}`);\n    });\n\n    sdk.on(\"frameRemoved\", () => {\n      setLastEvent(\"frameRemoved\");\n      setIsFramePinned(false);\n      setNotificationDetails(null);\n    });\n\n    sdk.on(\"notificationsEnabled\", ({ notificationDetails }) => {\n      setLastEvent(\"notificationsEnabled\");\n      setNotificationDetails(notificationDetails);\n    });\n\n    sdk.on(\"notificationsDisabled\", () => {\n      setLastEvent(\"notificationsDisabled\");\n      setNotificationDetails(null);\n    });\n\n    // Mark SDK as ready\n    sdk.actions.ready({});\n    setIsSDKLoaded(true);\n\n    // Clean up on unmount\n    return () => {\n      sdk.removeAllListeners();\n    };\n  }, []);\n\n  useEffect(() => {\n    const updateContext = async () => {\n      const frameContext = await sdk.context;\n      if (frameContext) {\n        setContext(frameContext as unknown as FrameContext);\n        setIsFramePinned(frameContext.client.added);\n      }\n    };\n\n    if (isSDKLoaded) {\n      updateContext();\n    }\n  }, [isSDKLoaded]);\n\n  const pinFrame = useCallback(async () => {\n    try {\n      setNotificationDetails(null);\n      const result = await sdk.actions.addFrame();\n      console.log(\"addFrame result\", result);\n      // @ts-expect-error - result type mixup\n      if (result.added) {\n        if (result.notificationDetails) {\n          setNotificationDetails(result.notificationDetails);\n        }\n        setPinFrameResponse(\n          result.notificationDetails\n            ? `Added, got notificaton token ${result.notificationDetails.token} and url ${result.notificationDetails.url}`\n            : \"Added, got no notification details\",\n        );\n      }\n    } catch (error) {\n      setPinFrameResponse(`Error: ${error}`);\n    }\n  }, []);\n\n  return {\n    context,\n    pinFrame,\n    pinFrameResponse,\n    isFramePinned,\n    notificationDetails,\n    lastEvent,\n    sdk,\n    isSDKLoaded,\n    isAuthDialogOpen,\n    setIsAuthDialogOpen,\n    isSigningIn,\n  };\n}\n",
+      "type": "registry:hook"
+    }
+  ]
+}
