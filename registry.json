@@ -32,11 +32,25 @@
       "type": "registry:component",
       "title": "Share Cast Button",
       "description": "A button for sharing a cast",
-      "dependencies": ["zod"],
+      "dependencies": [],
       "registryDependencies": ["button", "use-miniapp-sdk"],
       "files": [
         {
           "path": "registry/mini-app/blocks/share-cast-button/share-cast-button.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "add-miniapp-button",
+      "type": "registry:component",
+      "title": "Add MiniApp Button",
+      "description": "A button to add or pin a mini app",
+      "dependencies": [],
+      "registryDependencies": ["button", "use-miniapp-sdk"],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/add-miniapp-button/pin-miniapp-button.tsx",
           "type": "registry:component"
         }
       ]

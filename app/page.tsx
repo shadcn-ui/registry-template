@@ -4,6 +4,7 @@ import * as React from "react";
 import { OpenInVibesEngineeringButton } from "@/components/open-in-vibes-engineering-button";
 import { DaimoPayTransferButton } from "@/registry/mini-app/blocks/daimo-pay-transfer/components/daimo-pay-transfer-button";
 import { ShareCastButton } from "@/registry/mini-app/blocks/share-cast-button/share-cast-button";
+import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/add-miniapp-button";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 
 // This page displays items from the custom registry.
@@ -20,7 +21,6 @@ export default function Home() {
           amount="1"
         />
       ),
-      innerClass: "flex items-center justify-center min-h-[400px] relative",
     },
     {
       title: "Share text and link in a cast",
@@ -30,7 +30,10 @@ export default function Home() {
           url="https://hellno-mini-app-ui.vercel.app"
         />
       ),
-      innerClass: "flex items-center justify-center min-h-[500px] relative",
+    },
+    {
+      title: "Add or pin a mini app",
+      component: <AddMiniappButton />,
     },
   ];
 
@@ -47,12 +50,17 @@ export default function Home() {
       </header>
       <main className="flex flex-col flex-1 gap-8">
         {items.map((item, index) => (
-          <div key={index} className="flex flex-col gap-4 border rounded-lg p-4 min-h-[450px] relative">
+          <div
+            key={index}
+            className="flex flex-col gap-4 border rounded-lg p-4 min-h-[350px] relative"
+          >
             <div className="flex items-center justify-between">
-              <h2 className="text-sm text-muted-foreground sm:pl-3">{item.title}</h2>
+              <h2 className="text-sm text-muted-foreground sm:pl-3">
+                {item.title}
+              </h2>
               <OpenInVibesEngineeringButton className="w-fit" />
             </div>
-            <div className={item.innerClass}>
+            <div className="flex items-center justify-center min-h-[300px] relative">
               {item.component}
             </div>
           </div>

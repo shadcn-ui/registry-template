@@ -39,6 +39,7 @@ export function ShareCastButton({
       if (url) {
         cast.embeds = [url];
       }
+      sdk.actions.composeCast(cast);
     } else if (shareUrl) {
       window.open(shareUrl, "_blank");
     }
@@ -49,7 +50,7 @@ export function ShareCastButton({
       variant={variant}
       onClick={(e) => onShare(e)}
       size="default"
-      className={`shadow-none ${className || ""}`}
+      className={className || ""}
     >
       <Share className="h-4 w-4 md:h-5 md:w-5" />
       Share
