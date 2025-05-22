@@ -33,7 +33,10 @@
       "title": "Share Cast Button",
       "description": "A button for sharing a cast",
       "dependencies": [],
-      "registryDependencies": ["button", "use-miniapp-sdk"],
+      "registryDependencies": [
+        "button",
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+      ],
       "files": [
         {
           "path": "registry/mini-app/blocks/share-cast-button/share-cast-button.tsx",
@@ -47,7 +50,10 @@
       "title": "Add MiniApp Button",
       "description": "A button to add or pin a mini app",
       "dependencies": [],
-      "registryDependencies": ["button", "use-miniapp-sdk"],
+      "registryDependencies": [
+        "button",
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+      ],
       "files": [
         {
           "path": "registry/mini-app/blocks/add-miniapp-button/add-miniapp-button.tsx",
