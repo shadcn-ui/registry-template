@@ -1,9 +1,9 @@
-import * as React from "react"
-import { OpenInV0Button } from "@/components/open-in-v0-button"
-import { HelloWorld } from "@/registry/new-york/blocks/hello-world/hello-world"
-import { ExampleForm } from "@/registry/new-york/blocks/example-form/example-form"
-import PokemonPage from "@/registry/new-york/blocks/complex-component/page"
-import { ExampleCard } from "@/registry/new-york/blocks/example-with-css/example-card"
+import * as React from "react";
+import { OpenInV0Button } from "@/components/open-in-v0-button";
+import { HelloWorld } from "@/registry/new-york/blocks/hello-world/hello-world";
+import { ExampleForm } from "@/registry/new-york/blocks/example-form/example-form";
+import PokemonPage from "@/registry/new-york/blocks/complex-component/page";
+import { ExampleCard } from "@/registry/new-york/blocks/example-with-css/example-card";
 // This page displays items from the custom registry.
 // You are free to implement this with your own design as needed.
 
@@ -11,9 +11,12 @@ export default function Home() {
   return (
     <div className="max-w-3xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
       <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">Custom Registry</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          hellno/mini-app-ui
+        </h1>
         <p className="text-muted-foreground">
-          A custom registry for distributing code using shadcn.
+          A collection of components, hooks and justify for mini apps using
+          shadcn.
         </p>
       </header>
       <main className="flex flex-col flex-1 gap-8">
@@ -66,5 +69,5 @@ export default function Home() {
         </div>
       </main>
     </div>
-  )
+  );
 }
