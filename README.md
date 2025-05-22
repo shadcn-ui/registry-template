@@ -1,6 +1,6 @@
 # hellno/mini-app-ui
 
-A collection of components, hooks, and utilities for mini apps.  
+A collection of components, hooks, and utilities for mini apps.
 Focus: consistent UX across Farcaster clients where no standards exist.
 
 Website: [https://hellno-mini-app-ui.vercel.app](https://hellno-mini-app-ui.vercel.app)
@@ -73,20 +73,6 @@ The hook lints, generates fresh public/r/*.json, and blocks the commit on failur
 	5.	Push & deploy
 Vercel auto-deploys; the CLI fetches from
 https://hellno-mini-app-ui.vercel.app/r.
-
-⸻
-
-Scripts
-
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "registry:build": "shadcn build",
-    "lint": "eslint . --fix"
-  }
-}
-
 
 ⸻
 
