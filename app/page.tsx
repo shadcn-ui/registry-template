@@ -6,13 +6,20 @@ import { DaimoPayTransferButton } from "@/registry/mini-app/blocks/daimo-pay-tra
 import { ShareCastButton } from "@/registry/mini-app/blocks/share-cast-button/share-cast-button";
 import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/add-miniapp-button";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
+import { Clipboard as ClipboardIcon, Check as CheckIcon } from "lucide-react";
 
 function InstallSnippet({ installName }: { installName: string }) {
   const [tab, setTab] = React.useState<"pnpm" | "npm">("pnpm");
+  const [copied, setCopied] = React.useState(false);
   const command =
     tab === "pnpm"
       ? `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`
       : `npx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
+  const handleCopy = () => {
+    navigator.clipboard.writeText(command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
 
   return (
     <div className="mt-4">
@@ -30,9 +37,17 @@ function InstallSnippet({ installName }: { installName: string }) {
           npm
         </button>
       </div>
-      <pre className="bg-gray-800 text-white p-4 rounded-b-md overflow-x-auto">
-        <code>{command}</code>
-      </pre>
+      <div className="relative">
+        <pre className="bg-gray-800 text-white p-4 rounded-b-md overflow-x-auto">
+          <code>{command}</code>
+        </pre>
+        <button
+          onClick={handleCopy}
+          className="absolute top-2 right-2 p-1 bg-gray-700 rounded-sm hover:bg-gray-600"
+        >
+          {copied ? <CheckIcon className="w-4 h-4 text-green-400" /> : <ClipboardIcon className="w-4 h-4 text-gray-200" />}
+        </button>
+      </div>
     </div>
   );
 }
