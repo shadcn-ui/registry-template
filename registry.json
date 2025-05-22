@@ -8,11 +8,21 @@
       "type": "registry:component",
       "title": "Daimo Pay Button Token Transfer",
       "description": "A custom button for transferring tokens",
-      "dependencies": ["@daimo/pay", "@daimo/contract", "wagmi", "viem"],
+      "dependencies": [
+        "@daimo/pay",
+        "@daimo/contract",
+        "wagmi",
+        "viem",
+        "@farcaster/frame-wagmi-connector"
+      ],
       "registryDependencies": ["button"],
       "files": [
         {
           "path": "registry/mini-app/blocks/daimo-pay-transfer/components/daimo-pay-transfer-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/mini-app/blocks/daimo-pay-transfer/components/wagmi-provider.tsx",
           "type": "registry:component"
         }
       ]

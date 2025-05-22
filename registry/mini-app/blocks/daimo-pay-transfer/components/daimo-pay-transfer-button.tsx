@@ -1,18 +1,16 @@
-import { cache } from "react";
-import { getPokemon } from "@/registry/mini-app/blocks/complex-component/lib/pokemon";
-import { Card, CardContent } from "@/registry/mini-app/ui/card";
-import { PokemonImage } from "@/registry/mini-app/blocks/complex-component/components/pokemon-image";
+"use client";
+
 import { DaimoPayButton } from "@daimo/pay";
 import { baseUSDC } from "@daimo/contract";
 import { getAddress } from "viem";
 import { useAccount } from "wagmi";
 import { Button } from "@/registry/mini-app/ui/button";
 
-const cachedGetPokemon = cache(getPokemon);
-
-export async function DaimoPayTransferButton({
+export function DaimoPayTransferButton({
   text,
+  toChainId,
   toAddress,
+  tokenAddress,
   amount,
   onPaymentStarted,
   onPaymentCompleted,
@@ -20,16 +18,18 @@ export async function DaimoPayTransferButton({
   text: string;
   toAddress: `0x${string}`;
   amount: string;
+  tokenAddress?: `0x${string}`;
+  toChainId?: number;
   onPaymentStarted?: () => void;
   onPaymentCompleted?: () => void;
 }) {
   return (
-    <div className="flex justify-center px-8 py-4 bg-pink-500 text-white text-xl font-bold rounded-lg shadow-lg hover:bg-pink-400 transition-colors animate-pulse">
+    <div className="flex justify-center text-xl font-bold rounded-lg shadow-lg">
       <DaimoPayButton.Custom
         appId={process.env.NEXT_PUBLIC_DAIMO_PAY_KEY || "pay-demo"}
-        toChain={baseUSDC.chainId}
+        toChain={toChainId || baseUSDC.chainId}
         toUnits={amount}
-        toToken={getAddress(baseUSDC.token)}
+        toToken={tokenAddress || getAddress(baseUSDC.token)}
         toAddress={toAddress}
         onPaymentStarted={(e) => {
           console.log("Payment started", e);
