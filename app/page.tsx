@@ -7,6 +7,36 @@ import { ShareCastButton } from "@/registry/mini-app/blocks/share-cast-button/sh
 import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/add-miniapp-button";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 
+function InstallSnippet({ installName }: { installName: string }) {
+  const [tab, setTab] = React.useState<"pnpm" | "npm">("pnpm");
+  const command =
+    tab === "pnpm"
+      ? `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`
+      : `npx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
+
+  return (
+    <div className="mt-4">
+      <div className="flex border rounded-md overflow-hidden text-sm font-mono">
+        <button
+          className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100" : ""}`}
+          onClick={() => setTab("pnpm")}
+        >
+          pnpm
+        </button>
+        <button
+          className={`px-3 py-1 ${tab === "npm" ? "bg-gray-100" : ""}`}
+          onClick={() => setTab("npm")}
+        >
+          npm
+        </button>
+      </div>
+      <pre className="bg-gray-800 text-white p-4 rounded-md overflow-x-auto">
+        <code>{command}</code>
+      </pre>
+    </div>
+  );
+}
+
 // This page displays items from the custom registry.
 export default function Home() {
   useMiniAppSdk();
@@ -21,6 +51,7 @@ export default function Home() {
           amount="1"
         />
       ),
+      installName: "daimo-pay-transfer-button",
     },
     {
       title: "Share text and link in a cast",
@@ -30,10 +61,12 @@ export default function Home() {
           url="https://hellno-mini-app-ui.vercel.app"
         />
       ),
+      installName: "share-cast-button",
     },
     {
       title: "Add or pin a mini app",
       component: <AddMiniappButton />,
+      installName: "add-miniapp-button",
     },
   ];
 
@@ -63,6 +96,7 @@ export default function Home() {
             <div className="flex items-center justify-center min-h-[300px] relative">
               {item.component}
             </div>
+            <InstallSnippet installName={item.installName} />
           </div>
         ))}
       </main>
