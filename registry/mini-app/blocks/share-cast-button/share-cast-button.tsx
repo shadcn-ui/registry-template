@@ -32,10 +32,13 @@ export function ShareCastButton({
     const frameContext = await sdk.context;
     if (frameContext) {
       e.preventDefault();
-      sdk.actions.composeCast({
+      let cast: { text: string; embeds: [] | [string] } = {
         text,
-        embeds: [url],
-      });
+        embeds: [],
+      };
+      if (url) {
+        cast.embeds = [url];
+      }
     } else if (shareUrl) {
       window.open(shareUrl, "_blank");
     }

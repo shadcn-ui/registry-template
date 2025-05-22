@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import sdk from "@farcaster/frame-sdk";
-import type { FrameContext } from "@farcaster/frame-core/src/context";
-import type { FrameNotificationDetails } from "@farcaster/frame-core/src/schemas";
-
+import type { Context } from "@farcaster/frame-core";
 export function useMiniAppSdk() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const [context, setContext] = useState<FrameContext>();
+  const [context, setContext] = useState<Context.FrameContext>();
   const [isFramePinned, setIsFramePinned] = useState(false);
-  const [notificationDetails, setNotificationDetails] =
-    useState<FrameNotificationDetails | null>(null);
   const [lastEvent, setLastEvent] = useState("");
   const [pinFrameResponse, setPinFrameResponse] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -23,7 +19,6 @@ export function useMiniAppSdk() {
         `frameAdded${notificationDetails ? ", notifications enabled" : ""}`,
       );
       setIsFramePinned(true);
-      if (notificationDetails) setNotificationDetails(notificationDetails);
     });
 
     sdk.on("frameAddRejected", ({ reason }) => {
@@ -33,17 +28,14 @@ export function useMiniAppSdk() {
     sdk.on("frameRemoved", () => {
       setLastEvent("frameRemoved");
       setIsFramePinned(false);
-      setNotificationDetails(null);
     });
 
     sdk.on("notificationsEnabled", ({ notificationDetails }) => {
       setLastEvent("notificationsEnabled");
-      setNotificationDetails(notificationDetails);
     });
 
     sdk.on("notificationsDisabled", () => {
       setLastEvent("notificationsDisabled");
-      setNotificationDetails(null);
     });
 
     // Mark SDK as ready
@@ -60,7 +52,7 @@ export function useMiniAppSdk() {
     const updateContext = async () => {
       const frameContext = await sdk.context;
       if (frameContext) {
-        setContext(frameContext as unknown as FrameContext);
+        setContext(frameContext);
         setIsFramePinned(frameContext.client.added);
       }
     };
@@ -72,14 +64,10 @@ export function useMiniAppSdk() {
 
   const pinFrame = useCallback(async () => {
     try {
-      setNotificationDetails(null);
       const result = await sdk.actions.addFrame();
       console.log("addFrame result", result);
       // @ts-expect-error - result type mixup
       if (result.added) {
-        if (result.notificationDetails) {
-          setNotificationDetails(result.notificationDetails);
-        }
         setPinFrameResponse(
           result.notificationDetails
             ? `Added, got notificaton token ${result.notificationDetails.token} and url ${result.notificationDetails.url}`
@@ -96,7 +84,6 @@ export function useMiniAppSdk() {
     pinFrame,
     pinFrameResponse,
     isFramePinned,
-    notificationDetails,
     lastEvent,
     sdk,
     isSDKLoaded,
