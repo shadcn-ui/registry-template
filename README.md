@@ -1,23 +1,20 @@
-# registry-template
+# hellno/mini-app-ui
 
-You can use the `shadcn` CLI to run your own component registry. Running your own
-component registry allows you to distribute your custom components, hooks, pages, and
-other files to any React project.
+A collection of components, hooks and utilities for mini apps using shadcn.
+Goal is to add value to mini app development in the user experience where the Farcaster clients don't have standards yet. This library aims to provide a consistent and user-friendly interface for mini apps, making it easier for developers to create engaging and functional applications.
 
-> [!IMPORTANT]  
-> This template uses Tailwind v4. For Tailwind v3, see [registry-template](https://github.com/shadcn-ui/registry-template).
+https://hellno-mini-app-ui.vercel.app
 
 ## Getting Started
+... how to install all components etc...
 
-This is a template for creating a custom registry using Next.js.
+## License
 
-- The template uses a `registry.json` file to define components and their files.
-- The `shadcn build` command is used to build the registry.
-- The registry items are served as static files under `public/r/[name].json`.
-- The template also includes a route handler for serving registry items.
-- Every registry item are compatible with the `shadcn` CLI.
-- We have also added v0 integration using the `Open in v0` api.
+Licensed under the MIT license.
 
-## Documentation
-
-Visit the [shadcn documentation](https://ui.shadcn.com/docs/registry) to view the full documentation.
+## todo add components
+- [ ] daimo-pay-button
+- [ ] share on Warpcast
+- [ ] show balance of address x on chain y
+- [ ] list of pfps
+- [ ] some neynar example maybe?
