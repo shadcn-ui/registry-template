@@ -4,7 +4,7 @@
   "homepage": "https://hellno-mini-app-ui.vercel.app",
   "items": [
     {
-      "name": "daimo-pay-button-token-transfer",
+      "name": "daimo-pay-transfer-button",
       "type": "registry:component",
       "title": "Daimo Pay Button Token Transfer",
       "description": "A custom button for transferring tokens",

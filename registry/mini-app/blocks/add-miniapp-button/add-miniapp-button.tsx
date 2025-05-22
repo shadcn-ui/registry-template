@@ -1,7 +1,6 @@
 import { Button } from "@/registry/mini-app/ui/button";
-import { CircleCheckBig, Save, Share } from "lucide-react";
+import { CircleCheckBig, Save } from "lucide-react";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
-import { useMemo } from "react";
 
 type AddMiniAppButtonProps = {
   text?: string;

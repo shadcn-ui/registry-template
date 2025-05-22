@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "daimo-pay-button-token-transfer",
+  "name": "daimo-pay-transfer-button",
   "type": "registry:component",
   "title": "Daimo Pay Button Token Transfer",
   "description": "A custom button for transferring tokens",
