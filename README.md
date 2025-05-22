@@ -33,7 +33,7 @@ pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/<item>.json
 
 ⸻
 
-Develop ➜ Add to the registry
+## Develop: Add to the Registry
 	1.	Create files
 
 registry/mini-app/<name>/<name>.tsx
@@ -74,8 +74,21 @@ The hook lints, generates fresh public/r/*.json, and blocks the commit on failur
 Vercel auto-deploys; the CLI fetches from
 https://hellno-mini-app-ui.vercel.app/r.
 
+## Scripts
+
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "registry:build": "shadcn build",
+    "lint": "eslint . --fix"
+  }
+}
+```
+
 ⸻
 
-License
+## License
 
 MIT
