@@ -41,7 +41,7 @@ export default function Home() {
         <div className="flex flex-col gap-4 border rounded-lg p-4 min-h-[450px] relative">
           <div className="flex items-center justify-between">
             <h2 className="text-sm text-muted-foreground sm:pl-3">
-              Share text in a cast
+              Share text and link in a cast
             </h2>
             <OpenInVibesEngineeringButton className="w-fit" />
           </div>
