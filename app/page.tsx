@@ -1,6 +1,5 @@
 import * as React from "react";
 import { OpenInVibesEngineeringButton } from "@/components/open-in-vibes-engineering-button";
-import { HelloWorld } from "@/registry/mini-app/blocks/hello-world/hello-world";
 import { ExampleForm } from "@/registry/mini-app/blocks/example-form/example-form";
 import PokemonPage from "@/registry/mini-app/blocks/complex-component/page";
 import { ExampleCard } from "@/registry/mini-app/blocks/example-with-css/example-card";

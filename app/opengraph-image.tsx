@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const contentType = "image/png";
 
-let imageOptions: any = null;
+let imageOptions: { width: number; height: number } | null = null;
 
 async function initializeImageOptions() {
   if (imageOptions) return imageOptions;
