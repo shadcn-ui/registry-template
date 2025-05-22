@@ -12,9 +12,6 @@ Website: [https://hellno-mini-app-ui.vercel.app](https://hellno-mini-app-ui.verc
 - [Scripts](#scripts)
 - [License](#license)
 
-```
-
-⸻
 
 ## Getting Started
 
@@ -34,16 +31,15 @@ pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/<item>.json
 ⸻
 
 ## Develop: Add to the Registry
-	1.	Create files
+### 1.	Create files
 
-registry/mini-app/<name>/<name>.tsx
-registry/mini-app/<name>/use-<name>.ts   # optional hook
+`registry/mini-app/<name>/<name>.tsx`
 
 
-	2.	Describe item – registry/mini-app/<name>/registry-item.json
-
+### 2.	Describe item in registry.json
+Add new entry in items:
+```json
 {
-  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "<name>",
   "type": "registry:block",
   "title": "<Readable title>",
@@ -55,14 +51,9 @@ registry/mini-app/<name>/use-<name>.ts   # optional hook
   "dependencies": ["@radix-ui/react-slot", "lucide-react"],
   "registryDependencies": []
 }
+```
 
-
-	3.	Reference item once – append in registry.json
-
-{ "$ref": "registry/mini-app/<name>/registry-item.json" }
-
-
-	4.	Commit
+### 4.	Commit
 The repo runs a Husky pre-commit hook:
 
 pnpm lint           # ESLint + Prettier
@@ -70,22 +61,9 @@ pnpm registry:build # shadcn build ➜ public/r
 
 The hook lints, generates fresh public/r/*.json, and blocks the commit on failure.
 
-	5.	Push & deploy
+### 5.	Push & deploy
 Vercel auto-deploys; the CLI fetches from
 https://hellno-mini-app-ui.vercel.app/r.
-
-## Scripts
-
-```json
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "registry:build": "shadcn build",
-    "lint": "eslint . --fix"
-  }
-}
-```
 
 ⸻
 
