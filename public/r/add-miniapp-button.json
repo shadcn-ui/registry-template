@@ -1,9 +1,9 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
-  "name": "share-cast-button",
+  "name": "add-miniapp-button",
   "type": "registry:component",
-  "title": "Share Cast Button",
-  "description": "A button for sharing a cast",
+  "title": "Add MiniApp Button",
+  "description": "A button to add or pin a mini app",
   "dependencies": [
     "@radix-ui/react-slot",
     "class-variance-authority",
@@ -17,8 +17,8 @@
   ],
   "files": [
     {
-      "path": "registry/mini-app/blocks/share-cast-button/share-cast-button.tsx",
-      "content": "import { Button } from \"@/registry/mini-app/ui/button\";\nimport { Share } from \"lucide-react\";\nimport { useMiniAppSdk } from \"@/registry/mini-app/hooks/use-miniapp-sdk\";\nimport { useMemo } from \"react\";\n\ntype ShareCastButtonProps = {\n  text: string;\n  url?: string;\n  variant?: \"destructive\" | \"secondary\" | \"ghost\" | \"default\";\n  className?: string;\n};\n\nexport function ShareCastButton({\n  text,\n  url,\n  variant = \"default\",\n  className,\n}: ShareCastButtonProps) {\n  const { sdk } = useMiniAppSdk();\n\n  const shareUrl = useMemo(() => {\n    let share = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;\n    if (url) {\n      share += `&embeds[]=${encodeURIComponent(url)}`;\n    }\n    return share;\n  }, [text, url]);\n\n  const onShare = async (\n    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,\n  ) => {\n    const frameContext = await sdk.context;\n    if (frameContext) {\n      e.preventDefault();\n      let cast: { text: string; embeds: [] | [string] } = {\n        text,\n        embeds: [],\n      };\n      if (url) {\n        cast.embeds = [url];\n      }\n      sdk.actions.composeCast(cast);\n    } else if (shareUrl) {\n      window.open(shareUrl, \"_blank\");\n    }\n  };\n\n  return (\n    <Button\n      variant={variant}\n      onClick={(e) => onShare(e)}\n      size=\"default\"\n      className={className || \"\"}\n    >\n      <Share className=\"h-4 w-4 md:h-5 md:w-5\" />\n      Share\n    </Button>\n  );\n}\n",
+      "path": "registry/mini-app/blocks/add-miniapp-button/add-miniapp-button.tsx",
+      "content": "import { Button } from \"@/registry/mini-app/ui/button\";\nimport { Save, Share } from \"lucide-react\";\nimport { useMiniAppSdk } from \"@/registry/mini-app/hooks/use-miniapp-sdk\";\nimport { useMemo } from \"react\";\n\ntype AddMiniAppButtonProps = {\n  text?: string;\n  variant?: \"destructive\" | \"secondary\" | \"ghost\" | \"default\";\n  className?: string;\n};\n\nexport function AddMiniappButton({\n  text = \"Pin Mini App\",\n  variant = \"default\",\n  className,\n}: AddMiniAppButtonProps) {\n  const { sdk } = useMiniAppSdk();\n\n  const onAddMiniApp = () => {\n    sdk.actions.addMiniApp();\n  };\n\n  return (\n    <Button\n      variant={variant}\n      onClick={(e) => onAddMiniApp()}\n      size=\"default\"\n      className={`${className || \"\"}`}\n    >\n      <Save className=\"h-4 w-4 md:h-5 md:w-5\" />\n      {text}\n    </Button>\n  );\n}\n",
       "type": "registry:component"
     },
     {

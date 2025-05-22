@@ -50,7 +50,7 @@
       "registryDependencies": ["button", "use-miniapp-sdk"],
       "files": [
         {
-          "path": "registry/mini-app/blocks/add-miniapp-button/pin-miniapp-button.tsx",
+          "path": "registry/mini-app/blocks/add-miniapp-button/add-miniapp-button.tsx",
           "type": "registry:component"
         }
       ]
