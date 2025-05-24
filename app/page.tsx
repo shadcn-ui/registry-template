@@ -8,6 +8,7 @@ import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { Clipboard as ClipboardIcon, Check as CheckIcon } from "lucide-react";
 import { Button } from "@/registry/mini-app/ui/button";
+import { ShowCoinBalance } from "@/registry/mini-app/blocks/show-coin-balance/show-coin-balance";
 
 function InstallSnippet({ installName }: { installName: string }) {
   const [tab, setTab] = React.useState<"pnpm" | "npm">("pnpm");
@@ -87,6 +88,11 @@ export default function Home() {
       title: "Add or pin a mini app",
       component: <AddMiniappButton />,
       installName: "add-miniapp-button",
+    },
+    {
+      title: "Show coin balance for an address",
+      component: <ShowCoinBalance />, 
+      installName: "show-coin-balance",
     },
   ];
 
