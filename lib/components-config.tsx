@@ -24,7 +24,10 @@ export const componentItems: ComponentItem[] = [
   {
     title: "Show Coin Balance",
     component: (
-      <ShowCoinBalance defaultTokenAddress="0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" />
+      <ShowCoinBalance
+        defaultAddress="vitalik.eth"
+        defaultTokenAddress="0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+      />
     ),
     installName: "show-coin-balance",
   },

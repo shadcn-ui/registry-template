@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Input } from "@/registry/mini-app/ui/input";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { Alchemy, Network } from "alchemy-sdk";
@@ -10,16 +10,18 @@ const isEnsName = (input: string): boolean => {
 };
 
 export function ShowCoinBalance({
+  defaultAddress,
   defaultTokenAddress,
   chainId,
   network,
 }: {
+  defaultAddress?: string;
   defaultTokenAddress?: `0x${string}`;
   chainId?: number;
   network?: Network;
 }) {
   useMiniAppSdk();
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(defaultAddress || "");
   const [tokenAddress, setTokenAddress] = useState(defaultTokenAddress || "");
   const [balance, setBalance] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,106 +32,106 @@ export function ShowCoinBalance({
     return address && (isAddress(address) || isEnsName(address));
   }, [address]);
 
-  const fetchTokenBalance = async (
-    targetAddress: string,
-    tokenAddr: string,
-  ) => {
-    setLoading(true);
-    setError(null); // Clear any previous errors at start
+  const fetchTokenBalance = useCallback(
+    async (targetAddress: string, tokenAddr: string) => {
+      setLoading(true);
+      setError(null); // Clear any previous errors at start
 
-    try {
-      // Map chainId to Alchemy Network
-      const getAlchemyNetwork = (chainId: number): Network => {
-        switch (chainId) {
-          case 1:
-            return Network.ETH_MAINNET;
-          case 8453:
-            return Network.BASE_MAINNET;
-          case 42161:
-            return Network.ARB_MAINNET;
-          case 421614:
-            return Network.ARB_SEPOLIA;
-          case 84532:
-            return Network.BASE_SEPOLIA;
-          case 666666666:
-            return Network.DEGEN_MAINNET;
-          case 100:
-            return Network.GNOSIS_MAINNET;
-          case 10:
-            return Network.OPT_MAINNET;
-          case 11155420:
-            return Network.OPT_SEPOLIA;
-          case 137:
-            return Network.MATIC_MAINNET;
-          case 11155111:
-            return Network.ETH_SEPOLIA;
-          case 7777777:
-            return Network.ZORA_MAINNET;
-          case 42220:
-            return Network.CELO_MAINNET;
-          default:
-            return Network.BASE_MAINNET;
-        }
-      };
-
-      // Use provided network or map from chainId
-      const finalNetwork =
-        network ||
-        (chainId ? getAlchemyNetwork(chainId) : Network.BASE_MAINNET);
-
-      // Create mainnet instance for ENS resolution
-      const mainnetAlchemy = new Alchemy({
-        apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY,
-        network: Network.ETH_MAINNET,
-      });
-
-      // Create target network instance for token balance
-      const targetAlchemy = new Alchemy({
-        apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY,
-        network: finalNetwork,
-      });
-
-      // Resolve ENS if needed (always on mainnet)
-      let resolvedAddress = targetAddress;
-      if (isEnsName(targetAddress)) {
-        try {
-          resolvedAddress =
-            await mainnetAlchemy.core.resolveName(targetAddress);
-          if (!resolvedAddress) {
-            throw new Error("ENS name could not be resolved");
+      try {
+        // Map chainId to Alchemy Network
+        const getAlchemyNetwork = (chainId: number): Network => {
+          switch (chainId) {
+            case 1:
+              return Network.ETH_MAINNET;
+            case 8453:
+              return Network.BASE_MAINNET;
+            case 42161:
+              return Network.ARB_MAINNET;
+            case 421614:
+              return Network.ARB_SEPOLIA;
+            case 84532:
+              return Network.BASE_SEPOLIA;
+            case 666666666:
+              return Network.DEGEN_MAINNET;
+            case 100:
+              return Network.GNOSIS_MAINNET;
+            case 10:
+              return Network.OPT_MAINNET;
+            case 11155420:
+              return Network.OPT_SEPOLIA;
+            case 137:
+              return Network.MATIC_MAINNET;
+            case 11155111:
+              return Network.ETH_SEPOLIA;
+            case 7777777:
+              return Network.ZORA_MAINNET;
+            case 42220:
+              return Network.CELO_MAINNET;
+            default:
+              return Network.BASE_MAINNET;
           }
-        } catch (ensError) {
-          setError("Failed to resolve ENS name");
-          setLoading(false);
-          return;
+        };
+
+        // Use provided network or map from chainId
+        const finalNetwork =
+          network ||
+          (chainId ? getAlchemyNetwork(chainId) : Network.BASE_MAINNET);
+
+        // Create mainnet instance for ENS resolution
+        const mainnetAlchemy = new Alchemy({
+          apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY,
+          network: Network.ETH_MAINNET,
+        });
+
+        // Create target network instance for token balance
+        const targetAlchemy = new Alchemy({
+          apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY,
+          network: finalNetwork,
+        });
+
+        // Resolve ENS if needed (always on mainnet)
+        let resolvedAddress: string | null = targetAddress;
+        if (isEnsName(targetAddress)) {
+          try {
+            resolvedAddress =
+              await mainnetAlchemy.core.resolveName(targetAddress);
+            if (!resolvedAddress) {
+              throw new Error("ENS name could not be resolved");
+            }
+          } catch {
+            setError("Failed to resolve ENS name");
+            setLoading(false);
+            return;
+          }
         }
+
+        // Fetch token metadata and balance on target network
+        const [tokenMeta, result] = await Promise.all([
+          targetAlchemy.core.getTokenMetadata(tokenAddr),
+          targetAlchemy.core.getTokenBalances(resolvedAddress, [tokenAddr]),
+        ]);
+
+        const raw = result.tokenBalances[0]?.tokenBalance ?? "0";
+        let formatted = raw;
+
+        if (tokenMeta && tokenMeta.decimals != null) {
+          const value = BigInt(raw);
+          // Format using parseUnits for display
+          const divisor = parseUnits("1", tokenMeta.decimals);
+          const display = Number(value) / Number(divisor);
+          formatted = display.toFixed(4).replace(/\.0+$/, "");
+          if (tokenMeta.symbol) formatted += ` ${tokenMeta.symbol}`;
+        }
+
+        setBalance(formatted);
+      } catch (e) {
+        console.error(e);
+        setError("Failed to fetch token balance");
       }
-
-      // Fetch token metadata and balance on target network
-      const [tokenMeta, result] = await Promise.all([
-        targetAlchemy.core.getTokenMetadata(tokenAddr),
-        targetAlchemy.core.getTokenBalances(resolvedAddress, [tokenAddr]),
-      ]);
-
-      const raw = result.tokenBalances[0]?.tokenBalance ?? "0";
-      let formatted = raw;
-
-      if (tokenMeta && tokenMeta.decimals != null) {
-        const value = BigInt(raw);
-        // Format using parseUnits for display
-        const divisor = parseUnits("1", tokenMeta.decimals);
-        const display = Number(value) / Number(divisor);
-        formatted = display.toFixed(4).replace(/\.0+$/, "");
-        if (tokenMeta.symbol) formatted += ` ${tokenMeta.symbol}`;
-      }
-
-      setBalance(formatted);
-    } catch (e) {
-      console.error(e);
-      setError("Failed to fetch token balance");
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    },
+    [chainId, network],
+  );
 
   // Auto-fetch balance when we have both valid address and token address
   useEffect(() => {
