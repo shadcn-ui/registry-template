@@ -1,14 +1,16 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { OpenInVibesEngineeringButton } from "@/components/open-in-vibes-engineering-button";
-import { DaimoPayTransferButton } from "@/registry/mini-app/blocks/daimo-pay-transfer/components/daimo-pay-transfer-button";
-import { ShareCastButton } from "@/registry/mini-app/blocks/share-cast-button/share-cast-button";
-import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/add-miniapp-button";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
-import { Clipboard as ClipboardIcon, Check as CheckIcon } from "lucide-react";
+import { componentItems } from "@/lib/components-config";
+import {
+  Clipboard as ClipboardIcon,
+  Check as CheckIcon,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/registry/mini-app/ui/button";
-import { ShowCoinBalance } from "@/registry/mini-app/blocks/show-coin-balance/show-coin-balance";
 
 function InstallSnippet({ installName }: { installName: string }) {
   const [tab, setTab] = React.useState<"pnpm" | "npm">("pnpm");
@@ -61,41 +63,6 @@ function InstallSnippet({ installName }: { installName: string }) {
 export default function Home() {
   useMiniAppSdk();
 
-  const items = [
-    // installName must be same name as in registry.json
-    {
-      title: "A simple token transfer button",
-      component: (
-        <DaimoPayTransferButton
-          text="Donate $1 to Protocol Guild"
-          toAddress="0x32e3C7fD24e175701A35c224f2238d18439C7dBC"
-          amount="1"
-        />
-      ),
-      installName: "daimo-pay-transfer-button",
-    },
-    {
-      title: "Share text and link in a cast",
-      component: (
-        <ShareCastButton
-          text="Share hellno/mini-app-ui"
-          url="https://hellno-mini-app-ui.vercel.app"
-        />
-      ),
-      installName: "share-cast-button",
-    },
-    {
-      title: "Add or pin a mini app",
-      component: <AddMiniappButton />,
-      installName: "add-miniapp-button",
-    },
-    {
-      title: "Show coin balance for an address",
-      component: <ShowCoinBalance />, 
-      installName: "show-coin-balance",
-    },
-  ];
-
   return (
     <div className="max-w-3xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
       <header className="flex flex-col gap-1">
@@ -108,16 +75,29 @@ export default function Home() {
         </p>
       </header>
       <main className="flex flex-col flex-1 gap-8">
-        {items.map((item, index) => (
+        {componentItems.map((item, index) => (
           <div
             key={index}
             className="flex flex-col gap-4 border rounded-lg p-4 min-h-[350px] relative"
           >
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm text-muted-foreground sm:pl-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-base font-medium text-foreground leading-relaxed">
                 {item.title}
               </h2>
-              <OpenInVibesEngineeringButton className="w-fit" />
+              <div className="flex items-center gap-2 flex-shrink-0 sm:justify-end">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
+                >
+                  <Link href={`/component/${item.installName}`}>
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Fullscreen
+                  </Link>
+                </Button>
+                <OpenInVibesEngineeringButton className="h-8" />
+              </div>
             </div>
             <div className="flex items-center justify-center min-h-[300px] relative">
               {item.component}

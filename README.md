@@ -15,16 +15,16 @@ Website: [https://hellno-mini-app-ui.vercel.app](https://hellno-mini-app-ui.verc
 
 ## Getting Started
 
-### Install All Components
+### Browse components
+
+Website: [https://hellno-mini-app-ui.vercel.app](https://hellno-mini-app-ui.vercel.app)
+
+### Install a component
+
+Example to install simple token transfer button:
 
 ```bash
-pnpm dlx shadcn@latest add --all https://hellno-mini-app-ui.vercel.app/r
-```
-
-### Install a Single Component
-
-```bash
-pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/<item>.json
+pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/daimo-pay-transfer-button.json
 ```
 
 

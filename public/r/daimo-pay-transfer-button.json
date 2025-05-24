@@ -37,5 +37,9 @@
       "type": "registry:ui",
       "target": ""
     }
-  ]
+  ],
+  "meta": {
+    "mediaUrl": "/previews/daimo-pay-transfer-button.mp4",
+    "demoUrl": "/component/daimo-pay-transfer-button"
+  }
 }
