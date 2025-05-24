@@ -1,9 +1,6 @@
-"use client";
-
 import * as React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { componentItems } from "@/lib/components-config";
 import {
   ArrowLeft,
@@ -11,6 +8,7 @@ import {
   Check as CheckIcon,
 } from "lucide-react";
 import { Button } from "@/registry/mini-app/ui/button";
+import { ComponentWrapper } from "./component-wrapper";
 
 function InstallSnippet({ installName }: { installName: string }) {
   const [tab, setTab] = React.useState<"pnpm" | "npm">("pnpm");
@@ -60,44 +58,46 @@ function InstallSnippet({ installName }: { installName: string }) {
   );
 }
 
-export default function ComponentPage({
+export default async function ComponentPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  useMiniAppSdk();
+  const { slug } = await params;
 
-  const item = componentItems.find((item) => item.installName === params.slug);
+  const item = componentItems.find((item) => item.installName === slug);
 
   if (!item) {
     notFound();
   }
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
-      <header className="flex flex-col gap-4">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground w-fit"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to components
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{item.title}</h1>
-          <p className="text-muted-foreground mt-1">
-            Component: {item.installName}
-          </p>
-        </div>
-      </header>
+    <ComponentWrapper>
+      <div className="max-w-4xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
+        <header className="flex flex-col gap-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground w-fit"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to components
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{item.title}</h1>
+            <p className="text-muted-foreground mt-1">
+              Component: {item.installName}
+            </p>
+          </div>
+        </header>
 
-      <main className="flex flex-col flex-1 gap-8">
-        <div className="flex items-center justify-center min-h-[300px] lg:min-h-[600px] border rounded-lg p-8">
-          {item.component}
-        </div>
+        <main className="flex flex-col flex-1 gap-8">
+          <div className="flex items-center justify-center min-h-[300px] lg:min-h-[600px] border rounded-lg p-8">
+            {item.component}
+          </div>
 
-        <InstallSnippet installName={item.installName} />
-      </main>
-    </div>
+          <InstallSnippet installName={item.installName} />
+        </main>
+      </div>
+    </ComponentWrapper>
   );
 }
