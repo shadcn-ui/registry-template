@@ -87,16 +87,9 @@
       "name": "show-coin-balance",
       "type": "registry:component",
       "title": "Show Coin Balance",
-      "description": "Show coin/token balance for an address using Alchemy SDK",
-      "dependencies": [
-        "alchemy-sdk",
-        "@farcaster/frame-sdk"
-      ],
-      "registryDependencies": [
-        "button",
-        "input",
-        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
-      ],
+      "description": "Show coin balance for an address using Alchemy SDK",
+      "dependencies": ["viem", "alchemy-sdk"],
+      "registryDependencies": ["button", "input"],
       "files": [
         {
           "path": "registry/mini-app/blocks/show-coin-balance/show-coin-balance.tsx",

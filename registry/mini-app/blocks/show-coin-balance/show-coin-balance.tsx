@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Input } from "@/registry/mini-app/ui/input";
-import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { Alchemy, Network } from "alchemy-sdk";
 import { parseUnits, isAddress } from "viem";
 
@@ -20,7 +19,6 @@ export function ShowCoinBalance({
   chainId?: number;
   network?: Network;
 }) {
-  useMiniAppSdk();
   const [address, setAddress] = useState(defaultAddress || "");
   const [tokenAddress, setTokenAddress] = useState(defaultTokenAddress || "");
   const [balance, setBalance] = useState<string | null>(null);
