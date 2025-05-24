@@ -2,10 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { OpenInVibesEngineeringButton } from "@/components/open-in-vibes-engineering-button";
+import { notFound } from "next/navigation";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { componentItems } from "@/lib/components-config";
-import { Clipboard as ClipboardIcon, Check as CheckIcon, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  Clipboard as ClipboardIcon,
+  Check as CheckIcon,
+} from "lucide-react";
 import { Button } from "@/registry/mini-app/ui/button";
 
 function InstallSnippet({ installName }: { installName: string }) {
@@ -22,9 +26,10 @@ function InstallSnippet({ installName }: { installName: string }) {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-8">
+      <h3 className="text-lg font-semibold mb-4">Install this component</h3>
       <div className="flex border rounded-t-md justify-between overflow-hidden">
-        <div className="flex  text-sm font-mono">
+        <div className="flex text-sm font-mono">
           <button
             className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100" : ""}`}
             onClick={() => setTab("pnpm")}
@@ -55,48 +60,43 @@ function InstallSnippet({ installName }: { installName: string }) {
   );
 }
 
-// This page displays items from the custom registry.
-export default function Home() {
+export default function ComponentPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   useMiniAppSdk();
 
+  const item = componentItems.find((item) => item.installName === params.slug);
+
+  if (!item) {
+    notFound();
+  }
+
   return (
-    <div className="max-w-3xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          hellno/mini-app-ui
-        </h1>
-        <p className="text-muted-foreground">
-          A collection of components, hooks and utilities for mini apps using
-          shadcn.
-        </p>
+    <div className="max-w-4xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
+      <header className="flex flex-col gap-4">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground w-fit"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to components
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{item.title}</h1>
+          <p className="text-muted-foreground mt-1">
+            Component: {item.installName}
+          </p>
+        </div>
       </header>
+
       <main className="flex flex-col flex-1 gap-8">
-        {componentItems.map((item, index) => (
-          <div
-            key={index}
-            className="flex flex-col gap-4 border rounded-lg p-4 min-h-[350px] relative"
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm text-muted-foreground sm:pl-3">
-                {item.title}
-              </h2>
-              <div className="flex items-center gap-2">
-                <Link 
-                  href={`/component/${item.installName}`}
-                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  View fullscreen
-                </Link>
-                <OpenInVibesEngineeringButton className="w-fit" />
-              </div>
-            </div>
-            <div className="flex items-center justify-center min-h-[300px] relative">
-              {item.component}
-            </div>
-            <InstallSnippet installName={item.installName} />
-          </div>
-        ))}
+        <div className="flex items-center justify-center min-h-[300px] lg:min-h-[600px] border rounded-lg p-8">
+          {item.component}
+        </div>
+
+        <InstallSnippet installName={item.installName} />
       </main>
     </div>
   );
