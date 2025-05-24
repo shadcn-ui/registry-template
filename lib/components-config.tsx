@@ -1,6 +1,7 @@
 import { DaimoPayTransferButton } from "@/registry/mini-app/blocks/daimo-pay-transfer/components/daimo-pay-transfer-button";
 import { ShareCastButton } from "@/registry/mini-app/blocks/share-cast-button/share-cast-button";
 import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/add-miniapp-button";
+import { ShowCoinBalance } from "@/registry/mini-app/blocks/show-coin-balance/show-coin-balance";
 
 export interface ComponentItem {
   title: string;
@@ -19,6 +20,13 @@ export const componentItems: ComponentItem[] = [
       />
     ),
     installName: "daimo-pay-transfer-button",
+  },
+  {
+    title: "Show Coin Balance",
+    component: (
+      <ShowCoinBalance defaultTokenAddress="0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" />
+    ),
+    installName: "show-coin-balance",
   },
   {
     title: "Share text and link in a cast",
