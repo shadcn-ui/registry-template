@@ -8,6 +8,10 @@
       "type": "registry:component",
       "title": "Daimo Pay Button Token Transfer",
       "description": "A custom button for transferring tokens",
+      "meta": {
+        "mediaUrl": "/previews/daimo-pay-transfer-button.mp4",
+        "demoUrl": "/component/daimo-pay-transfer-button"
+      },
       "dependencies": [
         "@daimo/pay",
         "@daimo/contract",
@@ -37,6 +41,10 @@
         "button",
         "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
       ],
+      "meta": {
+        "mediaUrl": "/previews/share-cast-button.mp4",
+        "demoUrl": "/component/share-cast-button"
+      },
       "files": [
         {
           "path": "registry/mini-app/blocks/share-cast-button/share-cast-button.tsx",
