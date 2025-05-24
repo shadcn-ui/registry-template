@@ -1,6 +1,9 @@
+"use client";
+
 import { Button } from "@/registry/mini-app/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 
 export function OpenInVibesEngineeringButton({
   className,
@@ -11,20 +14,20 @@ export function OpenInVibesEngineeringButton({
     <Button
       aria-label="Open in Vibes Engineering"
       size="sm"
-      variant="outline"
-      className={cn("shadow-none px-2", className)}
       asChild
+      variant="outline"
+      className={cn("shadow-none pl-0 pr-2 border-l-0", className)}
     >
-      <a href="https://vibes.engineering" target="_blank" rel="noreferrer">
-        Use in Vibes{" "}
+      <Link href="https://vibes.engineering">
         <Image
           width="20"
           height="20"
           src="/vibes-icon.png"
           alt="Vibes Engineering Logo"
-          className="h-5 w-5 text-current"
-        />
-      </a>
+          className="h-8 w-8 text-current rounded-l-md rounded-r-0"
+        />{" "}
+        Use in Vibes
+      </Link>
     </Button>
   );
 }

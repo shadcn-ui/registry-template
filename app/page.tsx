@@ -5,7 +5,11 @@ import Link from "next/link";
 import { OpenInVibesEngineeringButton } from "@/components/open-in-vibes-engineering-button";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { componentItems } from "@/lib/components-config";
-import { Clipboard as ClipboardIcon, Check as CheckIcon, ExternalLink } from "lucide-react";
+import {
+  Clipboard as ClipboardIcon,
+  Check as CheckIcon,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/registry/mini-app/ui/button";
 
 function InstallSnippet({ installName }: { installName: string }) {
@@ -76,19 +80,23 @@ export default function Home() {
             key={index}
             className="flex flex-col gap-4 border rounded-lg p-4 min-h-[350px] relative"
           >
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm text-muted-foreground sm:pl-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-base font-medium text-foreground leading-relaxed">
                 {item.title}
               </h2>
-              <div className="flex items-center gap-2">
-                <Link 
-                  href={`/component/${item.installName}`}
-                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+              <div className="flex items-center gap-2 flex-shrink-0 sm:justify-end">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
                 >
-                  <ExternalLink className="w-3 h-3" />
-                  View fullscreen
-                </Link>
-                <OpenInVibesEngineeringButton className="w-fit" />
+                  <Link href={`/component/${item.installName}`}>
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Fullscreen
+                  </Link>
+                </Button>
+                <OpenInVibesEngineeringButton className="h-8" />
               </div>
             </div>
             <div className="flex items-center justify-center min-h-[300px] relative">
