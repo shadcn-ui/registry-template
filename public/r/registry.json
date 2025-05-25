@@ -96,6 +96,55 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "use-profile",
+      "type": "registry:hook",
+      "title": "useProfile",
+      "description": "Hook for accessing Farcaster user profile information",
+      "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+      ],
+      "files": [
+        {
+          "path": "registry/mini-app/hooks/use-profile.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:component",
+      "title": "User Avatar",
+      "description": "A flexible avatar component with various shapes and sizes",
+      "dependencies": ["@radix-ui/react-avatar"],
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+      ],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/avatar/avatar.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "user-context",
+      "type": "registry:component",
+      "title": "User Context",
+      "description": "A flexible component to display user information from Farcaster context",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/avatar.json",
+        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+      ],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/user-context/user-context.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

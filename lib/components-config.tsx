@@ -2,6 +2,8 @@ import { DaimoPayTransferButton } from "@/registry/mini-app/blocks/daimo-pay-tra
 import { ShareCastButton } from "@/registry/mini-app/blocks/share-cast-button/share-cast-button";
 import { AddMiniappButton } from "@/registry/mini-app/blocks/add-miniapp-button/add-miniapp-button";
 import { ShowCoinBalance } from "@/registry/mini-app/blocks/show-coin-balance/show-coin-balance";
+import { UserAvatar } from "@/registry/mini-app/blocks/avatar/avatar";
+import { UserContext } from "@/registry/mini-app/blocks/user-context/user-context";
 
 export interface ComponentItem {
   title: string;
@@ -45,5 +47,38 @@ export const componentItems: ComponentItem[] = [
     title: "Add or pin a mini app",
     component: <AddMiniappButton />,
     installName: "add-miniapp-button",
+  },
+  {
+    title: "User Avatar Component",
+    component: (
+      <div className="flex flex-wrap gap-4 justify-center">
+        <UserAvatar useProfileData={true} size="sm" shape="circle" />
+        <UserAvatar useProfileData={true} size="md" shape="square" clickable={true} />
+        <UserAvatar useProfileData={true} size="lg" shape="rounded" />
+        <UserAvatar useProfileData={true} size="xl" clickable={true} />
+      </div>
+    ),
+    installName: "avatar",
+  },
+  {
+    title: "User Context Display",
+    component: (
+      <div className="flex flex-col gap-4">
+        <UserContext 
+          showAvatar={true}
+          showUsername={true}
+          showDisplayName={true}
+          showFid={true}
+          clickable={true}
+        />
+        <UserContext 
+          layout="vertical"
+          avatarSize="lg"
+          avatarShape="rounded"
+          avatarClickable={true}
+        />
+      </div>
+    ),
+    installName: "user-context",
   },
 ];

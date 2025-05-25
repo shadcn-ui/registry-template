@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "user-context",
+  "type": "registry:component",
+  "title": "User Context",
+  "description": "A flexible component to display user information from Farcaster context",
+  "dependencies": [],
+  "registryDependencies": [
+    "https://hellno-mini-app-ui.vercel.app/r/avatar.json",
+    "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+  ],
+  "files": [
+    {
+      "path": "registry/mini-app/blocks/user-context/user-context.tsx",
+      "content": "\"use client\";\n\nimport { useProfile } from \"@/registry/mini-app/hooks/use-profile\";\nimport { UserAvatar } from \"@/registry/mini-app/blocks/avatar/avatar\";\nimport { cn } from \"@/lib/utils\";\n\ntype UserContextProps = {\n  showAvatar?: boolean;\n  showUsername?: boolean;\n  showDisplayName?: boolean;\n  showFid?: boolean;\n  avatarSize?: \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | number;\n  avatarShape?: \"circle\" | \"square\" | \"rounded\";\n  layout?: \"horizontal\" | \"vertical\";\n  className?: string;\n  textClassName?: string;\n  usernamePrefix?: string;\n  fidPrefix?: string;\n  onClick?: () => void;\n  clickable?: boolean;\n  avatarClickable?: boolean;\n};\n\nexport function UserContext({\n  showAvatar = true,\n  showUsername = true,\n  showDisplayName = true,\n  showFid = false,\n  avatarSize = \"md\",\n  avatarShape = \"circle\",\n  layout = \"horizontal\",\n  className = \"\",\n  textClassName = \"\",\n  usernamePrefix = \"@\",\n  fidPrefix = \"FID: \",\n  onClick,\n  clickable = false,\n  avatarClickable = false,\n}: UserContextProps) {\n  const profile = useProfile();\n  \n  const containerClasses = cn(\n    \"flex items-center gap-2\",\n    layout === \"vertical\" ? \"flex-col\" : \"flex-row\",\n    (onClick || (clickable && profile.fid)) ? \"cursor-pointer\" : \"\",\n    className\n  );\n  \n  const textContainerClasses = cn(\n    \"flex\",\n    layout === \"vertical\" ? \"flex-col items-center\" : \"flex-col justify-center\",\n    textClassName\n  );\n\n  const handleClick = () => {\n    if (onClick) {\n      onClick();\n    } else if (clickable && profile.fid) {\n      profile.viewProfile(profile.fid);\n    }\n  };\n\n  return (\n    <div \n      className={containerClasses} \n      onClick={onClick || clickable ? handleClick : undefined}\n    >\n      {showAvatar && (\n        <UserAvatar \n          useProfileData={true} \n          size={avatarSize}\n          shape={avatarShape}\n          clickable={avatarClickable}\n          onClickOverride={avatarClickable && onClick ? onClick : undefined}\n        />\n      )}\n      \n      <div className={textContainerClasses}>\n        {showDisplayName && profile.displayName && (\n          <span className=\"font-medium text-foreground\">\n            {profile.displayName}\n          </span>\n        )}\n        \n        {showUsername && profile.username && (\n          <span className=\"text-sm text-muted-foreground\">\n            {usernamePrefix}{profile.username}\n          </span>\n        )}\n        \n        {showFid && profile.fid && (\n          <span className=\"text-xs text-muted-foreground\">\n            {fidPrefix}{profile.fid}\n          </span>\n        )}\n        \n        {!profile.displayName && !profile.username && !profile.fid && (\n          <span className=\"text-sm text-muted-foreground\">\n            User not connected\n          </span>\n        )}\n      </div>\n    </div>\n  );\n}",
+      "type": "registry:component"
+    }
+  ],
+  "meta": {
+    "demoUrl": "/component/user-context"
+  }
+} 

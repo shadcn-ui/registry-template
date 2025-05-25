@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { OpenInVibesEngineeringButton } from "@/components/open-in-vibes-engineering-button";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { componentItems } from "@/lib/components-config";
@@ -9,16 +10,27 @@ import {
   Clipboard as ClipboardIcon,
   Check as CheckIcon,
   ExternalLink,
+  Github,
 } from "lucide-react";
 import { Button } from "@/registry/mini-app/ui/button";
 
 function InstallSnippet({ installName }: { installName: string }) {
-  const [tab, setTab] = React.useState<"pnpm" | "npm">("pnpm");
+  const [tab, setTab] = React.useState<"pnpm" | "npm" | "bun">("pnpm");
   const [copied, setCopied] = React.useState(false);
-  const command =
-    tab === "pnpm"
-      ? `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`
-      : `npx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
+  
+  const command = React.useMemo(() => {
+    switch (tab) {
+      case "pnpm":
+        return `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
+      case "npm":
+        return `npx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
+      case "bun":
+        return `bun x shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
+      default:
+        return `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
+    }
+  }, [tab, installName]);
+  
   const handleCopy = () => {
     navigator.clipboard.writeText(command);
     setCopied(true);
@@ -28,18 +40,24 @@ function InstallSnippet({ installName }: { installName: string }) {
   return (
     <div className="mt-4">
       <div className="flex border rounded-t-md justify-between overflow-hidden">
-        <div className="flex  text-sm font-mono">
+        <div className="flex text-sm font-mono">
           <button
-            className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100" : ""}`}
+            className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100 dark:bg-zinc-800" : ""}`}
             onClick={() => setTab("pnpm")}
           >
             pnpm
           </button>
           <button
-            className={`px-3 py-1 ${tab === "npm" ? "bg-gray-100" : ""}`}
+            className={`px-3 py-1 ${tab === "npm" ? "bg-gray-100 dark:bg-zinc-800" : ""}`}
             onClick={() => setTab("npm")}
           >
             npm
+          </button>
+          <button
+            className={`px-3 py-1 ${tab === "bun" ? "bg-gray-100 dark:bg-zinc-800" : ""}`}
+            onClick={() => setTab("bun")}
+          >
+            bun
           </button>
         </div>
         <Button variant="ghost" size="icon" onClick={handleCopy}>
@@ -64,47 +82,93 @@ export default function Home() {
   useMiniAppSdk();
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col min-h-svh px-4 py-8 gap-8">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          hellno/mini-app-ui
-        </h1>
-        <p className="text-muted-foreground">
-          A collection of components, hooks and utilities for mini apps using
-          shadcn.
-        </p>
-      </header>
-      <main className="flex flex-col flex-1 gap-8">
-        {componentItems.map((item, index) => (
-          <div
-            key={index}
-            className="flex flex-col gap-4 border rounded-lg p-4 min-h-[350px] relative"
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-background to-background/95">
+      {/* Header */}
+      <header className="w-full py-4 px-6 border-b border-border/50 flex items-center justify-between bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tight">
+            hellno/mini-app-ui
+          </h1>
+        </div>
+        
+        {/* Action Icons */}
+        <div className="flex items-center gap-4">
+          <a 
+            href="https://farcaster.xyz/hellno.eth" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-2 hover:bg-muted rounded-full transition-colors flex items-center"
+            aria-label="hellno.eth on Farcaster"
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-base font-medium text-foreground leading-relaxed">
-                {item.title}
-              </h2>
-              <div className="flex items-center gap-2 flex-shrink-0 sm:justify-end">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-xs"
-                >
-                  <Link href={`/component/${item.installName}`}>
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Fullscreen
-                  </Link>
-                </Button>
-                <OpenInVibesEngineeringButton className="h-8" />
+            <div className="w-5 h-5 text-foreground/80">
+              <Image 
+                src="/farcaster.svg" 
+                alt="Farcaster" 
+                width={20} 
+                height={20}
+                className="text-foreground"
+              />
+            </div>
+          </a>
+          <a 
+            href="https://github.com/hellno/mini-app-ui" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-2 hover:bg-muted rounded-full transition-colors"
+            aria-label="GitHub"
+          >
+            <Github className="h-5 w-5 text-foreground/80" />
+          </a>
+        </div>
+      </header>
+      
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6">
+        <div className="mb-8">
+          <p className="text-muted-foreground">
+            A collection of components, hooks and utilities for mini apps using
+            shadcn. Build beautiful and functional mini-apps with these ready-to-use components.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-8">
+          {componentItems.map((item, index) => (
+            <div
+              key={index}
+              className="flex flex-col border rounded-xl overflow-hidden bg-card/30 shadow-sm transition-all hover:shadow-md backdrop-blur-sm"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 border-b border-border/30">
+                <h2 className="text-lg font-medium text-foreground">
+                  {item.title}
+                </h2>
+                <div className="flex items-center gap-2 flex-shrink-0 sm:justify-end">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs"
+                  >
+                    <Link href={`/component/${item.installName}`}>
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      Fullscreen
+                    </Link>
+                  </Button>
+                  <OpenInVibesEngineeringButton className="h-8" />
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-center p-8 bg-gradient-to-b from-background/20 to-background/5 relative">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(var(--primary-rgb),0.07),transparent_60%)] pointer-events-none"></div>
+                <div className="relative z-10 flex items-center justify-center min-h-[280px] w-full">
+                  {item.component}
+                </div>
+              </div>
+              
+              <div className="p-4 bg-card/40 border-t border-border/30">
+                <InstallSnippet installName={item.installName} />
               </div>
             </div>
-            <div className="flex items-center justify-center min-h-[300px] relative">
-              {item.component}
-            </div>
-            <InstallSnippet installName={item.installName} />
-          </div>
-        ))}
+          ))}
+        </div>
       </main>
     </div>
   );

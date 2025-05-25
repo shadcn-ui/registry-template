@@ -1,0 +1,33 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "avatar",
+  "type": "registry:component",
+  "title": "User Avatar",
+  "description": "A flexible avatar component with various shapes and sizes",
+  "dependencies": [
+    "@radix-ui/react-avatar"
+  ],
+  "registryDependencies": [
+    "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+  ],
+  "files": [
+    {
+      "path": "registry/mini-app/blocks/avatar/avatar.tsx",
+      "content": "\"use client\";\n\nimport { Avatar, AvatarFallback, AvatarImage } from \"@/registry/mini-app/ui/avatar\";\nimport { useProfile } from \"@/registry/mini-app/hooks/use-profile\";\nimport { cn } from \"@/lib/utils\";\n\ntype UserAvatarProps = {\n  src?: string;\n  fallback?: string;\n  size?: \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"2xl\" | number;\n  shape?: \"circle\" | \"square\" | \"rounded\";\n  className?: string;\n  useProfileData?: boolean;\n  fallbackClassName?: string;\n  clickable?: boolean;\n  onClickOverride?: () => void;\n};\n\nexport function UserAvatar({\n  src,\n  fallback,\n  size = \"md\",\n  shape = \"circle\",\n  className = \"\",\n  useProfileData = false,\n  fallbackClassName = \"\",\n  clickable = false,\n  onClickOverride,\n}: UserAvatarProps) {\n  const profile = useProfile();\n  \n  // Use profile data if requested and available\n  const avatarSrc = useProfileData && profile.pfpUrl ? profile.pfpUrl : src;\n  \n  // Generate fallback text from profile or use provided fallback\n  const getFallbackText = () => {\n    if (fallback) return fallback;\n    if (useProfileData && profile.displayName) {\n      return profile.displayName.substring(0, 2).toUpperCase();\n    }\n    if (useProfileData && profile.username) {\n      return profile.username.substring(0, 2).toUpperCase();\n    }\n    return \"FC\";\n  };\n\n  // Size classes for predefined sizes\n  const sizeClasses = {\n    xs: \"h-6 w-6 text-xs\",\n    sm: \"h-8 w-8 text-sm\",\n    md: \"h-10 w-10 text-base\",\n    lg: \"h-12 w-12 text-lg\",\n    xl: \"h-16 w-16 text-xl\",\n    \"2xl\": \"h-20 w-20 text-2xl\",\n  };\n  \n  // Shape classes\n  const shapeClasses = {\n    circle: \"rounded-full\",\n    square: \"rounded-none\",\n    rounded: \"rounded-lg\",\n  };\n  \n  // Custom size if number is provided\n  const customSizeStyle = typeof size === 'number' ? { \n    width: `${size}px`, \n    height: `${size}px`,\n    fontSize: `${Math.max(size / 3, 12)}px`\n  } : {};\n\n  const handleClick = () => {\n    if (onClickOverride) {\n      onClickOverride();\n    } else if (clickable && useProfileData && profile.fid) {\n      profile.viewProfile(profile.fid);\n    }\n  };\n\n  return (\n    <Avatar \n      className={cn(\n        typeof size === 'string' ? sizeClasses[size] : \"\",\n        shapeClasses[shape],\n        \"border-0 ring-0 outline-none\", // Selalu hapus border\n        clickable && (useProfileData && profile.fid) ? \"cursor-pointer hover:opacity-80\" : \"\",\n        className\n      )}\n      style={customSizeStyle}\n      onClick={clickable || onClickOverride ? handleClick : undefined}\n    >\n      <AvatarImage src={avatarSrc} alt=\"User Avatar\" className=\"object-cover\" />\n      <AvatarFallback className={cn(\n        shapeClasses[shape],\n        fallbackClassName\n      )}>\n        {getFallbackText()}\n      </AvatarFallback>\n    </Avatar>\n  );\n}",
+      "type": "registry:component"
+    },
+    {
+      "path": "registry/mini-app/ui/avatar.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport * as AvatarPrimitive from \"@radix-ui/react-avatar\"\n\nimport { cn } from \"@/lib/utils\"\n\nfunction Avatar({\n  className,\n  ...props\n}: React.ComponentProps<typeof AvatarPrimitive.Root>) {\n  return (\n    <AvatarPrimitive.Root\n      data-slot=\"avatar\"\n      className={cn(\n        \"relative flex size-8 shrink-0 overflow-hidden rounded-full\",\n        className\n      )}\n      {...props}\n    />\n  )\n}\n\nfunction AvatarImage({\n  className,\n  ...props\n}: React.ComponentProps<typeof AvatarPrimitive.Image>) {\n  return (\n    <AvatarPrimitive.Image\n      data-slot=\"avatar-image\"\n      className={cn(\"aspect-square size-full\", className)}\n      {...props}\n    />\n  )\n}\n\nfunction AvatarFallback({\n  className,\n  ...props\n}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {\n  return (\n    <AvatarPrimitive.Fallback\n      data-slot=\"avatar-fallback\"\n      className={cn(\n        \"bg-muted flex size-full items-center justify-center rounded-full\",\n        className\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { Avatar, AvatarImage, AvatarFallback }\n",
+      "type": "registry:ui"
+    },
+    {
+      "path": "registry/mini-app/hooks/use-profile.ts",
+      "content": "\"use client\";\n\nimport { useMiniAppSdk } from \"./use-miniapp-sdk\";\nimport { useEffect, useState, useCallback } from \"react\";\n\nexport type ProfileData = {\n  fid?: number;\n  username?: string;\n  displayName?: string;\n  pfpUrl?: string;\n};\n\n/**\n * Hook to access the user profile information from the Farcaster SDK context\n * @returns ProfileData object containing user information and functions to interact with profiles\n */\nexport function useProfile() {\n  const { context, isSDKLoaded, sdk } = useMiniAppSdk();\n  const [profile, setProfile] = useState<ProfileData>({});\n\n  useEffect(() => {\n    if (isSDKLoaded && context?.user) {\n      setProfile({\n        fid: context.user.fid,\n        username: context.user.username,\n        displayName: context.user.displayName,\n        pfpUrl: context.user.pfpUrl,\n      });\n    }\n  }, [context, isSDKLoaded]);\n\n  /**\n   * View a user's Farcaster profile\n   * @param fid - Farcaster ID of the user whose profile to view\n   */\n  const viewProfile = useCallback(async (fid?: number) => {\n    if (!fid) {\n      console.warn(\"No FID provided to viewProfile\");\n      return;\n    }\n    \n    try {\n      await sdk.actions.viewProfile({ fid });\n    } catch (error) {\n      console.error(\"Error viewing profile:\", error);\n    }\n  }, [sdk]);\n\n  /**\n   * View the current user's profile or another user's profile if fid is provided\n   */\n  const viewCurrentOrSpecificProfile = useCallback((specificFid?: number) => {\n    const fidToView = specificFid || profile.fid;\n    if (fidToView) {\n      viewProfile(fidToView);\n    }\n  }, [profile.fid, viewProfile]);\n\n  return {\n    ...profile,\n    viewProfile,\n    viewCurrentOrSpecificProfile\n  };\n}",
+      "type": "registry:hook"
+    }
+  ],
+  "meta": {
+    "demoUrl": "/component/avatar"
+  }
+} 

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-profile",
+  "type": "registry:hook",
+  "title": "useProfile",
+  "description": "Hook for accessing Farcaster user profile information",
+  "dependencies": [
+    "@farcaster/frame-core",
+    "@farcaster/frame-sdk"
+  ],
+  "registryDependencies": [
+    "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+  ],
+  "files": [
+    {
+      "path": "registry/mini-app/hooks/use-profile.ts",
+      "content": "\"use client\";\n\nimport { useMiniAppSdk } from \"./use-miniapp-sdk\";\nimport { useEffect, useState } from \"react\";\n\nexport type ProfileData = {\n  fid?: number;\n  username?: string;\n  displayName?: string;\n  pfpUrl?: string;\n};\n\n/**\n * Hook to access the user profile information from the Farcaster SDK context\n * @returns ProfileData object containing user information\n */\nexport function useProfile() {\n  const { context, isSDKLoaded } = useMiniAppSdk();\n  const [profile, setProfile] = useState<ProfileData>({});\n\n  useEffect(() => {\n    if (isSDKLoaded && context?.user) {\n      setProfile({\n        fid: context.user.fid,\n        username: context.user.username,\n        displayName: context.user.displayName,\n        pfpUrl: context.user.pfpUrl,\n      });\n    }\n  }, [context, isSDKLoaded]);\n\n  return profile;\n}",
+      "type": "registry:hook"
+    }
+  ]
+} 
