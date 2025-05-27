@@ -40,7 +40,7 @@ export function useMiniAppSdk() {
       setLastEvent("notificationsDisabled");
     });
 
-    // Mark SDK as ready
+    // CRITICAL TO LOAD MINI APP - DON'T REMOVE
     sdk.actions.ready({});
     setIsSDKLoaded(true);
 
