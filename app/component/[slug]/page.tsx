@@ -1,3 +1,4 @@
+// path: app/component/[slug]/page.tsx
 "use client";
 
 import * as React from "react";
@@ -6,81 +7,14 @@ import { notFound, useParams } from "next/navigation";
 import { componentItems } from "@/lib/components-config";
 import {
   ArrowLeft,
-  Clipboard as ClipboardIcon,
-  Check as CheckIcon,
 } from "lucide-react";
-import { Button } from "@/registry/mini-app/ui/button";
 import { ComponentWrapper } from "./component-wrapper";
-
-function InstallSnippet({ installName }: { installName: string }) {
-  const [tab, setTab] = React.useState<"pnpm" | "npm" | "bun">("pnpm");
-  const [copied, setCopied] = React.useState(false);
-  
-  const command = React.useMemo(() => {
-    switch (tab) {
-      case "pnpm":
-        return `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
-      case "npm":
-        return `npx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
-      case "bun":
-        return `bun x shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
-      default:
-        return `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
-    }
-  }, [tab, installName]);
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(command);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
-  };
-
-  return (
-    <div className="mt-4">
-      <h3 className="text-lg font-semibold mb-4">Install this component</h3>
-      <div className="flex border rounded-t-md justify-between overflow-hidden">
-        <div className="flex text-sm font-mono">
-          <button
-            className={`px-3 py-1 ${tab === "pnpm" ? "bg-gray-100 dark:bg-zinc-800" : ""}`}
-            onClick={() => setTab("pnpm")}
-          >
-            pnpm
-          </button>
-          <button
-            className={`px-3 py-1 ${tab === "npm" ? "bg-gray-100 dark:bg-zinc-800" : ""}`}
-            onClick={() => setTab("npm")}
-          >
-            npm
-          </button>
-          <button
-            className={`px-3 py-1 ${tab === "bun" ? "bg-gray-100 dark:bg-zinc-800" : ""}`}
-            onClick={() => setTab("bun")}
-          >
-            bun
-          </button>
-        </div>
-        <Button variant="ghost" size="icon" onClick={handleCopy}>
-          {copied ? (
-            <CheckIcon className="w-4 h-4" />
-          ) : (
-            <ClipboardIcon className="w-4 h-4" />
-          )}
-        </Button>
-      </div>
-      <div className="relative">
-        <pre className="bg-gray-800 text-white p-4 rounded-b-md overflow-x-auto">
-          <code>{command}</code>
-        </pre>
-      </div>
-    </div>
-  );
-}
+import { InstallSnippet } from "./InstallSnippet"; // Import the new InstallSnippet component
 
 export default function ComponentPage() {
   const params = useParams();
   const slug = params?.slug as string;
 
-  // Jika tidak ada slug, tampilkan halaman 404
   if (!slug) {
     notFound();
   }
@@ -126,7 +60,7 @@ export default function ComponentPage() {
             </div>
 
             <div className="border rounded-xl p-6 bg-card/30 shadow-sm backdrop-blur-sm">
-              <InstallSnippet installName={item.installName} />
+              <InstallSnippet installName={item.installName} /> {/* Use the new InstallSnippet component */}
             </div>
           </div>
         </main>
