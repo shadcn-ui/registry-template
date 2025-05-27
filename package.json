@@ -17,6 +17,7 @@
     "@farcaster/frame-core": "^0.0.40",
     "@farcaster/frame-sdk": "^0.0.50",
     "@farcaster/frame-wagmi-connector": "^0.0.39",
+    "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-label": "^2.1.4",
     "@radix-ui/react-slot": "^1.2.0",
     "@tanstack/react-query": "^5.76.1",

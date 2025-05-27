@@ -96,6 +96,67 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "use-profile",
+      "type": "registry:hook",
+      "title": "useProfile",
+      "description": "Hook to access and manage user profile information from Farcaster SDK",
+      "files": [
+        {
+          "path": "registry/mini-app/hooks/use-profile.ts",
+          "type": "registry:hook"
+        }
+      ],
+      "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
+      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:component",
+      "title": "User Avatar",
+      "description": "A customizable avatar component that can display user profile images with fallbacks",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+      ],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/avatar/avatar.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "user-context",
+      "type": "registry:component",
+      "title": "User Context",
+      "description": "Displays user information including avatar, username, and display name in a flexible layout",
+      "dependencies": [],
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/avatar.json",
+        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+      ],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/user-context/user-context.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "nft-card",
+      "type": "registry:component",
+      "title": "NFT Card",
+      "description": "A versatile NFT display component that supports multiple blockchains with rich metadata and custom styling options",
+      "dependencies": ["viem", "next/image"],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/nft-card/nft-card.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
