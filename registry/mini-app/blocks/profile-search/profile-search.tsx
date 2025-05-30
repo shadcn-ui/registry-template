@@ -4,8 +4,8 @@ import * as React from "react";
 import { Button } from "@/registry/mini-app/ui/button";
 import { Input } from "@/registry/mini-app/ui/input";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
-import { Search, User, ExternalLink, Users, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Search, User, Users, X } from "lucide-react";
+import { cn, formatLargeNumber } from "@/lib/utils";
 
 // Types based on Neynar API response
 export type FarcasterUser = {
@@ -46,33 +46,12 @@ type ProfileSearchProps = {
   showIcon?: boolean;
   autoSearch?: boolean;
   maxResults?: number;
-  searchFunction?: (query: string, apiKey: string, maxResults: number) => Promise<{ users: FarcasterUser[], total: number }>;
+  searchFunction?: (query: string, apiKey: string, maxResults: number) => Promise<{ users: FarcasterUser[], total: number }> ;
+  userCardComponent?: React.ComponentType<UserCardProps>;
   onError?: (error: string) => void;
 };
 
-export function ProfileSearch({
-  apiKey,
-  placeholder = "Search Farcaster users...",
-  variant = "default",
-  className,
-  inputClassName,
-  buttonClassName,
-  layout = "horizontal",
-  showIcon = true,
-  autoSearch = false,
-  maxResults = 5,
-  searchFunction,
-  onError,
-}: ProfileSearchProps) {
-  const [searchInput, setSearchInput] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState<FarcasterUser[]>([]);
-  const [totalResults, setTotalResults] = React.useState(0);
-  const { sdk, isSDKLoaded } = useMiniAppSdk();
-
-  // Calculate relevance score for sorting
-  const calculateRelevanceScore = (user: FarcasterUser, query: string): number => {
+export const calculateRelevanceScore = (user: FarcasterUser, query: string): number => {
     const lowerQuery = query.toLowerCase();
     const username = user.username.toLowerCase();
     const displayName = user.display_name.toLowerCase();
@@ -113,6 +92,28 @@ export function ProfileSearch({
     return score;
   };
 
+export function ProfileSearch({
+  apiKey,
+  placeholder = "Search Farcaster users...",
+  variant = "default",
+  className,
+  inputClassName,
+  buttonClassName,
+  layout = "horizontal",
+  showIcon = true,
+  autoSearch = false,
+  maxResults = 5,
+  searchFunction,
+  userCardComponent: CustomUserCard,
+  onError,
+}: ProfileSearchProps) {
+  const [searchInput, setSearchInput] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [searchResults, setSearchResults] = React.useState<FarcasterUser[]>([]);
+  const [totalResults, setTotalResults] = React.useState(0);
+  const { sdk, isSDKLoaded } = useMiniAppSdk();
+  console.log(searchFunction);
   const defaultSearchFunction = async (query: string, apiKey: string, maxResults: number): Promise<{ users: FarcasterUser[], total: number }> => {
     const response = await fetch(`https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(query)}&limit=${maxResults}`, {
       method: 'GET',
@@ -142,7 +143,7 @@ export function ProfileSearch({
   };
 
   const searchUsers = async (query: string) => {
-    if (!apiKey.trim()) {
+    if (!searchFunction && !apiKey.trim()) {
       const errorMsg = "API key is required";
       setError(errorMsg);
       onError?.(errorMsg);
@@ -161,8 +162,8 @@ export function ProfileSearch({
       setError("");
       
       const searchFn = searchFunction || defaultSearchFunction;
+
       const { users, total } = await searchFn(query, apiKey, maxResults);
-      
       setSearchResults(users);
       setTotalResults(total);
       
@@ -217,11 +218,17 @@ export function ProfileSearch({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    
     setSearchInput(value);
     setError("");
-    
+    if(value === "") {
+        setSearchResults([]);
+        setTotalResults(0);
+        return;
+    }
     // Auto-search with debounce
     if (autoSearch && value.length > 2) {
+      
       const timeoutId = setTimeout(() => {
         searchUsers(value);
       }, 500);
@@ -254,7 +261,6 @@ export function ProfileSearch({
             value={searchInput}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            disabled={loading}
             className={cn(
               "w-full",
               error && "border-red-500",
@@ -276,12 +282,10 @@ export function ProfileSearch({
         </div>
         
         {/* Clear Button - only show when there's a search term */}
-        
-        
         <Button
           variant={variant}
           onClick={handleSearch}
-          disabled={loading || !searchInput.trim() || !apiKey.trim() || !isSDKLoaded}
+          disabled={loading || !searchInput.trim()  || !isSDKLoaded}
           className={cn(
             layout === "vertical" ? "w-full" : "shrink-0",
             buttonClassName
@@ -325,13 +329,16 @@ export function ProfileSearch({
           </div>
           
           <div className="grid gap-3">
-            {searchResults.map((user) => (
-              <UserCard
-                key={user.fid}
-                user={user}
-                onClick={() => viewProfile(user.fid)}
-              />
-            ))}
+            {searchResults.map((user) => {
+              const UserCardComponent = CustomUserCard || UserCard;
+              return (
+                <UserCardComponent
+                  key={user.fid}
+                  user={user}
+                  onClick={() => viewProfile(user.fid)}
+                />
+              );
+            })}
           </div>
           
           {hasMoreResults && (
@@ -400,20 +407,12 @@ function UserCard({ user, onClick }: UserCardProps) {
         {/* Stats */}
         <div className="flex flex-wrap items-center gap-3  mt-2 text-xs text-muted-foreground">
           <span className="whitespace-nowrap">
-            {user.follower_count > 999 
-              ? `${(user.follower_count / 1000).toFixed(user.follower_count > 99999 ? 0 : 1)}k` 
-              : user.follower_count.toLocaleString()
-            } followers
+            {formatLargeNumber(user.follower_count)} followers
           </span>
           <span className="whitespace-nowrap">
-            {user.following_count > 999 
-              ? `${(user.following_count / 1000).toFixed(user.following_count > 99999 ? 0 : 1)}k` 
-              : user.following_count.toLocaleString()
-            } following
+            {formatLargeNumber(user.following_count)} following
           </span>
-          {user.verified_addresses?.eth_addresses?.length ? (
-            <span className="text-green-600 dark:text-green-400 whitespace-nowrap">✓ Verified</span>
-          ) : null}
+          
         </div>
       </div>    
     </div>
