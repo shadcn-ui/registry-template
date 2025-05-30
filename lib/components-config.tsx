@@ -5,6 +5,11 @@ import { ShowCoinBalance } from "@/registry/mini-app/blocks/show-coin-balance/sh
 import { UserAvatar } from "@/registry/mini-app/blocks/avatar/avatar";
 import { UserContext } from "@/registry/mini-app/blocks/user-context/user-context";
 import { NFTCard } from "@/registry/mini-app/blocks/nft-card/nft-card";
+import * as React from "react";
+import { ProfileSearchApiDemo } from "@/registry/mini-app/blocks/profile-search/simulationHelper";
+import { ProfileSearchSimulationDemo } from "@/registry/mini-app/blocks/profile-search/simulationHelper";
+
+
 
 export interface ComponentItem {
   title: string;
@@ -156,5 +161,28 @@ export const componentItems: ComponentItem[] = [
       </div>
     ),
     installName: "nft-card",
+  },
+  {
+    title: "Profile Search Component",
+    component: (
+      <div className="flex flex-col gap-6 w-full max-w-2xl">
+        <div>
+          <h4 className="text-sm font-medium mb-2">Simulation Mode (No API Key Required)</h4>
+          <p className="text-xs text-muted-foreground mb-3">
+            Try searching: "vitalik", "dwr", "warpcast", "jesse", "varun", etc.
+          </p>
+          <ProfileSearchSimulationDemo  />
+        </div>
+        <div>
+          <h4 className="text-sm font-medium mb-2">Real API Mode</h4>
+          <p className="text-xs text-muted-foreground mb-3">
+            Uses Neynar API to search users and displays results in clickable cards. 
+            Requires your own Neynar API key.
+          </p>
+          <ProfileSearchApiDemo />
+        </div>
+      </div>
+    ),
+    installName: "profile-search",
   },
 ];
