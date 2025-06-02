@@ -109,7 +109,9 @@
         }
       ],
       "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
-      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"]
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+      ]
     },
     {
       "name": "avatar",
@@ -175,6 +177,20 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "text-utils",
+      "type": "registry:lib",
+      "title": "textUtils",
+      "description": "Utility functions for text manipulation and formatting",
+      "files": [
+        {
+          "path": "registry/mini-app/lib/text-utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": []
     }
   ]
 }
