@@ -6,7 +6,7 @@
   "description": "Hook for Farcaster MiniApp SDK context and state",
   "dependencies": [
     "@farcaster/frame-core",
-    "@farcaster/frame-sdk",
+    "@farcaster/frame-sdk^0.0.53",
     "@farcaster/frame-sdk",
     "@farcaster/frame-core"
   ],

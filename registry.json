@@ -80,7 +80,7 @@
           "type": "registry:hook"
         }
       ],
-      "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
+      "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk^0.0.53"],
       "registryDependencies": []
     },
     {
