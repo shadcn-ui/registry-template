@@ -17,7 +17,7 @@ import { Button } from "@/registry/mini-app/ui/button";
 function InstallSnippet({ installName }: { installName: string }) {
   const [tab, setTab] = React.useState<"pnpm" | "npm" | "bun">("pnpm");
   const [copied, setCopied] = React.useState(false);
-  
+
   const command = React.useMemo(() => {
     switch (tab) {
       case "pnpm":
@@ -30,7 +30,7 @@ function InstallSnippet({ installName }: { installName: string }) {
         return `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/${installName}.json`;
     }
   }, [tab, installName]);
-  
+
   const handleCopy = () => {
     navigator.clipboard.writeText(command);
     setCopied(true);
@@ -90,29 +90,29 @@ export default function Home() {
             hellno/mini-app-ui
           </h1>
         </div>
-        
+
         {/* Action Icons */}
         <div className="flex items-center gap-4">
-          <a 
-            href="https://farcaster.xyz/hellno.eth" 
-            target="_blank" 
+          <a
+            href="https://farcaster.xyz/hellno.eth"
+            target="_blank"
             rel="noopener noreferrer"
             className="p-2 hover:bg-muted rounded-full transition-colors flex items-center"
             aria-label="hellno.eth on Farcaster"
           >
             <div className="w-5 h-5 text-foreground/80">
-              <Image 
-                src="/farcaster.svg" 
-                alt="Farcaster" 
-                width={20} 
+              <Image
+                src="/farcaster.svg"
+                alt="Farcaster"
+                width={20}
                 height={20}
                 className="text-foreground"
               />
             </div>
           </a>
-          <a 
-            href="https://github.com/hellno/mini-app-ui" 
-            target="_blank" 
+          <a
+            href="https://github.com/hellno/mini-app-ui"
+            target="_blank"
             rel="noopener noreferrer"
             className="p-2 hover:bg-muted rounded-full transition-colors"
             aria-label="GitHub"
@@ -121,15 +121,16 @@ export default function Home() {
           </a>
         </div>
       </header>
-      
+
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6">
         <div className="mb-8">
           <p className="text-muted-foreground">
             A collection of components, hooks and utilities for mini apps using
-            shadcn. Build beautiful and functional mini-apps with these ready-to-use components.
+            shadcn. Build beautiful and functional mini-apps with these
+            ready-to-use components.
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 gap-8">
           {componentItems.map((item, index) => (
             <div
@@ -155,14 +156,14 @@ export default function Home() {
                   <OpenInVibesEngineeringButton className="h-8" />
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-center p-8 bg-gradient-to-b from-background/20 to-background/5 relative">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(var(--primary-rgb),0.07),transparent_60%)] pointer-events-none"></div>
                 <div className="relative z-10 flex items-center justify-center min-h-[280px] w-full">
                   {item.component}
                 </div>
               </div>
-              
+
               <div className="p-4 bg-card/40 border-t border-border/30">
                 <InstallSnippet installName={item.installName} />
               </div>

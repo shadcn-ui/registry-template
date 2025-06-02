@@ -109,7 +109,9 @@
         }
       ],
       "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
-      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"]
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+      ]
     },
     {
       "name": "avatar",
@@ -157,6 +159,38 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "profile-search",
+      "type": "registry:component",
+      "title": "Profile Search",
+      "description": "Search Farcaster users with Neynar API and view profiles using mini app SDK. Shows results in clickable cards with user details.",
+      "dependencies": ["lucide-react"],
+      "registryDependencies": [
+        "button",
+        "input",
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+      ],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/profile-search/profile-search.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "text-utils",
+      "type": "registry:lib",
+      "title": "textUtils",
+      "description": "Utility functions for text manipulation and formatting",
+      "files": [
+        {
+          "path": "registry/mini-app/lib/text-utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": []
     }
   ]
 }
