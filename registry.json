@@ -179,6 +179,25 @@
       ]
     },
     {
+      "name": "nft-mint-flow",
+      "type": "registry:block",
+      "description": "A complete NFT minting flow component with wallet connection, transaction handling, and 5-step user experience",
+      "dependencies": [
+        "lucide-react",
+        "wagmi",
+        "viem",
+        "@farcaster/frame-wagmi-connector"
+      ],
+      "devDependencies": [],
+      "registryDependencies": ["button", "sheet"],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/nft-mint-flow.tsx",
+          "type": "registry:block"
+        }
+      ]
+    },
+    {
       "name": "text-utils",
       "type": "registry:lib",
       "title": "textUtils",

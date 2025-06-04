@@ -5,6 +5,7 @@ import { ShowCoinBalance } from "@/registry/mini-app/blocks/show-coin-balance/sh
 import { UserAvatar } from "@/registry/mini-app/blocks/avatar/avatar";
 import { UserContext } from "@/registry/mini-app/blocks/user-context/user-context";
 import { NFTCard } from "@/registry/mini-app/blocks/nft-card/nft-card";
+import { NFTMintFlow } from "@/registry/mini-app/blocks/nft-mint-flow/nft-mint-flow";
 import * as React from "react";
 import { ProfileSearchSimulationDemo } from "@/registry/mini-app/blocks/profile-search/simulationHelper";
 
@@ -176,5 +177,21 @@ export const componentItems: ComponentItem[] = [
       </div>
     ),
     installName: "profile-search",
+  },
+  {
+    title: "NFT Mint Flow",
+    component: (
+      <div className="flex flex-col gap-4 w-full max-w-md">
+        <NFTMintFlow
+          amount={1}
+          chainId={8453} // Base
+          contractAddress="0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4"
+          buttonText="Mint Demo NFT"
+          onMintSuccess={(txHash) => console.log("Mint successful:", txHash)}
+          onMintError={(error) => console.error("Mint failed:", error)}
+        />
+      </div>
+    ),
+    installName: "nft-mint-flow",
   },
 ];
