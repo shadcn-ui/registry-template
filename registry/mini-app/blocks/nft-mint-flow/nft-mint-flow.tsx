@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import { Button } from "@/registry/mini-app/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/registry/mini-app/ui/sheet";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { useAccount, useConnect, useWaitForTransactionReceipt, useWriteContract, useReadContract } from "wagmi";
 import { formatEther, type Address } from "viem";
 import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
-import { X, Coins, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Coins, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NFTMintFlowProps = {
@@ -71,6 +72,7 @@ export function NFTMintFlow({
   const [step, setStep] = React.useState<MintStep>("initial");
   const [error, setError] = React.useState<string>("");
   const [txHash, setTxHash] = React.useState<string>("");
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   const { isSDKLoaded } = useMiniAppSdk();
   const { isConnected } = useAccount();
   const { connect } = useConnect();
@@ -146,6 +148,10 @@ export function NFTMintFlow({
   // Handle transaction success
   React.useEffect(() => {
     if (writeError) {
+      if(writeError.message.toLowerCase().includes("user rejected the request")) {
+        handleClose();
+        return;
+      }
       setStep("error");
       setError(writeError.message);
       onMintError?.(writeError.message);
@@ -169,14 +175,15 @@ export function NFTMintFlow({
     }
   }, [writeData, step]);
 
-
   const handleInitialMint = () => {
     if (!isSDKLoaded) {
       setError("Farcaster SDK not loaded");
       setStep("error");
+      setIsSheetOpen(true);
       return;
     }
     setStep("sheet");
+    setIsSheetOpen(true);
   };
 
   const handleConnectWallet = async () => {
@@ -248,6 +255,7 @@ export function NFTMintFlow({
   };
 
   const handleClose = () => {
+    setIsSheetOpen(false);
     setStep("initial");
     setError("");
     setTxHash("");
@@ -258,9 +266,13 @@ export function NFTMintFlow({
     setStep("sheet");
   };
 
-  // Step 1: Initial Mint Button
-  if (step === "initial") {
-    return (
+  return (
+    <Sheet open={isSheetOpen} onOpenChange={(open) => {
+      setIsSheetOpen(open);
+      if (!open) {
+        handleClose();
+      }
+    }}>
       <Button
         variant={variant}
         size={size}
@@ -271,187 +283,164 @@ export function NFTMintFlow({
         <Coins className="h-4 w-4 mr-2" />
         {buttonText}
       </Button>
-    );
-  }
 
-  // Steps 2-5: Overlay/Sheet
-  return (
-    <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-        onClick={handleClose}
-      />
-      
-      {/* Sheet/Modal */}
-      <div className="fixed inset-x-4 bottom-4 bg-background border border-border rounded-2xl shadow-xl z-50 animate-in slide-in-from-bottom-full duration-300">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">
-              {step === "sheet" && "Mint NFT"}
-              {step === "connecting" && "Connecting Wallet"}
-              {step === "minting" && "Preparing Mint"}
-              {step === "waiting" && "Minting..."}
-              {step === "success" && "Mint Successful!"}
-              {step === "error" && "Mint Failed"}
-            </h2>
+      <SheetContent side="bottom" onClose={handleClose}>
+        <SheetHeader className="mb-6">
+          <SheetTitle>
+            {step === "sheet" && "Mint NFT"}
+            {step === "connecting" && "Connecting Wallet"}
+            {step === "minting" && "Preparing Mint"}
+            {step === "waiting" && "Minting..."}
+            {step === "success" && "Mint Successful!"}
+            {step === "error" && "Mint Failed"}
+          </SheetTitle>
+        </SheetHeader>
+
+        {/* Step 2: Sheet Content */}
+        {step === "sheet" && (
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-muted-foreground">Contract</span>
+                <span className="font-mono text-sm">
+                  {contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-muted-foreground">Quantity</span>
+                <span className="font-semibold">{amount}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-muted-foreground">Price per NFT</span>
+                <span className="font-semibold">
+                  {isLoadingPrice ? (
+                    "Loading..."
+                  ) : contractPrice === BigInt(0) ? (
+                    "0 ETH"
+                  ) : contractPrice ? (
+                    `${Number(formatEther(contractPrice)).toFixed(4)} ETH`
+                  ) : (
+                    "Error loading price"
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-3 text-lg font-semibold">
+                <span>Total Cost</span>
+                <span>{totalCost} ETH</span>
+              </div>
+            </div>
+            
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="h-8 w-8"
+              onClick={isConnected ? handleMint : handleConnectWallet}
+              size="lg"
+              className="w-full"
+              disabled={isWritePending}
             >
-              <X className="h-4 w-4" />
+              {isConnected ? (
+                <>
+                  <Coins className="h-5 w-5 mr-2" />
+                  Mint {amount} NFT{amount > 1 ? 's' : ''}
+                </>
+              ) : (
+                "Connect Wallet to Mint"
+              )}
             </Button>
           </div>
+        )}
 
-          {/* Step 2: Sheet Content */}
-          {step === "sheet" && (
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center py-3 border-b">
-                  <span className="text-muted-foreground">Contract</span>
-                  <span className="font-mono text-sm">
-                    {contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b">
-                  <span className="text-muted-foreground">Quantity</span>
-                  <span className="font-semibold">{amount}</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b">
-                  <span className="text-muted-foreground">Price per NFT</span>
-                  <span className="font-semibold">
-                    {isLoadingPrice ? (
-                      "Loading..."
-                    ) : contractPrice === BigInt(0) ? (
-                      "0 ETH"
-                    ) : contractPrice ? (
-                      `${Number(formatEther(contractPrice)).toFixed(4)} ETH`
-                    ) : (
-                      "Error loading price"
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-3 text-lg font-semibold">
-                  <span>Total Cost</span>
-                  <span>{totalCost} ETH</span>
-                </div>
-              </div>
-              
-              <Button
-                onClick={isConnected ? handleMint : handleConnectWallet}
-                size="lg"
-                className="w-full"
-                disabled={isWritePending}
-              >
-                {isConnected ? (
-                  <>
-                    <Coins className="h-5 w-5 mr-2" />
-                    Mint {amount} NFT{amount > 1 ? 's' : ''}
-                  </>
-                ) : (
-                  "Connect Wallet to Mint"
-                )}
-              </Button>
+        {/* Step 3: Connecting */}
+        {step === "connecting" && (
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
-          )}
+            <p className="text-muted-foreground">
+              Connecting to your Farcaster wallet...
+            </p>
+          </div>
+        )}
 
-          {/* Step 3: Connecting */}
-          {step === "connecting" && (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              </div>
-              <p className="text-muted-foreground">
-                Connecting to your Farcaster wallet...
+        {/* Step 3/4: Minting */}
+        {step === "minting" && (
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold">Preparing mint transaction</p>
+              <p className="text-sm text-muted-foreground">
+                Please approve the transaction in your wallet
               </p>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Step 3/4: Minting */}
-          {step === "minting" && (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold">Preparing mint transaction</p>
-                <p className="text-sm text-muted-foreground">
-                  Please approve the transaction in your wallet
-                </p>
-              </div>
+        {/* Step 4: Waiting for Transaction */}
+        {step === "waiting" && (
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
-          )}
-
-          {/* Step 4: Waiting for Transaction */}
-          {step === "waiting" && (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold">Transaction submitted</p>
-                <p className="text-sm text-muted-foreground">
-                  Waiting for confirmation on the blockchain...
+            <div>
+              <p className="font-semibold">Transaction submitted</p>
+              <p className="text-sm text-muted-foreground">
+                Waiting for confirmation on the blockchain...
+              </p>
+              {txHash && (
+                <p className="text-xs font-mono mt-2 px-3 py-1 bg-muted rounded">
+                  {txHash.slice(0, 10)}...{txHash.slice(-8)}
                 </p>
-                {txHash && (
-                  <p className="text-xs font-mono mt-2 px-3 py-1 bg-muted rounded">
-                    {txHash.slice(0, 10)}...{txHash.slice(-8)}
-                  </p>
-                )}
-              </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Step 5: Success */}
-          {step === "success" && (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <CheckCircle className="h-12 w-12 text-green-500" />
-              </div>
-              <div>
-                <p className="font-semibold text-green-600">Mint successful!</p>
-                <p className="text-sm text-muted-foreground">
-                  Your {amount} NFT{amount > 1 ? 's have' : ' has'} been minted successfully
+        {/* Step 5: Success */}
+        {step === "success" && (
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <CheckCircle className="h-12 w-12 text-green-500" />
+            </div>
+            <div>
+              <p className="font-semibold text-green-600">Mint successful!</p>
+              <p className="text-sm text-muted-foreground">
+                Your {amount} NFT{amount > 1 ? 's have' : ' has'} been minted successfully
+              </p>
+              {txHash && (
+                <p className="text-xs font-mono mt-2 px-3 py-1 bg-muted rounded">
+                  {txHash.slice(0, 10)}...{txHash.slice(-8)}
                 </p>
-                {txHash && (
-                  <p className="text-xs font-mono mt-2 px-3 py-1 bg-muted rounded">
-                    {txHash.slice(0, 10)}...{txHash.slice(-8)}
-                  </p>
-                )}
-              </div>
-              <Button onClick={handleClose} className="w-full">
+              )}
+            </div>
+            <Button onClick={handleClose} className="w-full">
+              Close
+            </Button>
+          </div>
+        )}
+
+        {/* Error State */}
+        {step === "error" && (
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <AlertCircle className="h-12 w-12 text-red-500" />
+            </div>
+            <div>
+              <p className="font-semibold text-red-600">Mint failed</p>
+              <p className="text-sm text-muted-foreground">
+                {error || "An unexpected error occurred"}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={handleClose} className="flex-1">
                 Close
               </Button>
+              <Button onClick={handleRetry} className="flex-1">
+                Try Again
+              </Button>
             </div>
-          )}
-
-          {/* Error State */}
-          {step === "error" && (
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <AlertCircle className="h-12 w-12 text-red-500" />
-              </div>
-              <div>
-                <p className="font-semibold text-red-600">Mint failed</p>
-                <p className="text-sm text-muted-foreground">
-                  {error || "An unexpected error occurred"}
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={handleClose} className="flex-1">
-                  Close
-                </Button>
-                <Button onClick={handleRetry} className="flex-1">
-                  Try Again
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </>
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
   );
 } 
