@@ -38,18 +38,18 @@ export function UserContext({
   avatarClickable = false,
 }: UserContextProps) {
   const profile = useProfile();
-  
+
   const containerClasses = cn(
     "flex items-center gap-2",
     layout === "vertical" ? "flex-col" : "flex-row",
-    (onClick || (clickable && profile.fid)) ? "cursor-pointer" : "",
-    className
+    onClick || (clickable && profile.fid) ? "cursor-pointer" : "",
+    className,
   );
-  
+
   const textContainerClasses = cn(
     "flex",
     layout === "vertical" ? "flex-col items-center" : "flex-col justify-center",
-    textClassName
+    textClassName,
   );
 
   const handleClick = () => {
@@ -61,39 +61,41 @@ export function UserContext({
   };
 
   return (
-    <div 
-      className={containerClasses} 
+    <div
+      className={containerClasses}
       onClick={onClick || clickable ? handleClick : undefined}
     >
       {showAvatar && (
-        <UserAvatar 
-          useProfileData={true} 
+        <UserAvatar
+          useProfileData={true}
           size={avatarSize}
           shape={avatarShape}
           clickable={avatarClickable}
           onClickOverride={avatarClickable && onClick ? onClick : undefined}
         />
       )}
-      
+
       <div className={textContainerClasses}>
         {showDisplayName && profile.displayName && (
           <span className="font-medium text-foreground">
             {profile.displayName}
           </span>
         )}
-        
+
         {showUsername && profile.username && (
           <span className="text-sm text-muted-foreground">
-            {usernamePrefix}{profile.username}
+            {usernamePrefix}
+            {profile.username}
           </span>
         )}
-        
+
         {showFid && profile.fid && (
           <span className="text-xs text-muted-foreground">
-            {fidPrefix}{profile.fid}
+            {fidPrefix}
+            {profile.fid}
           </span>
         )}
-        
+
         {!profile.displayName && !profile.username && !profile.fid && (
           <span className="text-sm text-muted-foreground">
             User not connected
@@ -102,4 +104,4 @@ export function UserContext({
       </div>
     </div>
   );
-} 
+}

@@ -80,7 +80,7 @@
           "type": "registry:hook"
         }
       ],
-      "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
+      "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk@^0.0.53"],
       "registryDependencies": []
     },
     {
@@ -109,7 +109,9 @@
         }
       ],
       "dependencies": ["@farcaster/frame-core", "@farcaster/frame-sdk"],
-      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"]
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+      ]
     },
     {
       "name": "avatar",
@@ -177,18 +179,18 @@
       ]
     },
     {
-      "name": "nft-mint-flow",
-      "type": "registry:block", 
-      "description": "A complete NFT minting flow component with wallet connection, transaction handling, and 5-step user experience",
-      "dependencies": ["lucide-react", "wagmi", "viem", "@farcaster/frame-wagmi-connector"],
-      "devDependencies": [],
-      "registryDependencies": ["button", "sheet"],
+      "name": "text-utils",
+      "type": "registry:lib",
+      "title": "textUtils",
+      "description": "Utility functions for text manipulation and formatting",
       "files": [
         {
-          "path": "registry/mini-app/blocks/nft-mint-flow/nft-mint-flow.tsx",
-          "type": "registry:block"
+          "path": "registry/mini-app/lib/text-utils.ts",
+          "type": "registry:lib"
         }
-      ]
+      ],
+      "dependencies": [],
+      "registryDependencies": []
     }
   ]
 }

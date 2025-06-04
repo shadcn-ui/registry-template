@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "text-utils",
+  "type": "registry:lib",
+  "title": "textUtils",
+  "description": "Utility functions for text manipulation and formatting",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/mini-app/lib/text-utils.ts",
+      "content": "export const formatLargeNumber = (num?: number): string => {\n  if (!num) return \"0\";\n\n  if (num >= 1000000) {\n    return (num / 1000000).toFixed(1) + \"M\";\n  } else if (num >= 2000) {\n    return (num / 1000).toFixed(1) + \"K\";\n  } else {\n    return num.toString();\n  }\n};\n",
+      "type": "registry:lib"
+    }
+  ]
+}

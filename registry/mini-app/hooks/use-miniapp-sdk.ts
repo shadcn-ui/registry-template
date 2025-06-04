@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import sdk from "@farcaster/frame-sdk";
 import type { Context } from "@farcaster/frame-core";
+
 export function useMiniAppSdk() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
@@ -11,7 +12,7 @@ export function useMiniAppSdk() {
   const [isMiniAppSaved, setIsMiniAppSaved] = useState(false);
   const [lastEvent, setLastEvent] = useState("");
   const [pinFrameResponse, setPinFrameResponse] = useState("");
-  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isMiniApp, setIsMiniApp] = useState(false);
 
   useEffect(() => {
     if (!sdk) return;
@@ -57,6 +58,9 @@ export function useMiniAppSdk() {
         setContext(frameContext);
         setIsMiniAppSaved(frameContext.client.added);
       }
+
+      const miniAppStatus = await sdk.isInMiniApp();
+      setIsMiniApp(miniAppStatus);
     };
 
     if (isSDKLoaded) {
@@ -91,6 +95,6 @@ export function useMiniAppSdk() {
     isSDKLoaded,
     isAuthDialogOpen,
     setIsAuthDialogOpen,
-    isSigningIn,
+    isMiniApp,
   };
 }
