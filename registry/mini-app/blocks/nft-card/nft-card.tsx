@@ -303,8 +303,8 @@ export function NFTCard({
   ]);
 
   const defaultLoadingComponent = (
-    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-      <div className="w-full h-full bg-gray-300 dark:bg-gray-600 animate-pulse"></div>
+    <div className="absolute inset-0 flex items-center justify-center bg-gray-300 dark:bg-gray-700">
+      <div className="w-full h-full bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
     </div>
   );
 
