@@ -29,5 +29,18 @@
       "type": "registry:hook",
       "target": ""
     }
-  ]
+  ],
+  "meta": {
+    "use_cases": [
+      "Display User Profile Image",
+      "Avatar Fallbacks"
+    ],
+    "keywords": [
+      "avatar",
+      "profile",
+      "image",
+      "user",
+      "fallback"
+    ]
+  }
 }

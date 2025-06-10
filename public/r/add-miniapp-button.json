@@ -33,5 +33,15 @@
       "type": "registry:hook",
       "target": ""
     }
-  ]
+  ],
+  "meta": {
+    "use_cases": [
+      "Pin MiniApp",
+      "Add to client"
+    ],
+    "keywords": [
+      "pin",
+      "add"
+    ]
+  }
 }

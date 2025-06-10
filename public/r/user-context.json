@@ -36,5 +36,17 @@
       "type": "registry:ui",
       "target": ""
     }
-  ]
+  ],
+  "meta": {
+    "use_cases": [
+      "User Info Card",
+      "Profile Summary"
+    ],
+    "keywords": [
+      "avatar",
+      "username",
+      "display-name",
+      "profile"
+    ]
+  }
 }

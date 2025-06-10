@@ -26,5 +26,17 @@
       "type": "registry:ui",
       "target": ""
     }
-  ]
+  ],
+  "meta": {
+    "use_cases": [
+      "Display Crypto Balance",
+      "Address Balance Lookup"
+    ],
+    "keywords": [
+      "balance",
+      "coin",
+      "alchemy-sdk",
+      "wallet"
+    ]
+  }
 }

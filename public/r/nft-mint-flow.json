@@ -46,5 +46,16 @@
       "type": "registry:hook",
       "target": ""
     }
-  ]
+  ],
+  "meta": {
+    "use_cases": [
+      "NFT Mint flow",
+      "Digital Collectibles"
+    ],
+    "keywords": [
+      "nft",
+      "collectible",
+      "mint"
+    ]
+  }
 }

@@ -36,6 +36,18 @@
   ],
   "meta": {
     "mediaUrl": "/previews/share-cast-button.mp4",
-    "demoUrl": "/component/share-cast-button"
+    "demoUrl": "/component/share-cast-button",
+    "use_cases": [
+      "Social Sharing",
+      "Share on Farcaster",
+      "Content Distribution"
+    ],
+    "keywords": [
+      "share",
+      "cast",
+      "button",
+      "social",
+      "farcaster"
+    ]
   }
 }

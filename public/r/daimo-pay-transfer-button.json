@@ -39,6 +39,18 @@
   ],
   "meta": {
     "mediaUrl": "/previews/daimo-pay-transfer-button.mp4",
-    "demoUrl": "/component/daimo-pay-transfer-button"
+    "demoUrl": "/component/daimo-pay-transfer-button",
+    "use_cases": [
+      "Token Transfer UI",
+      "On-chain Transactions",
+      "Custom Payment Buttons"
+    ],
+    "keywords": [
+      "daimo",
+      "payment",
+      "tokens",
+      "button",
+      "transfer"
+    ]
   }
 }

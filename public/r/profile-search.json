@@ -47,5 +47,18 @@
       "type": "registry:lib",
       "target": ""
     }
-  ]
+  ],
+  "meta": {
+    "use_cases": [
+      "User Search",
+      "Profile Lookup"
+    ],
+    "keywords": [
+      "search",
+      "profiles",
+      "neynar",
+      "farcaster",
+      "sdk"
+    ]
+  }
 }

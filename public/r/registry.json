@@ -10,7 +10,13 @@
       "description": "A custom button for transferring tokens",
       "meta": {
         "mediaUrl": "/previews/daimo-pay-transfer-button.mp4",
-        "demoUrl": "/component/daimo-pay-transfer-button"
+        "demoUrl": "/component/daimo-pay-transfer-button",
+        "use_cases": [
+          "Token Transfer UI",
+          "On-chain Transactions",
+          "Custom Payment Buttons"
+        ],
+        "keywords": ["daimo", "payment", "tokens", "button", "transfer"]
       },
       "dependencies": [
         "@daimo/pay",
@@ -41,9 +47,16 @@
         "button",
         "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
       ],
+
       "meta": {
         "mediaUrl": "/previews/share-cast-button.mp4",
-        "demoUrl": "/component/share-cast-button"
+        "demoUrl": "/component/share-cast-button",
+        "use_cases": [
+          "Social Sharing",
+          "Share on Farcaster",
+          "Content Distribution"
+        ],
+        "keywords": ["share", "cast", "button", "social", "farcaster"]
       },
       "files": [
         {
@@ -57,6 +70,10 @@
       "type": "registry:component",
       "title": "Add MiniApp Button",
       "description": "A button to add or pin a mini app",
+      "meta": {
+        "use_cases": ["Pin MiniApp", "Add to client"],
+        "keywords": ["pin", "add"]
+      },
       "dependencies": [],
       "registryDependencies": [
         "button",
@@ -90,6 +107,10 @@
       "description": "Show coin balance for an address using Alchemy SDK",
       "dependencies": ["viem", "alchemy-sdk"],
       "registryDependencies": ["button", "input"],
+      "meta": {
+        "use_cases": ["Display Crypto Balance", "Address Balance Lookup"],
+        "keywords": ["balance", "coin", "alchemy-sdk", "wallet"]
+      },
       "files": [
         {
           "path": "registry/mini-app/blocks/show-coin-balance/show-coin-balance.tsx",
@@ -122,6 +143,10 @@
       "registryDependencies": [
         "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
       ],
+      "meta": {
+        "use_cases": ["Display User Profile Image", "Avatar Fallbacks"],
+        "keywords": ["avatar", "profile", "image", "user", "fallback"]
+      },
       "files": [
         {
           "path": "registry/mini-app/blocks/avatar/avatar.tsx",
@@ -139,6 +164,10 @@
         "https://hellno-mini-app-ui.vercel.app/r/avatar.json",
         "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
       ],
+      "meta": {
+        "use_cases": ["User Info Card", "Profile Summary"],
+        "keywords": ["avatar", "username", "display-name", "profile"]
+      },
       "files": [
         {
           "path": "registry/mini-app/blocks/user-context/user-context.tsx",
@@ -153,6 +182,10 @@
       "description": "A versatile NFT display component that supports multiple blockchains with rich metadata and custom styling options",
       "dependencies": ["viem", "next/image"],
       "registryDependencies": [],
+      "meta": {
+        "use_cases": ["NFT Showcase", "Digital Collectibles Display"],
+        "keywords": ["nft", "collectible", "mint"]
+      },
       "files": [
         {
           "path": "registry/mini-app/blocks/nft-card/nft-card.tsx",
@@ -171,6 +204,10 @@
         "input",
         "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
       ],
+      "meta": {
+        "use_cases": ["User Search", "Profile Lookup"],
+        "keywords": ["search", "profiles", "neynar", "farcaster", "sdk"]
+      },
       "files": [
         {
           "path": "registry/mini-app/blocks/profile-search/profile-search.tsx",
@@ -188,6 +225,10 @@
         "viem",
         "@farcaster/frame-wagmi-connector"
       ],
+      "meta": {
+        "use_cases": ["NFT Mint flow", "Digital Collectibles"],
+        "keywords": ["nft", "collectible", "mint"]
+      },
       "devDependencies": [],
       "registryDependencies": ["button", "sheet"],
       "files": [
