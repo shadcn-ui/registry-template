@@ -110,10 +110,7 @@ export const componentItems: ComponentItem[] = [
             tokenId="1"
             width={200}
             height={200}
-            rounded="lg"
             network="base"
-            titlePosition="outside"
-            networkPosition="outside"
           />
           <NFTCard
             contractAddress="0x60e4d786628fea6478f785a6d7e704777c86a7c6"

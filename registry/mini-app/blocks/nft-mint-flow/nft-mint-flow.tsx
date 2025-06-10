@@ -2,9 +2,20 @@
 
 import * as React from "react";
 import { Button } from "@/registry/mini-app/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/registry/mini-app/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/registry/mini-app/ui/sheet";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
-import { useAccount, useConnect, useWaitForTransactionReceipt, useWriteContract, useReadContract } from "wagmi";
+import {
+  useAccount,
+  useConnect,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+  useReadContract,
+} from "wagmi";
 import { formatEther, type Address } from "viem";
 import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
 import { Coins, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
@@ -23,7 +34,14 @@ type NFTMintFlowProps = {
   onMintError?: (error: string) => void;
 };
 
-type MintStep = "initial" | "sheet" | "connecting" | "minting" | "waiting" | "success" | "error";
+type MintStep =
+  | "initial"
+  | "sheet"
+  | "connecting"
+  | "minting"
+  | "waiting"
+  | "success"
+  | "error";
 
 // Common NFT contract ABI for price reading
 const priceAbi = [
@@ -76,67 +94,124 @@ export function NFTMintFlow({
   const { isSDKLoaded } = useMiniAppSdk();
   const { isConnected } = useAccount();
   const { connect } = useConnect();
-  const { writeContract, isPending: isWritePending, data: writeData, error: writeError } = useWriteContract();
-  
+  const {
+    writeContract,
+    isPending: isWritePending,
+    data: writeData,
+    error: writeError,
+  } = useWriteContract();
+
   // Read mint price from contract with proper configuration
-  const {data: mintPrice, isError: isPriceError, isLoading:isMintPriceLoading } = useReadContract({
+  const {
+    data: mintPrice,
+    isError: isPriceError,
+    isLoading: isMintPriceLoading,
+  } = useReadContract({
     address: contractAddress,
     abi: priceAbi,
     functionName: "mintPrice",
     chainId,
     query: {
-      enabled: !!contractAddress && !!chainId ,
+      enabled: !!contractAddress && !!chainId,
       retry: 3,
       retryDelay: 1000,
     },
   });
 
   // Fallback to other price function names if mintPrice fails
-  const { data: price, isLoading: isPriceLoading ,isError: isPriceError2} = useReadContract({
+  const {
+    data: price,
+    isLoading: isPriceLoading,
+    isError: isPriceError2,
+  } = useReadContract({
     address: contractAddress,
     abi: priceAbi,
     functionName: "price",
     chainId,
     query: {
-      enabled: !!contractAddress && !!chainId && isPriceError && (isPriceError || mintPrice === undefined),
+      enabled:
+        !!contractAddress &&
+        !!chainId &&
+        isPriceError &&
+        (isPriceError || mintPrice === undefined),
       retry: 3,
       retryDelay: 1000,
     },
   });
 
-  const { data: MINT_PRICE, isLoading: isMintPriceConstLoading,isError: isMintPriceConstError } =  useReadContract({
+  const {
+    data: MINT_PRICE,
+    isLoading: isMintPriceConstLoading,
+    isError: isMintPriceConstError,
+  } = useReadContract({
     address: contractAddress,
     abi: priceAbi,
     functionName: "MINT_PRICE",
     chainId,
     query: {
-      enabled: !!contractAddress && !!chainId && isPriceError2 && (isPriceError2 || price === undefined),
+      enabled:
+        !!contractAddress &&
+        !!chainId &&
+        isPriceError2 &&
+        (isPriceError2 || price === undefined),
       retry: 3,
       retryDelay: 1000,
     },
   });
 
-  const { data: getMintPrice, isLoading: isGetMintPriceLoading } = useReadContract({
-    address: contractAddress,
-    abi: priceAbi,
-    functionName: "getMintPrice",
-    chainId,
-    query: {
-      enabled: !!contractAddress && !!chainId && isMintPriceConstError && (isMintPriceConstError || MINT_PRICE === undefined),
-      retry: 3,
-      retryDelay: 1000,
-    },
-  });
+  const { data: getMintPrice, isLoading: isGetMintPriceLoading } =
+    useReadContract({
+      address: contractAddress,
+      abi: priceAbi,
+      functionName: "getMintPrice",
+      chainId,
+      query: {
+        enabled:
+          !!contractAddress &&
+          !!chainId &&
+          isMintPriceConstError &&
+          (isMintPriceConstError || MINT_PRICE === undefined),
+        retry: 3,
+        retryDelay: 1000,
+      },
+    });
 
-  const contractPrice = mintPrice === BigInt(0) ? BigInt(0) : mintPrice ? mintPrice : price === BigInt(0) ? BigInt(0) : price ? price : MINT_PRICE === BigInt(0) ? BigInt(0) : MINT_PRICE ? MINT_PRICE : getMintPrice === BigInt(0) ? BigInt(0) : getMintPrice ? getMintPrice : undefined;
-  const isLoadingPrice = isMintPriceLoading || isPriceLoading || isMintPriceConstLoading || isGetMintPriceLoading;
+  const contractPrice =
+    mintPrice === BigInt(0)
+      ? BigInt(0)
+      : mintPrice
+        ? mintPrice
+        : price === BigInt(0)
+          ? BigInt(0)
+          : price
+            ? price
+            : MINT_PRICE === BigInt(0)
+              ? BigInt(0)
+              : MINT_PRICE
+                ? MINT_PRICE
+                : getMintPrice === BigInt(0)
+                  ? BigInt(0)
+                  : getMintPrice
+                    ? getMintPrice
+                    : undefined;
+  const isLoadingPrice =
+    isMintPriceLoading ||
+    isPriceLoading ||
+    isMintPriceConstLoading ||
+    isGetMintPriceLoading;
 
-  const { isSuccess: isTxSuccess, isError: isTxError, error: txError } = useWaitForTransactionReceipt({
+  const {
+    isSuccess: isTxSuccess,
+    isError: isTxError,
+    error: txError,
+  } = useWaitForTransactionReceipt({
     hash: writeData,
   });
 
   // Calculate total cost
-  const totalCost = contractPrice ? (Number(formatEther(contractPrice)) * amount).toString() : "0";
+  const totalCost = contractPrice
+    ? (Number(formatEther(contractPrice)) * amount).toString()
+    : "0";
 
   // Reset error when step changes
   React.useEffect(() => {
@@ -148,7 +223,9 @@ export function NFTMintFlow({
   // Handle transaction success
   React.useEffect(() => {
     if (writeError) {
-      if(writeError.message.toLowerCase().includes("user rejected the request")) {
+      if (
+        writeError.message.toLowerCase().includes("user rejected the request")
+      ) {
         handleClose();
         return;
       }
@@ -166,7 +243,15 @@ export function NFTMintFlow({
       setTxHash(writeData);
       onMintSuccess?.(writeData);
     }
-  }, [isTxSuccess, writeData, onMintSuccess, isTxError, txError, onMintError, writeError]);
+  }, [
+    isTxSuccess,
+    writeData,
+    onMintSuccess,
+    isTxError,
+    txError,
+    onMintError,
+    writeError,
+  ]);
 
   // Handle writeContract data update
   React.useEffect(() => {
@@ -194,8 +279,9 @@ export function NFTMintFlow({
       // Connection handled by wagmi hooks
     } catch (err) {
       console.error("Failed to connect wallet:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to connect wallet";
-      
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to connect wallet";
+
       // For other errors, show error state
       setError(errorMessage);
       setStep("error");
@@ -216,7 +302,7 @@ export function NFTMintFlow({
 
     try {
       setStep("minting");
-      
+
       // Simple mint function call - adjust ABI based on your NFT contract
       writeContract({
         address: contractAddress,
@@ -239,14 +325,15 @@ export function NFTMintFlow({
       setStep("waiting");
     } catch (err) {
       console.error("Mint failed:", err);
-      const errorMessage = err instanceof Error ? err.message : "Mint transaction failed";
-      
+      const errorMessage =
+        err instanceof Error ? err.message : "Mint transaction failed";
+
       // Check if user rejected
       if (err instanceof Error && err.name === "UserRejectedRequestError") {
         handleClose(); // Close the sheet on user rejection
         return;
       }
-      
+
       // For other errors, show error state
       setError(errorMessage);
       setStep("error");
@@ -267,12 +354,15 @@ export function NFTMintFlow({
   };
 
   return (
-    <Sheet open={isSheetOpen} onOpenChange={(open) => {
-      setIsSheetOpen(open);
-      if (!open) {
-        handleClose();
-      }
-    }}>
+    <Sheet
+      open={isSheetOpen}
+      onOpenChange={(open) => {
+        setIsSheetOpen(open);
+        if (!open) {
+          handleClose();
+        }
+      }}
+    >
       <Button
         variant={variant}
         size={size}
@@ -284,7 +374,11 @@ export function NFTMintFlow({
         {buttonText}
       </Button>
 
-      <SheetContent side="bottom" onClose={handleClose}>
+      <SheetContent
+        side="bottom"
+        onClose={handleClose}
+        className="!bottom-0 !rounded-t-xl !rounded-b-none !max-h-[90vh] !h-auto"
+      >
         <SheetHeader className="mb-6">
           <SheetTitle>
             {step === "sheet" && "Mint NFT"}
@@ -313,15 +407,13 @@ export function NFTMintFlow({
               <div className="flex justify-between items-center py-3 border-b">
                 <span className="text-muted-foreground">Price per NFT</span>
                 <span className="font-semibold">
-                  {isLoadingPrice ? (
-                    "Loading..."
-                  ) : contractPrice === BigInt(0) ? (
-                    "0 ETH"
-                  ) : contractPrice ? (
-                    `${Number(formatEther(contractPrice)).toFixed(4)} ETH`
-                  ) : (
-                    "Error loading price"
-                  )}
+                  {isLoadingPrice
+                    ? "Loading..."
+                    : contractPrice === BigInt(0)
+                      ? "0 ETH"
+                      : contractPrice
+                        ? `${Number(formatEther(contractPrice)).toFixed(4)} ETH`
+                        : "Error loading price"}
                 </span>
               </div>
               <div className="flex justify-between items-center py-3 text-lg font-semibold">
@@ -329,7 +421,7 @@ export function NFTMintFlow({
                 <span>{totalCost} ETH</span>
               </div>
             </div>
-            
+
             <Button
               onClick={isConnected ? handleMint : handleConnectWallet}
               size="lg"
@@ -339,7 +431,7 @@ export function NFTMintFlow({
               {isConnected ? (
                 <>
                   <Coins className="h-5 w-5 mr-2" />
-                  Mint {amount} NFT{amount > 1 ? 's' : ''}
+                  Mint {amount} NFT{amount > 1 ? "s" : ""}
                 </>
               ) : (
                 "Connect Wallet to Mint"
@@ -404,7 +496,8 @@ export function NFTMintFlow({
             <div>
               <p className="font-semibold text-green-600">Mint successful!</p>
               <p className="text-sm text-muted-foreground">
-                Your {amount} NFT{amount > 1 ? 's have' : ' has'} been minted successfully
+                Your {amount} NFT{amount > 1 ? "s have" : " has"} been minted
+                successfully
               </p>
               {txHash && (
                 <p className="text-xs font-mono mt-2 px-3 py-1 bg-muted rounded">
@@ -431,7 +524,11 @@ export function NFTMintFlow({
               </p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" onClick={handleClose} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                className="flex-1"
+              >
                 Close
               </Button>
               <Button onClick={handleRetry} className="flex-1">
@@ -443,4 +540,4 @@ export function NFTMintFlow({
       </SheetContent>
     </Sheet>
   );
-} 
+}
