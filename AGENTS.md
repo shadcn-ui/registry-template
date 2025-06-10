@@ -78,6 +78,7 @@ The registry manifest (`registry.json`) defines the following items:
   - `use-profile`
 - **Libraries**
   - `text-utils`
+  - `avatar-utils`
 
 ## Development Workflow
 
