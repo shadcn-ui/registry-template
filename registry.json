@@ -210,6 +210,20 @@
       ],
       "dependencies": [],
       "registryDependencies": []
+    },
+    {
+      "name": "avatar-utils",
+      "type": "registry:lib",
+      "title": "avatarUtils",
+      "description": "Utility functions for avatar manipulation and formatting",
+      "files": [
+        {
+          "path": "registry/mini-app/lib/avatar-utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": []
     }
   ]
 }
