@@ -38,7 +38,7 @@
     },
     {
       "path": "registry/mini-app/lib/avatar-utils.ts",
-      "content": "/**\n * Format the avatar url to the correct size\n * @param avatarUrl - The url of the avatar\n * @returns The formatted avatar url\n */\nexport const formatAvatarUrl = (avatarUrl: string) => {\n  const defaultAvatar = \"/anim=false,fit=contain,f=auto,w=512\";\n  if (avatarUrl.endsWith(\"/rectcrop3\")) {\n    avatarUrl = avatarUrl.replace(\"/rectcrop3\", defaultAvatar);\n  } else if (avatarUrl.endsWith(\"/original\")) {\n    avatarUrl = avatarUrl.replace(\"/original\", defaultAvatar);\n  } else if (avatarUrl.endsWith(\"/public\")) {\n    avatarUrl = avatarUrl.replace(\"/public\", defaultAvatar);\n  }\n  return avatarUrl;\n};\n",
+      "content": "/**\n * Format the avatar src for imagedelivery.net images to reasonable avatar sizes\n *\n * @docs https://developers.cloudflare.com/images/transform-images/transform-via-url/#options\n *\n * @param avatarSrc - The src of the avatar\n * @returns The formatted avatar url\n */\nexport const formatAvatarUrl = (avatarSrc: string) => {\n  if (!avatarSrc) return undefined;\n  if (avatarSrc.startsWith(\"https://imagedelivery.net\")) {\n    const defaultAvatar = \"/anim=false,fit=contain,f=auto,w=512\";\n    if (avatarSrc.endsWith(\"/rectcrop3\")) {\n      avatarSrc = avatarSrc.replace(\"/rectcrop3\", defaultAvatar);\n    } else if (avatarSrc.endsWith(\"/original\")) {\n      avatarSrc = avatarSrc.replace(\"/original\", defaultAvatar);\n    } else if (avatarSrc.endsWith(\"/public\")) {\n      avatarSrc = avatarSrc.replace(\"/public\", defaultAvatar);\n    }\n  }\n  return avatarSrc;\n};\n",
       "type": "registry:lib",
       "target": ""
     }
