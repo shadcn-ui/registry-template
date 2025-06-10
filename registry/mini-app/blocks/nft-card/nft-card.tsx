@@ -302,10 +302,9 @@ export function NFTCard({
     onError,
   ]);
 
-  // ai! change this loading component to be more of a pulsating skeleton
   const defaultLoadingComponent = (
     <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="w-full h-full bg-gray-300 dark:bg-gray-600 animate-pulse"></div>
     </div>
   );
 
