@@ -6,6 +6,8 @@ import {
   AvatarImage,
 } from "@/registry/mini-app/ui/avatar";
 import { useProfile } from "@/registry/mini-app/hooks/use-profile";
+import { formatAvatarUrl } from "@/registry/mini-app/lib/avatar-utils";
+
 import { cn } from "@/lib/utils";
 
 type UserAvatarProps = {
@@ -34,7 +36,12 @@ export function UserAvatar({
   const profile = useProfile();
 
   // Use profile data if requested and available
-  const avatarSrc = useProfileData && profile.pfpUrl ? profile.pfpUrl : src;
+  const avatarSrc =
+    useProfileData && profile.pfpUrl
+      ? formatAvatarUrl(profile.pfpUrl)
+      : src
+      ? formatAvatarUrl(src)
+      : undefined;
 
   // Generate fallback text from profile or use provided fallback
   const getFallbackText = () => {
@@ -92,7 +99,7 @@ export function UserAvatar({
         clickable && useProfileData && profile.fid
           ? "cursor-pointer hover:opacity-80"
           : "",
-        className,
+        className
       )}
       style={customSizeStyle}
       onClick={clickable || onClickOverride ? handleClick : undefined}
