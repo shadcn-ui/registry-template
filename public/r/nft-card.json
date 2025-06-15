@@ -6,7 +6,6 @@
   "description": "A versatile NFT display component that supports multiple blockchains with rich metadata and custom styling options",
   "dependencies": [
     "viem",
-    "next/image",
     "viem"
   ],
   "registryDependencies": [],

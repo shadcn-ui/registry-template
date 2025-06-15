@@ -180,7 +180,7 @@
       "type": "registry:component",
       "title": "NFT Card",
       "description": "A versatile NFT display component that supports multiple blockchains with rich metadata and custom styling options",
-      "dependencies": ["viem", "next/image"],
+      "dependencies": ["viem"],
       "registryDependencies": [],
       "meta": {
         "use_cases": ["NFT Showcase", "Digital Collectibles Display"],
