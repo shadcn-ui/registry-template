@@ -37,9 +37,10 @@ jobs:
 
       - name: Create test Next.js app
         run: |
-          npx create-next-app@latest test-app --typescript --tailwind --app --no-src-dir --import-alias "@/*" --use-pnpm --no-install
+          echo -e "Y\nNo\n" | npx create-next-app@latest test-app --typescript --tailwind --app --no-src-dir --import-alias "@/*" --use-pnpm --no-install --no-eslint
           cd test-app
           pnpm install
+          echo -e "Y\n\n\n\n\n\n\n\n" | pnpm dlx shadcn@latest init
 
       - name: Test component installations
         run: |
@@ -48,7 +49,7 @@ jobs:
           # Extract component names from registry.json
           COMPONENTS=$(node -e "
             const registry = require('../registry-repo/registry.json');
-            const components = registry.map(item => item.name);
+            const components = registry.items.map(item => item.name);
             console.log(components.join(' '));
           ")
           
@@ -56,6 +57,8 @@ jobs:
           
           # Track failed installations
           FAILED=""
+          SUCCESS_COUNT=0
+          TOTAL_COUNT=0
           
           # Test each component installation
           for component in $COMPONENTS; do
@@ -63,9 +66,12 @@ jobs:
             echo "Testing: $component"
             echo "----------------------------------------"
             
-            # Run shadcn add command
-            if pnpm dlx shadcn@latest add "https://hellno-mini-app-ui.vercel.app/r/${component}.json" --yes --overwrite; then
+            TOTAL_COUNT=$((TOTAL_COUNT + 1))
+            
+            # Run shadcn add command with timeout
+            if timeout 60 pnpm dlx shadcn@latest add "https://hellno-mini-app-ui.vercel.app/r/${component}.json" --yes --overwrite; then
               echo "✅ $component installed successfully"
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
             else
               echo "❌ $component installation failed"
               FAILED="$FAILED $component"
@@ -75,8 +81,10 @@ jobs:
           # Report results
           echo ""
           echo "========================================"
+          echo "Installation Summary:"
+          echo "✅ Successful: $SUCCESS_COUNT/$TOTAL_COUNT"
           if [ -z "$FAILED" ]; then
-            echo "✅ All components installed successfully!"
+            echo "🎉 All components installed successfully!"
           else
             echo "❌ Failed installations:$FAILED"
             exit 1
