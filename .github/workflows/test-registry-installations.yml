@@ -1,0 +1,90 @@
+name: Test Registry Installations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'registry/**'
+      - 'registry.json'
+      - 'public/r/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'registry/**'
+      - 'registry.json'
+      - 'public/r/**'
+  workflow_dispatch:
+
+jobs:
+  test-installations:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout registry repo
+        uses: actions/checkout@v4
+        with:
+          path: registry-repo
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Create test Next.js app
+        run: |
+          npx create-next-app@latest test-app --typescript --tailwind --app --no-src-dir --import-alias "@/*" --use-pnpm --no-install
+          cd test-app
+          pnpm install
+
+      - name: Test component installations
+        run: |
+          cd test-app
+          
+          # Extract component names from registry.json
+          COMPONENTS=$(node -e "
+            const registry = require('../registry-repo/registry.json');
+            const components = registry.map(item => item.name);
+            console.log(components.join(' '));
+          ")
+          
+          echo "Testing installation of components: $COMPONENTS"
+          
+          # Track failed installations
+          FAILED=""
+          
+          # Test each component installation
+          for component in $COMPONENTS; do
+            echo ""
+            echo "Testing: $component"
+            echo "----------------------------------------"
+            
+            # Run shadcn add command
+            if pnpm dlx shadcn@latest add "https://hellno-mini-app-ui.vercel.app/r/${component}.json" --yes --overwrite; then
+              echo "✅ $component installed successfully"
+            else
+              echo "❌ $component installation failed"
+              FAILED="$FAILED $component"
+            fi
+          done
+          
+          # Report results
+          echo ""
+          echo "========================================"
+          if [ -z "$FAILED" ]; then
+            echo "✅ All components installed successfully!"
+          else
+            echo "❌ Failed installations:$FAILED"
+            exit 1
+          fi
+
+      - name: Check installed files
+        if: success()
+        run: |
+          cd test-app
+          echo "Installed component files:"
+          find components lib hooks -type f -name "*.tsx" -o -name "*.ts" 2>/dev/null | sort || true
