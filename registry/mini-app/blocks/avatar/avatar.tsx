@@ -8,7 +8,7 @@ import {
 import { useProfile } from "@/registry/mini-app/hooks/use-profile";
 import { formatAvatarUrl } from "@/registry/mini-app/lib/avatar-utils";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/registry/mini-app/lib/utils";
 
 type UserAvatarProps = {
   src?: string;

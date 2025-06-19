@@ -148,7 +148,8 @@
       "description": "A customizable avatar component that can display user profile images with fallbacks",
       "dependencies": [],
       "registryDependencies": [
-        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json",
+        "https://hellno-mini-app-ui.vercel.app/r/utils.json"
       ],
       "meta": {
         "use_cases": ["Display User Profile Image", "Avatar Fallbacks"],
@@ -169,7 +170,8 @@
       "dependencies": [],
       "registryDependencies": [
         "https://hellno-mini-app-ui.vercel.app/r/avatar.json",
-        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json"
+        "https://hellno-mini-app-ui.vercel.app/r/use-profile.json",
+        "https://hellno-mini-app-ui.vercel.app/r/utils.json"
       ],
       "meta": {
         "use_cases": ["User Info Card", "Profile Summary"],
@@ -188,7 +190,7 @@
       "title": "NFT Card",
       "description": "A versatile NFT display component that supports multiple blockchains with rich metadata and custom styling options",
       "dependencies": ["viem"],
-      "registryDependencies": [],
+      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/utils.json"],
       "meta": {
         "use_cases": ["NFT Showcase", "Digital Collectibles Display"],
         "keywords": ["nft", "collectible", "mint"]
@@ -209,7 +211,8 @@
       "registryDependencies": [
         "button",
         "input",
-        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json",
+        "https://hellno-mini-app-ui.vercel.app/r/utils.json"
       ],
       "meta": {
         "use_cases": ["User Search", "Profile Lookup"],
@@ -237,7 +240,7 @@
         "keywords": ["nft", "collectible", "mint"]
       },
       "devDependencies": [],
-      "registryDependencies": ["button", "sheet"],
+      "registryDependencies": ["button", "sheet", "https://hellno-mini-app-ui.vercel.app/r/utils.json"],
       "files": [
         {
           "path": "registry/mini-app/blocks/nft-mint-flow/nft-mint-flow.tsx",
@@ -272,6 +275,72 @@
       ],
       "dependencies": [],
       "registryDependencies": []
+    },
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "utils",
+      "description": "Utility functions including cn for class name merging",
+      "files": [
+        {
+          "path": "registry/mini-app/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": ["clsx", "tailwind-merge"],
+      "registryDependencies": []
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "description": "Button component with variants",
+      "files": [
+        {
+          "path": "registry/mini-app/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["@radix-ui/react-slot", "class-variance-authority"],
+      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/utils.json"]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "description": "Input component",
+      "files": [
+        {
+          "path": "registry/mini-app/ui/input.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/utils.json"]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "description": "Card component",
+      "files": [
+        {
+          "path": "registry/mini-app/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/utils.json"]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "description": "Sheet component",
+      "files": [
+        {
+          "path": "registry/mini-app/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["@radix-ui/react-dialog", "class-variance-authority"],
+      "registryDependencies": ["https://hellno-mini-app-ui.vercel.app/r/utils.json"]
     }
   ]
 }

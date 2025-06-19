@@ -6,8 +6,7 @@
   "description": "Hook to access and manage user profile information from Farcaster SDK",
   "dependencies": [
     "@farcaster/frame-core",
-    "@farcaster/frame-sdk",
-    "."
+    "@farcaster/frame-sdk"
   ],
   "registryDependencies": [
     "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"

@@ -7,7 +7,7 @@ import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { Search, User, Users, X } from "lucide-react";
 import { formatLargeNumber } from "@/registry/mini-app/lib/text-utils";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/registry/mini-app/lib/utils";
 
 // Types based on Neynar API response
 export type FarcasterUser = {

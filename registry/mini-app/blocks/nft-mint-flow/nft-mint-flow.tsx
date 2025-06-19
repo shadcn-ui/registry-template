@@ -19,7 +19,7 @@ import {
 import { formatEther, type Address } from "viem";
 import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
 import { Coins, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/registry/mini-app/lib/utils";
 
 type NFTMintFlowProps = {
   amount: number;

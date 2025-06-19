@@ -2,7 +2,7 @@
 
 import { useProfile } from "@/registry/mini-app/hooks/use-profile";
 import { UserAvatar } from "@/registry/mini-app/blocks/avatar/avatar";
-import { cn } from "@/lib/utils";
+import { cn } from "@/registry/mini-app/lib/utils";
 
 type UserContextProps = {
   showAvatar?: boolean;
