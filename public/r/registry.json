@@ -16,7 +16,14 @@
           "On-chain Transactions",
           "Custom Payment Buttons"
         ],
-        "keywords": ["daimo", "payment", "tokens", "button", "transfer"]
+        "keywords": [
+          "daimo",
+          "payment",
+          "tokens",
+          "transfer",
+          "donate",
+          "donation"
+        ]
       },
       "dependencies": [
         "@daimo/pay",
@@ -56,7 +63,7 @@
           "Share on Farcaster",
           "Content Distribution"
         ],
-        "keywords": ["share", "cast", "button", "social", "farcaster"]
+        "keywords": ["share", "cast", "social", "farcaster"]
       },
       "files": [
         {

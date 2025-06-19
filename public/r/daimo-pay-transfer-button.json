@@ -49,8 +49,9 @@
       "daimo",
       "payment",
       "tokens",
-      "button",
-      "transfer"
+      "transfer",
+      "donate",
+      "donation"
     ]
   }
 }
