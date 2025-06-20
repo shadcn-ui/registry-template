@@ -8,6 +8,7 @@ import { NFTCard } from "@/registry/mini-app/blocks/nft-card/nft-card";
 import { NFTMintFlow } from "@/registry/mini-app/blocks/nft-mint-flow/nft-mint-flow";
 import * as React from "react";
 import { ProfileSearchSimulationDemo } from "@/registry/mini-app/blocks/profile-search/simulationHelper";
+import {ManifoldNFTMint} from "@/registry/mini-app/blocks/manifold-nft-mint/manifold-nft-mint";
 
 
 
@@ -190,4 +191,16 @@ export const componentItems: ComponentItem[] = [
     ),
     installName: "nft-mint-flow",
   },
+  {
+    title: "Manifold NFT Mint",
+    component:(
+      <ManifoldNFTMint
+      contractAddress="0x22fbd94bfc652dcb8b7958dda318566138d4bedc"
+      tokenId="4"
+      chainId={8453}
+      buttonText="Mint now"
+      />
+    ),
+    installName: "manifold-nft-mint"
+  }
 ];
