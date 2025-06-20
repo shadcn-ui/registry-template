@@ -11,7 +11,7 @@ export async function GET() {
       version: "1",
       name: "hellno/mini-app-ui",
       iconUrl: "https://hellno-mini-app-ui.vercel.app/vibes-icon.png",
-      homeUrl: "https://blessed-honeybee-wanted.ngrok-free.app/",
+      homeUrl: "https://hellno-mini-app-ui.vercel.app",
       imageUrl: `https://hellno-mini-app-ui.vercel.app/opengraph-image`,
       buttonTitle: "Open hellno/mini-app-ui",
       splashImageUrl: "https://hellno-mini-app-ui.vercel.app/vibes-icon.png",
