@@ -189,6 +189,20 @@
           "type": "registry:block"
         }
       ]
+    },
+    {
+      "name": "manifold-nft-mint",
+      "type": "registry:block",
+      "description": "A complete Manifold NFT minting flow component with wallet connection, transaction handling, and 5-step user experience",
+      "dependencies": ["lucide-react", "wagmi", "viem", "@farcaster/frame-wagmi-connector"],
+      "devDependencies": [],
+      "registryDependencies": ["button", "sheet"],
+      "files": [
+        {
+          "path": "registry/mini-app/blocks/manifold-nft-mint/manifold-nft-mint.tsx",
+          "type": "registry:block"
+        }
+      ]
     }
   ]
 }
