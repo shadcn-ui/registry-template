@@ -10,12 +10,10 @@
     "wagmi",
     "viem",
     "@farcaster/frame-wagmi-connector",
-    "@daimo/pay",
-    "@daimo/contract",
-    "viem",
-    "wagmi",
     "@radix-ui/react-slot",
-    "class-variance-authority"
+    "class-variance-authority",
+    "clsx",
+    "tailwind-merge"
   ],
   "registryDependencies": [
     "button"
@@ -23,7 +21,7 @@
   "files": [
     {
       "path": "registry/mini-app/blocks/daimo-pay-transfer/components/daimo-pay-transfer-button.tsx",
-      "content": "\"use client\";\n\nimport { DaimoPayButton } from \"@daimo/pay\";\nimport { baseUSDC } from \"@daimo/contract\";\nimport { getAddress } from \"viem\";\nimport { useAccount } from \"wagmi\";\nimport { Button } from \"@/registry/mini-app/ui/button\";\n\nexport function DaimoPayTransferButton({\n  text,\n  toChainId,\n  toAddress,\n  tokenAddress,\n  amount,\n  onPaymentStarted,\n  onPaymentCompleted,\n}: {\n  text: string;\n  toAddress: `0x${string}`;\n  amount: string;\n  tokenAddress?: `0x${string}`;\n  toChainId?: number;\n  onPaymentStarted?: () => void;\n  onPaymentCompleted?: () => void;\n}) {\n  return (\n    <div className=\"flex justify-center text-xl font-bold rounded-lg shadow-lg\">\n      <DaimoPayButton.Custom\n        appId={process.env.NEXT_PUBLIC_DAIMO_PAY_KEY || \"pay-demo\"}\n        toChain={toChainId || baseUSDC.chainId}\n        toUnits={amount}\n        toToken={tokenAddress || getAddress(baseUSDC.token)}\n        toAddress={toAddress}\n        onPaymentStarted={(e) => {\n          console.log(\"Payment started\", e);\n          onPaymentStarted?.();\n        }}\n        onPaymentCompleted={(e) => {\n          console.log(\"Payment completed\", e);\n          onPaymentCompleted?.();\n        }}\n        closeOnSuccess\n      >\n        {({ show: showDaimoModal }) => (\n          <Button className=\"w-full\" size=\"lg\" onClick={() => showDaimoModal()}>\n            {text}\n          </Button>\n        )}\n      </DaimoPayButton.Custom>\n    </div>\n  );\n}\n",
+      "content": "\"use client\";\n\nimport { DaimoPayButton } from \"@daimo/pay\";\nimport { baseUSDC } from \"@daimo/contract\";\nimport { getAddress } from \"viem\";\nimport { Button } from \"@/registry/mini-app/ui/button\";\n\nexport function DaimoPayTransferButton({\n  text,\n  toChainId,\n  toAddress,\n  tokenAddress,\n  amount,\n  onPaymentStarted,\n  onPaymentCompleted,\n}: {\n  text: string;\n  toAddress: `0x${string}`;\n  amount: string;\n  tokenAddress?: `0x${string}`;\n  toChainId?: number;\n  onPaymentStarted?: () => void;\n  onPaymentCompleted?: () => void;\n}) {\n  return (\n    <div className=\"flex justify-center text-xl font-bold rounded-lg shadow-lg\">\n      <DaimoPayButton.Custom\n        appId={process.env.NEXT_PUBLIC_DAIMO_PAY_KEY || \"pay-demo\"}\n        toChain={toChainId || baseUSDC.chainId}\n        toUnits={amount}\n        toToken={tokenAddress || getAddress(baseUSDC.token)}\n        toAddress={toAddress}\n        onPaymentStarted={(e) => {\n          console.log(\"Payment started\", e);\n          onPaymentStarted?.();\n        }}\n        onPaymentCompleted={(e) => {\n          console.log(\"Payment completed\", e);\n          onPaymentCompleted?.();\n        }}\n        closeOnSuccess\n      >\n        {({ show: showDaimoModal }) => (\n          <Button className=\"w-full\" size=\"lg\" onClick={() => showDaimoModal()}>\n            {text}\n          </Button>\n        )}\n      </DaimoPayButton.Custom>\n    </div>\n  );\n}\n",
       "type": "registry:component"
     },
     {
@@ -33,13 +31,32 @@
     },
     {
       "path": "registry/mini-app/ui/button.tsx",
-      "content": "import * as React from \"react\"\nimport { Slot } from \"@radix-ui/react-slot\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\n\nimport { cn } from \"@/lib/utils\"\n\nconst buttonVariants = cva(\n  \"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive\",\n  {\n    variants: {\n      variant: {\n        default:\n          \"bg-primary text-primary-foreground shadow-xs hover:bg-primary/90\",\n        destructive:\n          \"bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60\",\n        outline:\n          \"border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50\",\n        secondary:\n          \"bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80\",\n        ghost:\n          \"hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50\",\n        link: \"text-primary underline-offset-4 hover:underline\",\n      },\n      size: {\n        default: \"h-9 px-4 py-2 has-[>svg]:px-3\",\n        sm: \"h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5\",\n        lg: \"h-10 rounded-md px-6 has-[>svg]:px-4\",\n        icon: \"size-9\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n      size: \"default\",\n    },\n  }\n)\n\nfunction Button({\n  className,\n  variant,\n  size,\n  asChild = false,\n  ...props\n}: React.ComponentProps<\"button\"> &\n  VariantProps<typeof buttonVariants> & {\n    asChild?: boolean\n  }) {\n  const Comp = asChild ? Slot : \"button\"\n\n  return (\n    <Comp\n      data-slot=\"button\"\n      className={cn(buttonVariants({ variant, size, className }))}\n      {...props}\n    />\n  )\n}\n\nexport { Button, buttonVariants }\n",
+      "content": "import * as React from \"react\";\nimport { Slot } from \"@radix-ui/react-slot\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"@/registry/mini-app/lib/utils\";\n\nconst buttonVariants = cva(\n  \"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive\",\n  {\n    variants: {\n      variant: {\n        default:\n          \"bg-primary text-primary-foreground shadow-xs hover:bg-primary/90\",\n        destructive:\n          \"bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60\",\n        outline:\n          \"border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50\",\n        secondary:\n          \"bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80\",\n        ghost:\n          \"hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50\",\n        link: \"text-primary underline-offset-4 hover:underline\",\n      },\n      size: {\n        default: \"h-9 px-4 py-2 has-[>svg]:px-3\",\n        sm: \"h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5\",\n        lg: \"h-10 rounded-md px-6 has-[>svg]:px-4\",\n        icon: \"size-9\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n      size: \"default\",\n    },\n  },\n);\n\nfunction Button({\n  className,\n  variant,\n  size,\n  asChild = false,\n  ...props\n}: React.ComponentProps<\"button\"> &\n  VariantProps<typeof buttonVariants> & {\n    asChild?: boolean;\n  }) {\n  const Comp = asChild ? Slot : \"button\";\n\n  return (\n    <Comp\n      data-slot=\"button\"\n      className={cn(buttonVariants({ variant, size, className }))}\n      {...props}\n    />\n  );\n}\n\nexport { Button, buttonVariants };\n",
       "type": "registry:ui",
+      "target": ""
+    },
+    {
+      "path": "registry/mini-app/lib/utils.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\nexport function cn(...inputs: ClassValue[]) {\n  return twMerge(clsx(inputs));\n}",
+      "type": "registry:lib",
       "target": ""
     }
   ],
   "meta": {
     "mediaUrl": "/previews/daimo-pay-transfer-button.mp4",
-    "demoUrl": "/component/daimo-pay-transfer-button"
+    "demoUrl": "/component/daimo-pay-transfer-button",
+    "use_cases": [
+      "Token Transfer UI",
+      "On-chain Transactions",
+      "Custom Payment Buttons"
+    ],
+    "keywords": [
+      "daimo",
+      "payment",
+      "tokens",
+      "transfer",
+      "donate",
+      "donation"
+    ]
   }
 }

@@ -8,15 +8,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "registry:build": "shadcn registry:build",
     "prepare": "husky",
-    "test:nft": "tsx scripts/test-nft-contracts.ts"
+    "test:nft": "tsx scripts/test-nft-contracts.ts",
+    "registry:build": "shadcn registry:build && node scripts/clean-registry.js"
   },
   "dependencies": {
     "@daimo/contract": "^1.6.0",
     "@daimo/pay": "^1.8.4",
     "@farcaster/frame-core": "^0.0.40",
-    "@farcaster/frame-sdk": "^0.0.50",
+    "@farcaster/frame-sdk": "^0.0.53",
     "@farcaster/frame-wagmi-connector": "^0.0.39",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-label": "^2.1.4",
@@ -47,6 +47,7 @@
     "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "glob": "^11.0.3",
     "husky": "^9.1.7",
     "tailwindcss": "^4",
     "tsx": "^4.20.3",

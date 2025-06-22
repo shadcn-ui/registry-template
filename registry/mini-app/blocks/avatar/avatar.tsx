@@ -1,8 +1,14 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/registry/mini-app/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/registry/mini-app/ui/avatar";
 import { useProfile } from "@/registry/mini-app/hooks/use-profile";
-import { cn } from "@/lib/utils";
+import { formatAvatarUrl } from "@/registry/mini-app/lib/avatar-utils";
+
+import { cn } from "@/registry/mini-app/lib/utils";
 
 type UserAvatarProps = {
   src?: string;
@@ -28,10 +34,15 @@ export function UserAvatar({
   onClickOverride,
 }: UserAvatarProps) {
   const profile = useProfile();
-  
+
   // Use profile data if requested and available
-  const avatarSrc = useProfileData && profile.pfpUrl ? profile.pfpUrl : src;
-  
+  const avatarSrc =
+    useProfileData && profile.pfpUrl
+      ? formatAvatarUrl(profile.pfpUrl)
+      : src
+      ? formatAvatarUrl(src)
+      : undefined;
+
   // Generate fallback text from profile or use provided fallback
   const getFallbackText = () => {
     if (fallback) return fallback;
@@ -53,20 +64,23 @@ export function UserAvatar({
     xl: "h-16 w-16 text-xl",
     "2xl": "h-20 w-20 text-2xl",
   };
-  
+
   // Shape classes
   const shapeClasses = {
     circle: "rounded-full",
     square: "rounded-none",
     rounded: "rounded-lg",
   };
-  
+
   // Custom size if number is provided
-  const customSizeStyle = typeof size === 'number' ? { 
-    width: `${size}px`, 
-    height: `${size}px`,
-    fontSize: `${Math.max(size / 3, 12)}px`
-  } : {};
+  const customSizeStyle =
+    typeof size === "number"
+      ? {
+          width: `${size}px`,
+          height: `${size}px`,
+          fontSize: `${Math.max(size / 3, 12)}px`,
+        }
+      : {};
 
   const handleClick = () => {
     if (onClickOverride) {
@@ -77,24 +91,23 @@ export function UserAvatar({
   };
 
   return (
-    <Avatar 
+    <Avatar
       className={cn(
-        typeof size === 'string' ? sizeClasses[size] : "",
+        typeof size === "string" ? sizeClasses[size] : "",
         shapeClasses[shape],
         "border-0 ring-0 outline-none",
-        clickable && (useProfileData && profile.fid) ? "cursor-pointer hover:opacity-80" : "",
+        clickable && useProfileData && profile.fid
+          ? "cursor-pointer hover:opacity-80"
+          : "",
         className
       )}
       style={customSizeStyle}
       onClick={clickable || onClickOverride ? handleClick : undefined}
     >
       <AvatarImage src={avatarSrc} alt="User Avatar" className="object-cover" />
-      <AvatarFallback className={cn(
-        shapeClasses[shape],
-        fallbackClassName
-      )}>
+      <AvatarFallback className={cn(shapeClasses[shape], fallbackClassName)}>
         {getFallbackText()}
       </AvatarFallback>
     </Avatar>
   );
-} 
+}

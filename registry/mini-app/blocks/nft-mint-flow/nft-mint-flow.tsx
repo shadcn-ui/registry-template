@@ -2,14 +2,35 @@
 
 import * as React from "react";
 import { Button } from "@/registry/mini-app/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/registry/mini-app/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/registry/mini-app/ui/sheet";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
-import { useAccount, useConnect, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useConnect,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { formatEther, type Address } from "viem";
 import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
-import { Coins, CheckCircle, AlertCircle, Loader2, Info, ExternalLink } from "lucide-react";
+import {
+  Coins,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Info,
+  ExternalLink,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { detectNFTProvider, validateParameters, getClientForChain } from "./lib/provider-detector";
+import {
+  detectNFTProvider,
+  validateParameters,
+  getClientForChain,
+} from "./lib/provider-detector";
 import { getProviderConfig } from "./lib/provider-configs";
 import { fetchPriceData } from "./lib/price-optimizer";
 import { mintReducer, initialState, type MintStep } from "./lib/mint-reducer";
@@ -17,15 +38,15 @@ import type { MintParams } from "./lib/types";
 
 /**
  * NFTMintFlow - Universal NFT minting component with automatic provider detection and ERC20 approval handling
- * 
+ *
  * @example
  * ```tsx
  * // Basic ETH mint (auto-detects provider)
- * <NFTMintFlow 
+ * <NFTMintFlow
  *   contractAddress="0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4"
  *   chainId={1}
  * />
- * 
+ *
  * // Manifold NFT with ERC20 payment (HIGHER token)
  * <NFTMintFlow
  *   contractAddress="0x32dd0a7190b5bba94549a0d04659a9258f5b1387"
@@ -33,7 +54,7 @@ import type { MintParams } from "./lib/types";
  *   provider="manifold"
  *   manifoldParams={{ instanceId: "4293509360", tokenId: "2" }}
  * />
- * 
+ *
  * // Multiple NFTs with custom button
  * <NFTMintFlow
  *   contractAddress="0x..."
@@ -45,47 +66,47 @@ import type { MintParams } from "./lib/types";
  * ```
  */
 type NFTMintFlowProps = {
-  /** 
+  /**
    * NFT contract address (0x...). This should be the main NFT contract, not the minting contract.
    * For Manifold, this is the creator contract, not the extension.
    */
   contractAddress: Address;
-  
-  /** 
+
+  /**
    * Blockchain network ID
    * - 1 = Ethereum mainnet
    * - 8453 = Base mainnet
    */
   chainId: 1 | 8453;
-  
-  /** 
+
+  /**
    * Optional provider hint. Use when:
    * - Auto-detection is failing
    * - You know the provider and want faster loading
    * - Testing specific provider flows
-   * 
+   *
    * Leave undefined for automatic detection.
    */
   provider?: "manifold" | "opensea" | "zora" | "generic";
-  
-  /** 
+
+  /**
    * Number of NFTs to mint. Defaults to 1.
    * Note: For ERC20 payments, the total cost is multiplied by this amount.
    */
   amount?: number;
-  
-  /** 
+
+  /**
    * Manifold-specific parameters. Required when provider="manifold".
    * - instanceId: The claim instance ID from Manifold (required for most Manifold NFTs)
    * - tokenId: The specific token ID (required for some editions)
-   * 
+   *
    * Find these in the Manifold claim page URL or contract details.
    */
   manifoldParams?: {
     instanceId?: string;
     tokenId?: string;
   };
-  
+
   // UI customization
   /** Additional CSS classes */
   className?: string;
@@ -97,20 +118,19 @@ type NFTMintFlowProps = {
   buttonText?: string;
   /** Disable the mint button */
   disabled?: boolean;
-  
-  /** 
+
+  /**
    * Called when NFT minting succeeds (not on approval success)
    * @param txHash - The mint transaction hash (not approval tx)
    */
   onMintSuccess?: (txHash: string) => void;
-  
-  /** 
+
+  /**
    * Called when NFT minting fails (not on approval failure)
    * @param error - Human-readable error message
    */
   onMintError?: (error: string) => void;
 };
-
 
 export function NFTMintFlow({
   contractAddress,
@@ -128,70 +148,97 @@ export function NFTMintFlow({
 }: NFTMintFlowProps) {
   const [state, dispatch] = React.useReducer(mintReducer, initialState);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
-  
+
   // Prop validation with helpful errors
   React.useEffect(() => {
-    if (provider === "manifold" && !manifoldParams?.instanceId && !manifoldParams?.tokenId) {
+    if (
+      provider === "manifold" &&
+      !manifoldParams?.instanceId &&
+      !manifoldParams?.tokenId
+    ) {
       console.error(
         "NFTMintFlow: When provider='manifold', you must provide manifoldParams with either instanceId or tokenId. " +
-        "Example: manifoldParams={{ instanceId: '4293509360' }}"
+          "Example: manifoldParams={{ instanceId: '4293509360' }}",
       );
     }
-    
+
     if (manifoldParams && provider !== "manifold") {
       console.warn(
         "NFTMintFlow: manifoldParams provided but provider is not 'manifold'. " +
-        "Did you forget to set provider='manifold'?"
+          "Did you forget to set provider='manifold'?",
       );
     }
-    
+
     if (chainId !== 1 && chainId !== 8453) {
       console.warn(
         `NFTMintFlow: Chain ID ${chainId} may not be supported. ` +
-        "Currently tested chains: 1 (Ethereum), 8453 (Base)"
+          "Currently tested chains: 1 (Ethereum), 8453 (Base)",
       );
     }
-    
+
     if (!contractAddress || !contractAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
       console.error(
-        "NFTMintFlow: Invalid contract address. Must be a valid Ethereum address (0x...)"
+        "NFTMintFlow: Invalid contract address. Must be a valid Ethereum address (0x...)",
       );
     }
   }, [provider, manifoldParams, chainId, contractAddress]);
-  
+
   // Destructure commonly used values
-  const { step, contractInfo, priceData, error, txHash, txType, isLoading, validationErrors } = state;
+  const {
+    step,
+    contractInfo,
+    priceData,
+    error,
+    txHash,
+    txType,
+    isLoading,
+    validationErrors,
+  } = state;
   const { erc20Details } = priceData;
-  
+
   const { isSDKLoaded } = useMiniAppSdk();
   const { isConnected, address } = useAccount();
   const { connect } = useConnect();
-  const { writeContract, isPending: isWritePending, data: writeData, error: writeError } = useWriteContract();
+  const {
+    writeContract,
+    isPending: isWritePending,
+    data: writeData,
+    error: writeError,
+  } = useWriteContract();
 
   // Build mint params
-  const mintParams: MintParams = React.useMemo(() => ({
-    contractAddress,
-    chainId,
-    provider,
-    amount,
-    instanceId: manifoldParams?.instanceId,
-    tokenId: manifoldParams?.tokenId,
-    recipient: address
-  }), [contractAddress, chainId, provider, amount, manifoldParams, address]);
+  const mintParams: MintParams = React.useMemo(
+    () => ({
+      contractAddress,
+      chainId,
+      provider,
+      amount,
+      instanceId: manifoldParams?.instanceId,
+      tokenId: manifoldParams?.tokenId,
+      recipient: address,
+    }),
+    [contractAddress, chainId, provider, amount, manifoldParams, address],
+  );
 
   // Watch for transaction completion
-  const { isSuccess: isTxSuccess, isError: isTxError, error: txError } = useWaitForTransactionReceipt({
+  const {
+    isSuccess: isTxSuccess,
+    isError: isTxError,
+    error: txError,
+  } = useWaitForTransactionReceipt({
     hash: writeData,
   });
 
   // Get provider config
-  const providerConfig = contractInfo ? getProviderConfig(contractInfo.provider) : null;
+  const providerConfig = contractInfo
+    ? getProviderConfig(contractInfo.provider)
+    : null;
 
   // Handle transaction status updates
   React.useEffect(() => {
     if (writeError) {
       // Don't show error state for user rejections - just close
-      if(writeError.message.toLowerCase().includes("user rejected")) {
+      if (writeError.message.toLowerCase().includes("user rejected")) {
         dispatch({ type: "RESET" });
         return;
       }
@@ -214,7 +261,16 @@ export function NFTMintFlow({
         onMintSuccess?.(writeData);
       }
     }
-  }, [isTxSuccess, writeData, onMintSuccess, isTxError, txError, onMintError, writeError, txType]);
+  }, [
+    isTxSuccess,
+    writeData,
+    onMintSuccess,
+    isTxError,
+    txError,
+    onMintError,
+    writeError,
+    txType,
+  ]);
 
   // Auto-close on success after 10 seconds
   React.useEffect(() => {
@@ -225,7 +281,7 @@ export function NFTMintFlow({
       return () => clearTimeout(timer);
     }
   }, [step]);
-  
+
   const handleClose = React.useCallback(() => {
     setIsSheetOpen(false);
     dispatch({ type: "RESET" });
@@ -234,77 +290,87 @@ export function NFTMintFlow({
   // Detect NFT provider and validate
   const detectAndValidate = async () => {
     dispatch({ type: "DETECT_START" });
-    
+
     try {
       // Detect provider
       const info = await detectNFTProvider(mintParams);
       console.log("Detected provider:", info);
-      
+
       // Validate parameters
       const validation = validateParameters(mintParams, info);
-      
+
       if (!validation.isValid) {
         dispatch({ type: "VALIDATION_ERROR", payload: validation.errors });
         return;
       }
-      
+
       // Fetch optimized price data
       const client = getClientForChain(chainId);
       const fetchedPriceData = await fetchPriceData(client, mintParams, info);
       console.log("Fetched price data:", fetchedPriceData);
-      
+
       // Update contract info with ERC20 details and claim data
       if (fetchedPriceData.erc20Details) {
-        info.erc20Token = fetchedPriceData.erc20Details.address as `0x${string}`;
+        info.erc20Token = fetchedPriceData.erc20Details
+          .address as `0x${string}`;
         info.erc20Symbol = fetchedPriceData.erc20Details.symbol;
         info.erc20Decimals = fetchedPriceData.erc20Details.decimals;
       }
-      
+
       // Add claim data if available
       if (fetchedPriceData.claim) {
         info.claim = fetchedPriceData.claim;
       }
-      
-      dispatch({ 
-        type: "DETECT_SUCCESS", 
-        payload: { 
-          contractInfo: info, 
+
+      dispatch({
+        type: "DETECT_SUCCESS",
+        payload: {
+          contractInfo: info,
           priceData: {
             mintPrice: fetchedPriceData.mintPrice,
             totalCost: fetchedPriceData.totalCost,
-            erc20Details: fetchedPriceData.erc20Details
-          }
-        } 
+            erc20Details: fetchedPriceData.erc20Details,
+          },
+        },
       });
     } catch (err) {
       console.error("Detection failed:", err);
-      dispatch({ type: "DETECT_ERROR", payload: "Failed to detect NFT contract type" });
+      dispatch({
+        type: "DETECT_ERROR",
+        payload: "Failed to detect NFT contract type",
+      });
     }
   };
-  
+
   // Check allowance only (without re-detecting everything)
   const checkAllowanceOnly = React.useCallback(async () => {
     if (!contractInfo || !erc20Details || !address) return;
-    
+
     try {
       const client = getClientForChain(chainId);
-      const spenderAddress = contractInfo.provider === "manifold" && contractInfo.extensionAddress 
-        ? contractInfo.extensionAddress 
-        : contractAddress;
-        
+      const spenderAddress =
+        contractInfo.provider === "manifold" && contractInfo.extensionAddress
+          ? contractInfo.extensionAddress
+          : contractAddress;
+
       const allowance = await client.readContract({
         address: erc20Details.address as `0x${string}`,
-        abi: [{ 
-          name: "allowance", 
-          type: "function", 
-          inputs: [{ name: "owner", type: "address" }, { name: "spender", type: "address" }], 
-          outputs: [{ type: "uint256" }], 
-          stateMutability: "view" 
-        }],
+        abi: [
+          {
+            name: "allowance",
+            type: "function",
+            inputs: [
+              { name: "owner", type: "address" },
+              { name: "spender", type: "address" },
+            ],
+            outputs: [{ type: "uint256" }],
+            stateMutability: "view",
+          },
+        ],
         functionName: "allowance",
-        args: [address, spenderAddress]
+        args: [address, spenderAddress],
       });
-      
+
       dispatch({ type: "UPDATE_ALLOWANCE", payload: allowance as bigint });
     } catch (err) {
       console.error("Failed to check allowance:", err);
@@ -313,7 +379,12 @@ export function NFTMintFlow({
 
   // Re-check allowance after wallet connection
   React.useEffect(() => {
-    if (isConnected && address && erc20Details && erc20Details.allowance === undefined) {
+    if (
+      isConnected &&
+      address &&
+      erc20Details &&
+      erc20Details.allowance === undefined
+    ) {
       checkAllowanceOnly();
     }
   }, [isConnected, address, erc20Details, checkAllowanceOnly]);
@@ -324,7 +395,7 @@ export function NFTMintFlow({
       setIsSheetOpen(true);
       return;
     }
-    
+
     setIsSheetOpen(true);
     await detectAndValidate();
   };
@@ -341,36 +412,42 @@ export function NFTMintFlow({
 
   const handleApprove = async () => {
     if (!isConnected || !erc20Details || !contractInfo?.claim) {
-      dispatch({ type: "MINT_ERROR", payload: "Missing required information for approval" });
+      dispatch({
+        type: "MINT_ERROR",
+        payload: "Missing required information for approval",
+      });
       return;
     }
 
     try {
       dispatch({ type: "APPROVE_START" });
-      
+
       // For Manifold, approve the extension contract, not the NFT contract
-      const spenderAddress = contractInfo.provider === "manifold" && contractInfo.extensionAddress 
-        ? contractInfo.extensionAddress 
-        : contractAddress;
-      
+      const spenderAddress =
+        contractInfo.provider === "manifold" && contractInfo.extensionAddress
+          ? contractInfo.extensionAddress
+          : contractAddress;
+
       // Approve exact amount needed
       const tx = await writeContract({
         address: erc20Details.address as `0x${string}`,
-        abi: [{
-          name: "approve",
-          type: "function",
-          inputs: [
-            { name: "spender", type: "address" },
-            { name: "amount", type: "uint256" }
-          ],
-          outputs: [{ type: "bool" }],
-          stateMutability: "nonpayable"
-        }],
+        abi: [
+          {
+            name: "approve",
+            type: "function",
+            inputs: [
+              { name: "spender", type: "address" },
+              { name: "amount", type: "uint256" },
+            ],
+            outputs: [{ type: "bool" }],
+            stateMutability: "nonpayable",
+          },
+        ],
         functionName: "approve",
         args: [spenderAddress, contractInfo.claim.cost],
-        chainId
+        chainId,
       });
-      
+
       if (tx) {
         dispatch({ type: "APPROVE_TX_SUBMITTED", payload: tx });
       }
@@ -378,7 +455,6 @@ export function NFTMintFlow({
       handleError(err, "Approval failed", "approval");
     }
   };
-  
 
   const handleMint = async () => {
     if (!isConnected) {
@@ -387,28 +463,37 @@ export function NFTMintFlow({
     }
 
     if (!contractInfo || !providerConfig) {
-      dispatch({ type: "MINT_ERROR", payload: "Contract information not available" });
+      dispatch({
+        type: "MINT_ERROR",
+        payload: "Contract information not available",
+      });
       return;
     }
 
     try {
       dispatch({ type: "MINT_START" });
-      
+
       const args = providerConfig.mintConfig.buildArgs(mintParams);
-      const value = priceData.mintPrice ? providerConfig.mintConfig.calculateValue(priceData.mintPrice, mintParams) : BigInt(0);
-      
+      const value = priceData.mintPrice
+        ? providerConfig.mintConfig.calculateValue(
+            priceData.mintPrice,
+            mintParams,
+          )
+        : BigInt(0);
+
       // Handle Manifold's special case
-      const mintAddress = contractInfo.provider === "manifold" && contractInfo.extensionAddress 
-        ? contractInfo.extensionAddress 
-        : contractAddress;
-        
+      const mintAddress =
+        contractInfo.provider === "manifold" && contractInfo.extensionAddress
+          ? contractInfo.extensionAddress
+          : contractAddress;
+
       const tx = await writeContract({
         address: mintAddress,
         abi: providerConfig.mintConfig.abi,
         functionName: providerConfig.mintConfig.functionName as any,
         args,
         value,
-        chainId
+        chainId,
       });
 
       if (tx) {
@@ -420,7 +505,11 @@ export function NFTMintFlow({
   };
 
   // Centralized error handler
-  const handleError = (error: unknown, context: string, transactionType?: "approval" | "mint") => {
+  const handleError = (
+    error: unknown,
+    context: string,
+    transactionType?: "approval" | "mint",
+  ) => {
     console.error(`${context}:`, error);
     const message = error instanceof Error ? error.message : `${context}`;
     dispatch({ type: "TX_ERROR", payload: message });
@@ -438,49 +527,67 @@ export function NFTMintFlow({
   // Display helpers (quick win: centralized formatting)
   const formatPrice = (amount: bigint, decimals: number, symbol: string) => {
     if (amount === BigInt(0)) return "Free";
-    return `${Number(amount) / (10 ** decimals)} ${symbol}`;
+    return `${Number(amount) / 10 ** decimals} ${symbol}`;
   };
-  
+
   const displayPrice = () => {
     if (erc20Details && contractInfo?.claim) {
-      return formatPrice(contractInfo.claim.cost || BigInt(0), erc20Details.decimals || 18, erc20Details.symbol);
+      return formatPrice(
+        contractInfo.claim.cost || BigInt(0),
+        erc20Details.decimals || 18,
+        erc20Details.symbol,
+      );
     }
-    return priceData.mintPrice ? `${formatEther(priceData.mintPrice)} ETH` : "Free";
+    return priceData.mintPrice
+      ? `${formatEther(priceData.mintPrice)} ETH`
+      : "Free";
   };
-  
+
   const displayTotalCost = () => {
     if (erc20Details && contractInfo?.claim) {
       // For Manifold, cost is per claim, not per NFT amount
-      return formatPrice(contractInfo.claim.cost || BigInt(0), erc20Details.decimals || 18, erc20Details.symbol);
+      return formatPrice(
+        contractInfo.claim.cost || BigInt(0),
+        erc20Details.decimals || 18,
+        erc20Details.symbol,
+      );
     }
-    return priceData.totalCost ? `${formatEther(priceData.totalCost)} ETH` : "Free";
+    return priceData.totalCost
+      ? `${formatEther(priceData.totalCost)} ETH`
+      : "Free";
   };
-  
+
   const displayMintFee = () => {
     const fee = priceData.mintPrice || BigInt(0);
     return fee > BigInt(0) ? `${formatEther(fee)} ETH` : "0 ETH";
   };
-  
-  const providerName = contractInfo?.provider 
-    ? contractInfo.provider.charAt(0).toUpperCase() + contractInfo.provider.slice(1)
+
+  const providerName = contractInfo?.provider
+    ? contractInfo.provider.charAt(0).toUpperCase() +
+      contractInfo.provider.slice(1)
     : "Unknown";
-    
+
   // Quick win: validation helper
   const isReadyToMint = () => {
-    return isConnected && 
-           contractInfo && 
-           !isLoading && 
-           step === "sheet" &&
-           (!erc20Details || !erc20Details.needsApproval);
+    return (
+      isConnected &&
+      contractInfo &&
+      !isLoading &&
+      step === "sheet" &&
+      (!erc20Details || !erc20Details.needsApproval)
+    );
   };
 
   return (
-    <Sheet open={isSheetOpen} onOpenChange={(open) => {
-      setIsSheetOpen(open);
-      if (!open) {
-        handleClose();
-      }
-    }}>
+    <Sheet
+      open={isSheetOpen}
+      onOpenChange={(open) => {
+        setIsSheetOpen(open);
+        if (!open) {
+          handleClose();
+        }
+      }}
+    >
       <Button
         variant={variant}
         size={size}
@@ -492,7 +599,11 @@ export function NFTMintFlow({
         {buttonText}
       </Button>
 
-      <SheetContent side="bottom" onClose={handleClose}>
+      <SheetContent
+        side="bottom"
+        onClose={handleClose}
+        className="!bottom-0 !rounded-t-xl !rounded-b-none !max-h-[90vh] !h-auto"
+      >
         <SheetHeader className="mb-6">
           <SheetTitle>
             {step === "detecting" && "Detecting NFT Type"}
@@ -501,7 +612,8 @@ export function NFTMintFlow({
             {step === "approve" && "Approve Token"}
             {step === "approving" && "Approving..."}
             {step === "minting" && "Preparing Mint"}
-            {step === "waiting" && (txType === "approval" ? "Approving..." : "Minting...")}
+            {step === "waiting" &&
+              (txType === "approval" ? "Approving..." : "Minting...")}
             {step === "success" && "Mint Successful!"}
             {step === "error" && "Transaction Failed"}
             {step === "validation-error" && "Missing Information"}
@@ -527,9 +639,14 @@ export function NFTMintFlow({
               <Info className="h-12 w-12 text-yellow-500" />
             </div>
             <div className="space-y-2">
-              <p className="font-semibold text-center">Missing Required Information</p>
+              <p className="font-semibold text-center">
+                Missing Required Information
+              </p>
               {validationErrors.map((err, idx) => (
-                <p key={idx} className="text-sm text-muted-foreground text-center">
+                <p
+                  key={idx}
+                  className="text-sm text-muted-foreground text-center"
+                >
                   {err}
                 </p>
               ))}
@@ -546,7 +663,8 @@ export function NFTMintFlow({
             <div className="text-center space-y-2">
               <p className="font-semibold">Approval Required</p>
               <p className="text-sm text-muted-foreground">
-                This NFT requires payment in {erc20Details.symbol}. You need to approve the contract to spend your tokens.
+                This NFT requires payment in {erc20Details.symbol}. You need to
+                approve the contract to spend your tokens.
               </p>
             </div>
             <div className="space-y-4">
@@ -557,7 +675,11 @@ export function NFTMintFlow({
               <div className="flex justify-between items-center py-3 border-b">
                 <span className="text-muted-foreground">Amount to Approve</span>
                 <span className="font-semibold">
-                  {contractInfo?.claim ? Number(contractInfo.claim.cost) / (10 ** erc20Details.decimals) : 0} {erc20Details.symbol}
+                  {contractInfo?.claim
+                    ? Number(contractInfo.claim.cost) /
+                      10 ** erc20Details.decimals
+                    : 0}{" "}
+                  {erc20Details.symbol}
                 </span>
               </div>
             </div>
@@ -606,7 +728,7 @@ export function NFTMintFlow({
                 <span>{displayTotalCost()}</span>
               </div>
             </div>
-            
+
             <Button
               onClick={isConnected ? handleMint : handleConnectWallet}
               size="lg"
@@ -616,7 +738,7 @@ export function NFTMintFlow({
               {isConnected ? (
                 <>
                   <Coins className="h-5 w-5 mr-2" />
-                  Mint {amount} NFT{amount > 1 ? 's' : ''}
+                  Mint {amount} NFT{amount > 1 ? "s" : ""}
                 </>
               ) : (
                 "Connect Wallet to Mint"
@@ -645,7 +767,9 @@ export function NFTMintFlow({
             </div>
             <div>
               <p className="font-semibold">
-                {step === "approving" ? "Preparing approval" : "Preparing mint transaction"}
+                {step === "approving"
+                  ? "Preparing approval"
+                  : "Preparing mint transaction"}
               </p>
               <p className="text-sm text-muted-foreground">
                 Please approve the transaction in your wallet
@@ -662,7 +786,9 @@ export function NFTMintFlow({
             </div>
             <div>
               <p className="font-semibold">
-                {txType === "approval" ? "Approval submitted" : "Transaction submitted"}
+                {txType === "approval"
+                  ? "Approval submitted"
+                  : "Transaction submitted"}
               </p>
               <p className="text-sm text-muted-foreground">
                 Waiting for confirmation on the blockchain...
@@ -685,17 +811,12 @@ export function NFTMintFlow({
             <div className="space-y-3">
               <p className="text-2xl font-semibold">Minted! 🎉</p>
               <p className="text-muted-foreground">
-                {amount} NFT{amount > 1 ? 's' : ''} successfully minted
+                {amount} NFT{amount > 1 ? "s" : ""} successfully minted
               </p>
             </div>
             {txHash && (
               <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  asChild
-                >
+                <Button variant="outline" size="sm" className="gap-2" asChild>
                   <a
                     href={`https://txha.sh/${txHash}`}
                     target="_blank"
@@ -726,7 +847,11 @@ export function NFTMintFlow({
               </p>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" onClick={handleClose} className="flex-1">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                className="flex-1"
+              >
                 Close
               </Button>
               <Button onClick={handleRetry} className="flex-1">
@@ -766,9 +891,9 @@ NFTMintFlow.presets = {
   }): NFTMintFlowProps => ({
     ...props,
     provider: "generic",
-    amount: props.amount || 1
+    amount: props.amount || 1,
   }),
-  
+
   /**
    * Create a Manifold NFT mint with proper configuration
    * @example
@@ -795,14 +920,14 @@ NFTMintFlow.presets = {
     provider: "manifold",
     manifoldParams: {
       instanceId: props.instanceId,
-      tokenId: props.tokenId
+      tokenId: props.tokenId,
     },
     amount: props.amount || 1,
     buttonText: props.buttonText,
     onMintSuccess: props.onMintSuccess,
-    onMintError: props.onMintError
+    onMintError: props.onMintError,
   }),
-  
+
   /**
    * Create an auto-detecting NFT mint (tries to figure out the provider)
    * @example
@@ -822,6 +947,6 @@ NFTMintFlow.presets = {
     onMintError?: (error: string) => void;
   }): NFTMintFlowProps => ({
     ...props,
-    amount: props.amount || 1
-  })
+    amount: props.amount || 1,
+  }),
 };

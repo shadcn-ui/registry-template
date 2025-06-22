@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "avatar-utils",
+  "type": "registry:lib",
+  "title": "avatarUtils",
+  "description": "Utility functions for avatar manipulation and formatting",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/mini-app/lib/avatar-utils.ts",
+      "content": "/**\n * Format the avatar src for imagedelivery.net images to reasonable avatar sizes\n *\n * @docs https://developers.cloudflare.com/images/transform-images/transform-via-url/#options\n *\n * @param avatarSrc - The src of the avatar\n * @returns The formatted avatar url\n */\nexport const formatAvatarUrl = (avatarSrc: string) => {\n  if (!avatarSrc) return undefined;\n  if (avatarSrc.startsWith(\"https://imagedelivery.net\")) {\n    const defaultAvatar = \"/anim=false,fit=contain,f=auto,w=512\";\n    if (avatarSrc.endsWith(\"/rectcrop3\")) {\n      avatarSrc = avatarSrc.replace(\"/rectcrop3\", defaultAvatar);\n    } else if (avatarSrc.endsWith(\"/original\")) {\n      avatarSrc = avatarSrc.replace(\"/original\", defaultAvatar);\n    } else if (avatarSrc.endsWith(\"/public\")) {\n      avatarSrc = avatarSrc.replace(\"/public\", defaultAvatar);\n    }\n  }\n  return avatarSrc;\n};\n",
+      "type": "registry:lib"
+    }
+  ]
+}

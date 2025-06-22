@@ -3,7 +3,6 @@
 import { DaimoPayButton } from "@daimo/pay";
 import { baseUSDC } from "@daimo/contract";
 import { getAddress } from "viem";
-import { useAccount } from "wagmi";
 import { Button } from "@/registry/mini-app/ui/button";
 
 export function DaimoPayTransferButton({

@@ -5,7 +5,9 @@ import { Button } from "@/registry/mini-app/ui/button";
 import { Input } from "@/registry/mini-app/ui/input";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { Search, User, Users, X } from "lucide-react";
-import { cn, formatLargeNumber } from "@/lib/utils";
+import { formatLargeNumber } from "@/registry/mini-app/lib/text-utils";
+
+import { cn } from "@/registry/mini-app/lib/utils";
 
 // Types based on Neynar API response
 export type FarcasterUser = {
@@ -46,54 +48,57 @@ type ProfileSearchProps = {
   showIcon?: boolean;
   autoSearch?: boolean;
   maxResults?: number;
-  searchFunction?: (query: string, apiKey: string, maxResults: number) => Promise<{ users: FarcasterUser[], total: number }> ;
+  searchFunction?: (
+    query: string,
+    apiKey: string,
+    maxResults: number,
+    cursor?: string,
+  ) => Promise<{ users: FarcasterUser[]; nextCursor?: string }>;
   userCardComponent?: React.ComponentType<UserCardProps>;
   onError?: (error: string) => void;
+  onClick?: (user: FarcasterUser) => void;
 };
 
-export const calculateRelevanceScore = (user: FarcasterUser, query: string): number => {
-    const lowerQuery = query.toLowerCase();
-    const username = user.username.toLowerCase();
-    const displayName = user.display_name.toLowerCase();
-    const bio = user.profile?.bio?.text?.toLowerCase() || "";
-    
-    let score = 0;
-    
-    // Exact matches get highest score
-    if (username === lowerQuery) score += 1000;
-    if (displayName === lowerQuery) score += 900;
-    
-    // Username starts with query gets high score
-    if (username.startsWith(lowerQuery)) score += 800;
-    if (displayName.startsWith(lowerQuery)) score += 700;
-    
-    // Username contains query
-    if (username.includes(lowerQuery)) score += 600;
-    if (displayName.includes(lowerQuery)) score += 500;
-    
-    // Bio contains query
-    if (bio.includes(lowerQuery)) score += 300;
-    
-    // FID match
-    if (user.fid.toString() === query) score += 950;
-    
-    // Bonus for shorter usernames (more relevant for short queries)
-    if (username.includes(lowerQuery)) {
-      score += Math.max(0, 100 - username.length);
-    }
-    
-    // Bonus for power badge and verification
-    if (user.power_badge) score += 50;
-    if (user.verified_addresses?.eth_addresses?.length) score += 30;
-    
-    // Bonus for follower count (logarithmic to avoid overwhelming)
-    score += Math.log10(user.follower_count + 1) * 10;
-    
-    return score;
-  };
+export const calculateRelevanceScore = (
+  user: FarcasterUser,
+  query: string,
+): number => {
+  const lowerQuery = query.toLowerCase();
+  const username = user.username.toLowerCase();
+  const displayName = user.display_name.toLowerCase();
+
+  let score = 0;
+
+  // Exact matches get highest score
+  if (username === lowerQuery || username === `${lowerQuery}.eth`)
+    score += 1000;
+  else if (username.startsWith(lowerQuery)) score += 600;
+  else if (username.includes(lowerQuery)) score += 500;
+
+  // make these else ifs:
+  if (displayName === lowerQuery) score += 500;
+  else if (displayName.startsWith(lowerQuery)) score += 500;
+  else if (displayName.includes(lowerQuery)) score += 400;
+
+  // FID match
+  if (user.fid.toString() === query) score += 950;
+
+  // Bonus for shorter usernames (more relevant for short queries)
+  if (username.includes(lowerQuery)) {
+    score += Math.max(0, 100 - username.length);
+  }
+
+  if (user.verified_addresses?.eth_addresses?.length) score += 30;
+
+  // Bonus for follower count (logarithmic to avoid overwhelming)
+  score += Math.log(user.follower_count + 1) * 10;
+
+  return score;
+};
 
 export function ProfileSearch({
   apiKey,
+  onClick,
   placeholder = "Search Farcaster users...",
   variant = "default",
   className,
@@ -111,15 +116,30 @@ export function ProfileSearch({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [searchResults, setSearchResults] = React.useState<FarcasterUser[]>([]);
-  const [totalResults, setTotalResults] = React.useState(0);
-  const { sdk, isSDKLoaded } = useMiniAppSdk();
-  console.log(searchFunction);
-  const defaultSearchFunction = async (query: string, apiKey: string, maxResults: number): Promise<{ users: FarcasterUser[], total: number }> => {
-    const response = await fetch(`https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(query)}&limit=${maxResults}`, {
-      method: 'GET',
+  const [nextCursor, setNextCursor] = React.useState<string | undefined>();
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
+  const debounceRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
+
+  const { sdk, isSDKLoaded, isMiniApp } = useMiniAppSdk();
+  const defaultSearchFunction = async (
+    query: string,
+    apiKey: string,
+    maxResults: number,
+    cursor?: string,
+  ): Promise<{
+    users: FarcasterUser[];
+    nextCursor?: string;
+  }> => {
+    let url = `https://api.neynar.com/v2/farcaster/user/search?q=${encodeURIComponent(query)}&limit=${maxResults}`;
+    if (cursor) {
+      url += `&cursor=${encodeURIComponent(cursor)}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
       headers: {
-        'accept': 'application/json',
-        'api_key': apiKey,
+        accept: "application/json",
+        api_key: apiKey,
       },
     });
 
@@ -129,20 +149,25 @@ export function ProfileSearch({
     }
 
     const data: NeynarSearchResponse = await response.json();
-    
-    // Sort by relevance if multiple results
-    const sortedUsers = (data.result.users || [])
-      .map(user => ({ user, score: calculateRelevanceScore(user, query) }))
-      .sort((a, b) => b.score - a.score)
-      .map(item => item.user);
-    
+
+    // Sort by relevance if multiple results (only for first page to maintain API order for subsequent pages)
+    const users = !cursor
+      ? (data.result.users || [])
+          .map((user) => ({
+            user,
+            score: calculateRelevanceScore(user, query),
+          }))
+          .sort((a, b) => b.score - a.score)
+          .map((item) => item.user)
+      : data.result.users || [];
+
     return {
-      users: sortedUsers,
-      total: sortedUsers.length
+      users,
+      nextCursor: data.result.next?.cursor,
     };
   };
 
-  const searchUsers = async (query: string) => {
+  const searchUsers = async (query: string, loadMore = false) => {
     if (!searchFunction && !apiKey.trim()) {
       const errorMsg = "API key is required";
       setError(errorMsg);
@@ -158,42 +183,65 @@ export function ProfileSearch({
     }
 
     try {
-      setLoading(true);
+      if (loadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setLoading(true);
+        setSearchResults([]);
+        setNextCursor(undefined);
+      }
       setError("");
-      
-      const searchFn = searchFunction || defaultSearchFunction;
 
-      const { users, total } = await searchFn(query, apiKey, maxResults);
-      setSearchResults(users);
-      setTotalResults(total);
-      
-      if (users.length === 0) {
+      const searchFn = searchFunction || defaultSearchFunction;
+      const cursor = loadMore ? nextCursor : undefined;
+
+      const { users, nextCursor: newCursor } = await searchFn(
+        query,
+        apiKey,
+        maxResults,
+        cursor,
+      );
+
+      if (loadMore) {
+        setSearchResults((prev) => [...prev, ...users]);
+      } else {
+        setSearchResults(users);
+      }
+
+      setNextCursor(newCursor);
+
+      if (!loadMore && users.length === 0) {
         const errorMsg = "No users found matching your search";
         setError(errorMsg);
         onError?.(errorMsg);
       }
     } catch (err) {
       console.error("Error searching users:", err);
-      const errorMsg = err instanceof Error ? err.message : "Failed to search users";
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to search users";
       setError(errorMsg);
-      setSearchResults([]);
-      setTotalResults(0);
+      if (!loadMore) {
+        setSearchResults([]);
+        setNextCursor(undefined);
+      }
       onError?.(errorMsg);
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
-  const viewProfile = async (fid: number) => {
+  const viewProfile = async (username: string, fid: number) => {
     try {
-      if (!isSDKLoaded) {
-        throw new Error("Farcaster SDK not loaded");
+      if (isMiniApp) {
+        await sdk.actions.viewProfile({ fid });
+      } else {
+        window.open(`https://farcaster.xyz/${username}`, "_blank");
       }
-      
-      await sdk.actions.viewProfile({ fid });
     } catch (err) {
       console.error("Error viewing profile:", err);
-      const errorMsg = err instanceof Error ? err.message : "Failed to view profile";
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to view profile";
       setError(errorMsg);
       onError?.(errorMsg);
     }
@@ -206,49 +254,49 @@ export function ProfileSearch({
   const handleClear = () => {
     setSearchInput("");
     setSearchResults([]);
-    setTotalResults(0);
+    setNextCursor(undefined);
     setError("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
+
     setSearchInput(value);
     setError("");
-    if(value === "") {
-        setSearchResults([]);
-        setTotalResults(0);
-        return;
+
+    // Clear previous timeout
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
     }
+
+    if (value === "") {
+      setSearchResults([]);
+      setNextCursor(undefined);
+      return;
+    }
+
     // Auto-search with debounce
     if (autoSearch && value.length > 2) {
-      
-      const timeoutId = setTimeout(() => {
+      debounceRef.current = setTimeout(() => {
         searchUsers(value);
       }, 500);
-      
-      return () => clearTimeout(timeoutId);
     }
   };
 
-  const containerClasses = cn(
-    "flex flex-col gap-4 w-full",
-    className
-  );
+  const containerClasses = cn("flex flex-col gap-4 w-full", className);
 
   const searchContainerClasses = cn(
     "flex gap-2 w-full",
-    layout === "vertical" ? "flex-col" : "flex-row"
+    layout === "vertical" ? "flex-col" : "flex-row",
   );
 
-  const hasMoreResults = totalResults > maxResults;
-  const hiddenResultsCount = totalResults - maxResults;
+  const hasMoreResults = !!nextCursor;
 
   return (
     <div className={containerClasses}>
@@ -260,35 +308,31 @@ export function ProfileSearch({
             placeholder={placeholder}
             value={searchInput}
             onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            className={cn(
-              "w-full",
-              error && "border-red-500",
-              inputClassName
-            )}
+            onKeyDown={handleKeyPress}
+            className={cn("w-full", error && "border-red-500", inputClassName)}
           />
           {searchInput && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleClear}
-            disabled={loading}
-            className="shrink-0"
-            title="Clear search"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleClear}
+              disabled={loading}
+              className="shrink-0"
+              title="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
-        
+
         {/* Clear Button - only show when there's a search term */}
         <Button
           variant={variant}
           onClick={handleSearch}
-          disabled={loading || !searchInput.trim()  || !isSDKLoaded}
+          disabled={loading || !searchInput.trim() || !isSDKLoaded}
           className={cn(
             layout === "vertical" ? "w-full" : "shrink-0",
-            buttonClassName
+            buttonClassName,
           )}
         >
           {loading ? (
@@ -318,16 +362,11 @@ export function ProfileSearch({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
-              Showing {searchResults.length} of {totalResults} user{totalResults !== 1 ? 's' : ''}
+              Showing {searchResults.length} user
+              {searchResults.length !== 1 ? "s" : ""}
             </div>
-            
-            {hasMoreResults && (
-              <div className="text-xs text-muted-foreground">
-                +{hiddenResultsCount} more user{hiddenResultsCount !== 1 ? 's' : ''}...
-              </div>
-            )}
           </div>
-          
+
           <div className="grid gap-3">
             {searchResults.map((user) => {
               const UserCardComponent = CustomUserCard || UserCard;
@@ -335,15 +374,36 @@ export function ProfileSearch({
                 <UserCardComponent
                   key={user.fid}
                   user={user}
-                  onClick={() => viewProfile(user.fid)}
+                  onClick={() => {
+                    console.log("User clicked:", user, isSDKLoaded);
+                    if (onClick) {
+                      onClick(user);
+                    } else {
+                      viewProfile(user.username, user.fid);
+                    }
+                  }}
                 />
               );
             })}
           </div>
-          
+
           {hasMoreResults && (
-            <div className="text-center py-2 text-xs text-muted-foreground border-t border-dashed">
-              Showing most relevant results. {hiddenResultsCount} more user{hiddenResultsCount !== 1 ? 's' : ''} found.
+            <div className="flex justify-center pt-4">
+              <Button
+                variant="outline"
+                onClick={() => searchUsers(searchInput, true)}
+                disabled={isLoadingMore || loading}
+                className="w-full sm:w-auto"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                    Loading more...
+                  </>
+                ) : (
+                  <>Load More</>
+                )}
+              </Button>
             </div>
           )}
         </div>
@@ -362,59 +422,59 @@ function UserCard({ user, onClick }: UserCardProps) {
   return (
     <div
       onClick={onClick}
-      className="flex items-start sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 border border-border rounded-lg hover:bg-accent/50 cursor-pointer transition-colors group"
+      className="p-2 sm:p-3 border border-border rounded-lg hover:bg-accent/50 cursor-pointer transition-colors group"
     >
-      {/* Avatar */}
-      <div className="relative flex-shrink-0">
-        {user.pfp_url ? (
-          <img
-            src={user.pfp_url}
-            alt={user.display_name || user.username}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-muted flex items-center justify-center">
-            <User className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
+      {/* Top row with avatar, name, and FID */}
+      <div className="flex gap-2 sm:gap-3">
+        {/* Avatar */}
+        <div className="relative flex-shrink-0 mt-[3px]">
+          {user.pfp_url ? (
+            <img
+              src={user.pfp_url}
+              alt={user.display_name || user.username}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10rounded-full bg-muted flex items-center justify-center">
+              <User className="h-5 w-5 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+
+        {/* Name and FID */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center flex-wrap gap-2">
+            <h3 className="font-medium text-xs sm:text-sm truncate flex-1">
+              {user.display_name || user.username}
+            </h3>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              FID {user.fid}
+            </span>
           </div>
-        )}
+
+          {/* Username */}
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">
+            @{user.username}
+          </p>
+        </div>
       </div>
 
-      {/* User Info */}
-      <div className="flex-1 min-w-0">
-        {/* Name and FID row */}
-        <div className="mt-2">
-        <div className="flex items-center flex-wrap gap-2">
-          <h3 className="font-medium text-xs sm:text-sm truncate flex-1">
-            {user.display_name || user.username}
-          </h3>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            FID {user.fid}
-          </span>
-        </div>
-        
-        {/* Username */}
-        <p className="text-xs sm:text-sm text-muted-foreground truncate">
-          @{user.username}
+      {/* Bio */}
+      {user.profile?.bio?.text && (
+        <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-tight ml-12 sm:ml-15">
+          {user.profile.bio.text}
         </p>
-        </div>
-        {/* Bio */}
-        {user.profile?.bio?.text && (
-          <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-tight">
-            {user.profile.bio.text}
-          </p>
-        )}
-        
-        {/* Stats */}
-        <div className="flex flex-wrap items-center gap-3  mt-2 text-xs text-muted-foreground">
-          <span className="whitespace-nowrap">
-            {formatLargeNumber(user.follower_count)} followers
-          </span>
-          <span className="whitespace-nowrap">
-            {formatLargeNumber(user.following_count)} following
-          </span>
-          
-        </div>
-      </div>    
+      )}
+
+      {/* Stats */}
+      <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground ml-12 sm:ml-15">
+        <span className="whitespace-nowrap">
+          {formatLargeNumber(user.follower_count)} followers
+        </span>
+        <span className="whitespace-nowrap">
+          {formatLargeNumber(user.following_count)} following
+        </span>
+      </div>
     </div>
   );
 }
