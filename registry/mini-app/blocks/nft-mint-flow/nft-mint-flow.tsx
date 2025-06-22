@@ -14,6 +14,7 @@ import {
   useConnect,
   useWaitForTransactionReceipt,
   useWriteContract,
+  useSwitchChain,
 } from "wagmi";
 import { formatEther, type Address } from "viem";
 import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
@@ -24,6 +25,8 @@ import {
   Loader2,
   Info,
   ExternalLink,
+  RefreshCw,
+  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -35,6 +38,7 @@ import { getProviderConfig } from "./lib/provider-configs";
 import { fetchPriceData } from "./lib/price-optimizer";
 import { mintReducer, initialState, type MintStep } from "./lib/mint-reducer";
 import type { MintParams } from "./lib/types";
+import { parseError, type ParsedError } from "./lib/error-parser";
 
 /**
  * NFTMintFlow - Universal NFT minting component with automatic provider detection and ERC20 approval handling
@@ -148,6 +152,7 @@ export function NFTMintFlow({
 }: NFTMintFlowProps) {
   const [state, dispatch] = React.useReducer(mintReducer, initialState);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+  const [parsedError, setParsedError] = React.useState<ParsedError | null>(null);
 
   // Prop validation with helpful errors
   React.useEffect(() => {
@@ -197,8 +202,9 @@ export function NFTMintFlow({
   const { erc20Details } = priceData;
 
   const { isSDKLoaded } = useMiniAppSdk();
-  const { isConnected, address } = useAccount();
+  const { isConnected, address, chain } = useAccount();
   const { connect } = useConnect();
+  const { switchChain } = useSwitchChain();
   const {
     writeContract,
     isPending: isWritePending,
@@ -234,20 +240,31 @@ export function NFTMintFlow({
     ? getProviderConfig(contractInfo.provider)
     : null;
 
+  // Check if user is on the correct network
+  const isCorrectNetwork = chain?.id === chainId;
+  const networkName = chainId === 1 ? "Ethereum" : chainId === 8453 ? "Base" : "Unknown";
+
   // Handle transaction status updates
   React.useEffect(() => {
     if (writeError) {
+      const parsed = parseError(writeError, txType || "mint");
+      
       // Don't show error state for user rejections - just close
-      if (writeError.message.toLowerCase().includes("user rejected")) {
+      if (parsed.type === "user-rejected") {
         dispatch({ type: "RESET" });
+        setParsedError(null);
         return;
       }
+      
+      setParsedError(parsed);
       dispatch({ type: "TX_ERROR", payload: writeError.message });
       if (txType === "mint") {
         onMintError?.(writeError.message);
       }
     }
     if (isTxError && txError) {
+      const parsed = parseError(txError, txType || "mint");
+      setParsedError(parsed);
       dispatch({ type: "TX_ERROR", payload: txError.message });
       if (txType === "mint") {
         onMintError?.(txError.message);
@@ -285,7 +302,16 @@ export function NFTMintFlow({
   const handleClose = React.useCallback(() => {
     setIsSheetOpen(false);
     dispatch({ type: "RESET" });
+    setParsedError(null);
   }, []);
+
+  const handleSwitchNetwork = async () => {
+    try {
+      await switchChain({ chainId });
+    } catch (err) {
+      console.error("Failed to switch network:", err);
+    }
+  };
 
   // Detect NFT provider and validate
   const detectAndValidate = async () => {
@@ -512,6 +538,11 @@ export function NFTMintFlow({
   ) => {
     console.error(`${context}:`, error);
     const message = error instanceof Error ? error.message : `${context}`;
+    
+    // Parse the error for better UX
+    const parsed = parseError(error, transactionType || "mint");
+    setParsedError(parsed);
+    
     dispatch({ type: "TX_ERROR", payload: message });
     // Use explicit transaction type if provided, otherwise fall back to state
     if ((transactionType || txType) === "mint") {
@@ -698,6 +729,26 @@ export function NFTMintFlow({
         {/* Main Sheet Content */}
         {step === "sheet" && contractInfo && (
           <div className="space-y-6">
+            {/* Network warning */}
+            {!isCorrectNetwork && isConnected && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Info className="h-4 w-4 text-yellow-600" />
+                    <p className="text-sm font-medium">Wrong network</p>
+                  </div>
+                  <Button
+                    onClick={handleSwitchNetwork}
+                    size="sm"
+                    variant="ghost"
+                    className="text-xs"
+                  >
+                    Switch to {networkName}
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-4">
               <div className="flex justify-between items-center py-3 border-b">
                 <span className="text-muted-foreground">Provider</span>
@@ -733,13 +784,17 @@ export function NFTMintFlow({
               onClick={isConnected ? handleMint : handleConnectWallet}
               size="lg"
               className="w-full"
-              disabled={isWritePending || !isReadyToMint()}
+              disabled={isWritePending || !isReadyToMint() || (!isCorrectNetwork && isConnected)}
             >
               {isConnected ? (
-                <>
-                  <Coins className="h-5 w-5 mr-2" />
-                  Mint {amount} NFT{amount > 1 ? "s" : ""}
-                </>
+                !isCorrectNetwork ? (
+                  "Switch Network to Mint"
+                ) : (
+                  <>
+                    <Coins className="h-5 w-5 mr-2" />
+                    Mint {amount} NFT{amount > 1 ? "s" : ""}
+                  </>
+                )
               ) : (
                 "Connect Wallet to Mint"
               )}
@@ -836,16 +891,74 @@ export function NFTMintFlow({
 
         {/* Error State */}
         {step === "error" && (
-          <div className="text-center space-y-4">
-            <div className="flex justify-center">
-              <AlertCircle className="h-12 w-12 text-red-500" />
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="p-3 bg-red-50 rounded-full">
+                  <AlertCircle className="h-12 w-12 text-red-500" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="font-semibold text-lg">
+                  {parsedError?.message || "Transaction Failed"}
+                </p>
+                {parsedError?.details && (
+                  <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                    {parsedError.details}
+                  </p>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-red-600">Mint failed</p>
-              <p className="text-sm text-muted-foreground">
-                {error || "An unexpected error occurred"}
-              </p>
-            </div>
+
+            {/* Special handling for wrong network */}
+            {!isCorrectNetwork && isConnected && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Info className="h-5 w-5 text-yellow-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Wrong Network</p>
+                    <p className="text-sm text-muted-foreground">
+                      Please switch to {networkName} to continue
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleSwitchNetwork}
+                  size="sm"
+                  className="w-full"
+                  variant="outline"
+                >
+                  Switch to {networkName}
+                </Button>
+              </div>
+            )}
+
+            {/* Specific error actions */}
+            {parsedError?.type === "insufficient-funds" && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <Wallet className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium mb-1">Insufficient Balance</p>
+                    <p className="text-muted-foreground">
+                      Make sure you have enough:
+                    </p>
+                    <ul className="list-disc list-inside text-muted-foreground mt-1">
+                      {erc20Details ? (
+                        <>
+                          <li>{erc20Details.symbol} for the NFT price</li>
+                          <li>ETH for gas fees</li>
+                        </>
+                      ) : (
+                        <li>ETH for both NFT price and gas fees</li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action buttons */}
             <div className="flex gap-3">
               <Button
                 variant="outline"
@@ -854,8 +967,13 @@ export function NFTMintFlow({
               >
                 Close
               </Button>
-              <Button onClick={handleRetry} className="flex-1">
-                Try Again
+              <Button 
+                onClick={handleRetry} 
+                className="flex-1"
+                disabled={!isCorrectNetwork && isConnected}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                {parsedError?.actionText || "Try Again"}
               </Button>
             </div>
           </div>

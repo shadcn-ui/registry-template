@@ -10,13 +10,8 @@
     "@farcaster/frame-wagmi-connector",
     "@radix-ui/react-slot",
     "class-variance-authority",
-    "lucide-react",
     "@farcaster/frame-sdk",
-    "@farcaster/frame-core",
-    "wagmi",
-    "viem",
-    "@farcaster/frame-wagmi-connector",
-    "."
+    "@farcaster/frame-core"
   ],
   "devDependencies": [],
   "registryDependencies": [
