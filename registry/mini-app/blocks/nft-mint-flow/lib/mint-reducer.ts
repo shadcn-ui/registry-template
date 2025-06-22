@@ -101,6 +101,7 @@ export function mintReducer(state: MintState, action: MintAction): MintState {
         step: "sheet", 
         isLoading: false,
         txType: null,
+        txHash: undefined, // Clear tx hash after approval
         priceData: {
           ...state.priceData,
           erc20Details: state.priceData.erc20Details ? {

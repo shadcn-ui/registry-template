@@ -15,32 +15,99 @@ import { fetchPriceData } from "./lib/price-optimizer";
 import { mintReducer, initialState, type MintStep } from "./lib/mint-reducer";
 import type { MintParams } from "./lib/types";
 
+/**
+ * NFTMintFlow - Universal NFT minting component with automatic provider detection and ERC20 approval handling
+ * 
+ * @example
+ * ```tsx
+ * // Basic ETH mint (auto-detects provider)
+ * <NFTMintFlow 
+ *   contractAddress="0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4"
+ *   chainId={1}
+ * />
+ * 
+ * // Manifold NFT with ERC20 payment (HIGHER token)
+ * <NFTMintFlow
+ *   contractAddress="0x32dd0a7190b5bba94549a0d04659a9258f5b1387"
+ *   chainId={8453}
+ *   provider="manifold"
+ *   manifoldParams={{ instanceId: "4293509360", tokenId: "2" }}
+ * />
+ * 
+ * // Multiple NFTs with custom button
+ * <NFTMintFlow
+ *   contractAddress="0x..."
+ *   chainId={8453}
+ *   amount={5}
+ *   buttonText="Mint 5 NFTs"
+ *   onMintSuccess={(txHash) => console.log('Minted!', txHash)}
+ * />
+ * ```
+ */
 type NFTMintFlowProps = {
-  // Core params
+  /** 
+   * NFT contract address (0x...). This should be the main NFT contract, not the minting contract.
+   * For Manifold, this is the creator contract, not the extension.
+   */
   contractAddress: Address;
-  chainId: number;
   
-  // Optional provider hint
+  /** 
+   * Blockchain network ID
+   * - 1 = Ethereum mainnet
+   * - 8453 = Base mainnet
+   */
+  chainId: 1 | 8453;
+  
+  /** 
+   * Optional provider hint. Use when:
+   * - Auto-detection is failing
+   * - You know the provider and want faster loading
+   * - Testing specific provider flows
+   * 
+   * Leave undefined for automatic detection.
+   */
   provider?: "manifold" | "opensea" | "zora" | "generic";
   
-  // Generic params
+  /** 
+   * Number of NFTs to mint. Defaults to 1.
+   * Note: For ERC20 payments, the total cost is multiplied by this amount.
+   */
   amount?: number;
   
-  // Provider-specific params
+  /** 
+   * Manifold-specific parameters. Required when provider="manifold".
+   * - instanceId: The claim instance ID from Manifold (required for most Manifold NFTs)
+   * - tokenId: The specific token ID (required for some editions)
+   * 
+   * Find these in the Manifold claim page URL or contract details.
+   */
   manifoldParams?: {
     instanceId?: string;
     tokenId?: string;
   };
   
   // UI customization
+  /** Additional CSS classes */
   className?: string;
+  /** Button style variant */
   variant?: "default" | "destructive" | "secondary" | "ghost" | "outline";
+  /** Button size */
   size?: "default" | "sm" | "lg" | "icon";
+  /** Custom button text. Defaults to "Mint NFT" */
   buttonText?: string;
+  /** Disable the mint button */
   disabled?: boolean;
   
-  // Callbacks
+  /** 
+   * Called when NFT minting succeeds (not on approval success)
+   * @param txHash - The mint transaction hash (not approval tx)
+   */
   onMintSuccess?: (txHash: string) => void;
+  
+  /** 
+   * Called when NFT minting fails (not on approval failure)
+   * @param error - Human-readable error message
+   */
   onMintError?: (error: string) => void;
 };
 
@@ -61,6 +128,36 @@ export function NFTMintFlow({
 }: NFTMintFlowProps) {
   const [state, dispatch] = React.useReducer(mintReducer, initialState);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+  
+  // Prop validation with helpful errors
+  React.useEffect(() => {
+    if (provider === "manifold" && !manifoldParams?.instanceId && !manifoldParams?.tokenId) {
+      console.error(
+        "NFTMintFlow: When provider='manifold', you must provide manifoldParams with either instanceId or tokenId. " +
+        "Example: manifoldParams={{ instanceId: '4293509360' }}"
+      );
+    }
+    
+    if (manifoldParams && provider !== "manifold") {
+      console.warn(
+        "NFTMintFlow: manifoldParams provided but provider is not 'manifold'. " +
+        "Did you forget to set provider='manifold'?"
+      );
+    }
+    
+    if (chainId !== 1 && chainId !== 8453) {
+      console.warn(
+        `NFTMintFlow: Chain ID ${chainId} may not be supported. ` +
+        "Currently tested chains: 1 (Ethereum), 8453 (Base)"
+      );
+    }
+    
+    if (!contractAddress || !contractAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
+      console.error(
+        "NFTMintFlow: Invalid contract address. Must be a valid Ethereum address (0x...)"
+      );
+    }
+  }, [provider, manifoldParams, chainId, contractAddress]);
   
   // Destructure commonly used values
   const { step, contractInfo, priceData, error, txHash, txType, isLoading, validationErrors } = state;
@@ -185,13 +282,41 @@ export function NFTMintFlow({
     }
   };
   
+  // Check allowance only (without re-detecting everything)
+  const checkAllowanceOnly = React.useCallback(async () => {
+    if (!contractInfo || !erc20Details || !address) return;
+    
+    try {
+      const client = getClientForChain(chainId);
+      const spenderAddress = contractInfo.provider === "manifold" && contractInfo.extensionAddress 
+        ? contractInfo.extensionAddress 
+        : contractAddress;
+        
+      const allowance = await client.readContract({
+        address: erc20Details.address as `0x${string}`,
+        abi: [{ 
+          name: "allowance", 
+          type: "function", 
+          inputs: [{ name: "owner", type: "address" }, { name: "spender", type: "address" }], 
+          outputs: [{ type: "uint256" }], 
+          stateMutability: "view" 
+        }],
+        functionName: "allowance",
+        args: [address, spenderAddress]
+      });
+      
+      dispatch({ type: "UPDATE_ALLOWANCE", payload: allowance as bigint });
+    } catch (err) {
+      console.error("Failed to check allowance:", err);
+    }
+  }, [contractInfo, erc20Details, address, chainId, contractAddress]);
+
   // Re-check allowance after wallet connection
   React.useEffect(() => {
     if (isConnected && address && erc20Details && erc20Details.allowance === undefined) {
-      // Re-run detection to get allowance
-      detectAndValidate();
+      checkAllowanceOnly();
     }
-  }, [isConnected, address]);
+  }, [isConnected, address, erc20Details, checkAllowanceOnly]);
 
   const handleInitialMint = async () => {
     if (!isSDKLoaded) {
@@ -250,7 +375,7 @@ export function NFTMintFlow({
         dispatch({ type: "APPROVE_TX_SUBMITTED", payload: tx });
       }
     } catch (err) {
-      handleError(err, "Approval failed");
+      handleError(err, "Approval failed", "approval");
     }
   };
   
@@ -290,16 +415,17 @@ export function NFTMintFlow({
         dispatch({ type: "MINT_TX_SUBMITTED", payload: tx });
       }
     } catch (err) {
-      handleError(err, "Mint transaction failed");
+      handleError(err, "Mint transaction failed", "mint");
     }
   };
 
   // Centralized error handler
-  const handleError = (error: unknown, context: string) => {
+  const handleError = (error: unknown, context: string, transactionType?: "approval" | "mint") => {
     console.error(`${context}:`, error);
     const message = error instanceof Error ? error.message : `${context}`;
     dispatch({ type: "TX_ERROR", payload: message });
-    if (txType === "mint") {
+    // Use explicit transaction type if provided, otherwise fall back to state
+    if ((transactionType || txType) === "mint") {
       onMintError?.(message);
     }
   };
@@ -344,6 +470,7 @@ export function NFTMintFlow({
     return isConnected && 
            contractInfo && 
            !isLoading && 
+           step === "sheet" &&
            (!erc20Details || !erc20Details.needsApproval);
   };
 
@@ -612,3 +739,89 @@ export function NFTMintFlow({
     </Sheet>
   );
 }
+
+/**
+ * Preset builders for common NFT minting scenarios.
+ * These provide type-safe, self-documenting ways to create NFTMintFlow components.
+ */
+NFTMintFlow.presets = {
+  /**
+   * Create a basic ETH-based NFT mint
+   * @example
+   * ```tsx
+   * <NFTMintFlow {...NFTMintFlow.presets.generic({
+   *   contractAddress: "0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4",
+   *   chainId: 1,
+   *   amount: 1
+   * })} />
+   * ```
+   */
+  generic: (props: {
+    contractAddress: Address;
+    chainId: 1 | 8453;
+    amount?: number;
+    buttonText?: string;
+    onMintSuccess?: (txHash: string) => void;
+    onMintError?: (error: string) => void;
+  }): NFTMintFlowProps => ({
+    ...props,
+    provider: "generic",
+    amount: props.amount || 1
+  }),
+  
+  /**
+   * Create a Manifold NFT mint with proper configuration
+   * @example
+   * ```tsx
+   * <NFTMintFlow {...NFTMintFlow.presets.manifold({
+   *   contractAddress: "0x32dd0a7190b5bba94549a0d04659a9258f5b1387",
+   *   chainId: 8453,
+   *   instanceId: "4293509360"
+   * })} />
+   * ```
+   */
+  manifold: (props: {
+    contractAddress: Address;
+    chainId: 1 | 8453;
+    instanceId: string;
+    tokenId?: string;
+    amount?: number;
+    buttonText?: string;
+    onMintSuccess?: (txHash: string) => void;
+    onMintError?: (error: string) => void;
+  }): NFTMintFlowProps => ({
+    contractAddress: props.contractAddress,
+    chainId: props.chainId,
+    provider: "manifold",
+    manifoldParams: {
+      instanceId: props.instanceId,
+      tokenId: props.tokenId
+    },
+    amount: props.amount || 1,
+    buttonText: props.buttonText,
+    onMintSuccess: props.onMintSuccess,
+    onMintError: props.onMintError
+  }),
+  
+  /**
+   * Create an auto-detecting NFT mint (tries to figure out the provider)
+   * @example
+   * ```tsx
+   * <NFTMintFlow {...NFTMintFlow.presets.auto({
+   *   contractAddress: "0x...",
+   *   chainId: 8453
+   * })} />
+   * ```
+   */
+  auto: (props: {
+    contractAddress: Address;
+    chainId: 1 | 8453;
+    amount?: number;
+    buttonText?: string;
+    onMintSuccess?: (txHash: string) => void;
+    onMintError?: (error: string) => void;
+  }): NFTMintFlowProps => ({
+    ...props,
+    amount: props.amount || 1
+  })
+};
