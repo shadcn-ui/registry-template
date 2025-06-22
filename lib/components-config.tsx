@@ -5,12 +5,9 @@ import { ShowCoinBalance } from "@/registry/mini-app/blocks/show-coin-balance/sh
 import { UserAvatar } from "@/registry/mini-app/blocks/avatar/avatar";
 import { UserContext } from "@/registry/mini-app/blocks/user-context/user-context";
 import { NFTCard } from "@/registry/mini-app/blocks/nft-card/nft-card";
-import { NFTMintFlow } from "@/registry/mini-app/blocks/nft-mint-flow/nft-mint-flow";
 import * as React from "react";
 import { ProfileSearchSimulationDemo } from "@/registry/mini-app/blocks/profile-search/simulationHelper";
-import {ManifoldNFTMint} from "@/registry/mini-app/blocks/manifold-nft-mint/manifold-nft-mint";
-
-
+import { NFTMintExamples } from "@/components/nft-mint-examples";
 
 export interface ComponentItem {
   title: string;
@@ -60,7 +57,12 @@ export const componentItems: ComponentItem[] = [
     component: (
       <div className="flex flex-wrap gap-4 justify-center">
         <UserAvatar useProfileData={true} size="sm" shape="circle" />
-        <UserAvatar useProfileData={true} size="md" shape="square" clickable={true} />
+        <UserAvatar
+          useProfileData={true}
+          size="md"
+          shape="square"
+          clickable={true}
+        />
         <UserAvatar useProfileData={true} size="lg" shape="rounded" />
         <UserAvatar useProfileData={true} size="xl" clickable={true} />
       </div>
@@ -71,14 +73,14 @@ export const componentItems: ComponentItem[] = [
     title: "User Context Display",
     component: (
       <div className="flex flex-col gap-4">
-        <UserContext 
+        <UserContext
           showAvatar={true}
           showUsername={true}
           showDisplayName={true}
           showFid={true}
           clickable={true}
         />
-        <UserContext 
+        <UserContext
           layout="vertical"
           avatarSize="lg"
           avatarShape="rounded"
@@ -93,20 +95,20 @@ export const componentItems: ComponentItem[] = [
     component: (
       <div className="flex flex-col gap-6 items-center">
         <div className="flex flex-wrap gap-6 justify-center">
-          <NFTCard 
-            contractAddress="0xe03ef4b9db1a47464de84fb476f9baf493b3e886" 
+          <NFTCard
+            contractAddress="0xe03ef4b9db1a47464de84fb476f9baf493b3e886"
             tokenId="1"
-            width={200} 
-            height={200} 
+            width={200}
+            height={200}
             rounded="lg"
             network="zora"
             titlePosition="outside"
             networkPosition="outside"
           />
-          <NFTCard 
-            contractAddress="0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d" 
+          <NFTCard
+            contractAddress="0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
             tokenId="1"
-            width={200} 
+            width={200}
             height={200}
             rounded="xl"
             shadow={true}
@@ -114,10 +116,10 @@ export const componentItems: ComponentItem[] = [
             titlePosition="outside"
             networkPosition="top-right"
           />
-          <NFTCard 
-            contractAddress="0x60e4d786628fea6478f785a6d7e704777c86a7c6" 
+          <NFTCard
+            contractAddress="0x60e4d786628fea6478f785a6d7e704777c86a7c6"
             tokenId="7789"
-            width={200} 
+            width={200}
             height={200}
             rounded="lg"
             shadow={true}
@@ -130,10 +132,10 @@ export const componentItems: ComponentItem[] = [
         </div>
         <div className="flex flex-wrap gap-8 justify-center mt-4">
           <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-4 flex flex-col items-center">
-            <NFTCard 
-              contractAddress="0xed5af388653567af2f388e6224dc7c4b3241c544" 
+            <NFTCard
+              contractAddress="0xed5af388653567af2f388e6224dc7c4b3241c544"
               tokenId="1"
-              width={180} 
+              width={180}
               height={180}
               rounded="lg"
               shadow={true}
@@ -141,13 +143,15 @@ export const componentItems: ComponentItem[] = [
               titlePosition="bottom"
               networkPosition="top-right"
             />
-            <p className="text-sm text-muted-foreground mt-2">Title inside card (bottom)</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Title inside card (bottom)
+            </p>
           </div>
           <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-4 flex flex-col items-center">
-            <NFTCard 
-              contractAddress="0x8a90cab2b38dba80c64b7734e58ee1db38b8992e" 
+            <NFTCard
+              contractAddress="0x8a90cab2b38dba80c64b7734e58ee1db38b8992e"
               tokenId="1"
-              width={180} 
+              width={180}
               height={180}
               rounded="lg"
               shadow={true}
@@ -156,7 +160,9 @@ export const componentItems: ComponentItem[] = [
               networkPosition="bottom-right"
               layout="compact"
             />
-            <p className="text-sm text-muted-foreground mt-2">Title inside card (top)</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Title inside card (top)
+            </p>
           </div>
         </div>
       </div>
@@ -168,39 +174,15 @@ export const componentItems: ComponentItem[] = [
     component: (
       <div className="flex flex-col gap-6 w-full max-w-2xl">
         <div>
-          
-          <ProfileSearchSimulationDemo  />
+          <ProfileSearchSimulationDemo />
         </div>
       </div>
     ),
     installName: "profile-search",
   },
   {
-    title: "NFT Mint Flow",
-    component: (
-      <div className="flex flex-col gap-4 w-full max-w-md">
-        <NFTMintFlow
-          amount={1}
-          chainId={8453} // Base
-          contractAddress="0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4"
-          buttonText="Mint Demo NFT"
-          onMintSuccess={(txHash) => console.log("Mint successful:", txHash)}
-          onMintError={(error) => console.error("Mint failed:", error)}
-        />
-      </div>
-    ),
+    title: "Universal NFT Mint Flow",
+    component: <NFTMintExamples />,
     installName: "nft-mint-flow",
   },
-  {
-    title: "Manifold NFT Mint",
-    component:(
-      <ManifoldNFTMint
-      contractAddress="0x22fbd94bfc652dcb8b7958dda318566138d4bedc"
-      tokenId="4"
-      chainId={8453}
-      buttonText="Mint now"
-      />
-    ),
-    installName: "manifold-nft-mint"
-  }
 ];

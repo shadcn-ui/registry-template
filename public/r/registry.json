@@ -179,14 +179,34 @@
     {
       "name": "nft-mint-flow",
       "type": "registry:block", 
-      "description": "A complete NFT minting flow component with wallet connection, transaction handling, and 5-step user experience",
+      "description": "Universal NFT minting component that auto-detects provider (Manifold, OpenSea, generic) and handles all complexity including ERC20 payments and approvals",
       "dependencies": ["lucide-react", "wagmi", "viem", "@farcaster/frame-wagmi-connector"],
       "devDependencies": [],
-      "registryDependencies": ["button", "sheet"],
+      "registryDependencies": ["button", "sheet", "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"],
       "files": [
         {
           "path": "registry/mini-app/blocks/nft-mint-flow/nft-mint-flow.tsx",
           "type": "registry:block"
+        },
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/lib/types.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/lib/provider-configs.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/lib/provider-detector.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/lib/price-optimizer.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/lib/mint-reducer.ts",
+          "type": "registry:lib"
         }
       ]
     },

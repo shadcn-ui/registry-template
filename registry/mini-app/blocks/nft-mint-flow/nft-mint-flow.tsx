@@ -4,63 +4,53 @@ import * as React from "react";
 import { Button } from "@/registry/mini-app/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/registry/mini-app/ui/sheet";
 import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
-import { useAccount, useConnect, useWaitForTransactionReceipt, useWriteContract, useReadContract } from "wagmi";
+import { useAccount, useConnect, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { formatEther, type Address } from "viem";
 import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
-import { Coins, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Coins, CheckCircle, AlertCircle, Loader2, Info, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { detectNFTProvider, validateParameters, getClientForChain } from "./lib/provider-detector";
+import { getProviderConfig } from "./lib/provider-configs";
+import { fetchPriceData } from "./lib/price-optimizer";
+import { mintReducer, initialState, type MintStep } from "./lib/mint-reducer";
+import type { MintParams } from "./lib/types";
 
 type NFTMintFlowProps = {
-  amount: number;
-  chainId: number;
+  // Core params
   contractAddress: Address;
+  chainId: number;
+  
+  // Optional provider hint
+  provider?: "manifold" | "opensea" | "zora" | "generic";
+  
+  // Generic params
+  amount?: number;
+  
+  // Provider-specific params
+  manifoldParams?: {
+    instanceId?: string;
+    tokenId?: string;
+  };
+  
+  // UI customization
   className?: string;
   variant?: "default" | "destructive" | "secondary" | "ghost" | "outline";
   size?: "default" | "sm" | "lg" | "icon";
   buttonText?: string;
   disabled?: boolean;
+  
+  // Callbacks
   onMintSuccess?: (txHash: string) => void;
   onMintError?: (error: string) => void;
 };
 
-type MintStep = "initial" | "sheet" | "connecting" | "minting" | "waiting" | "success" | "error";
-
-// Common NFT contract ABI for price reading
-const priceAbi = [
-  {
-    inputs: [],
-    name: "mintPrice",
-    outputs: [{ type: "uint256", name: "price" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "price",
-    outputs: [{ type: "uint256", name: "price" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "MINT_PRICE",
-    outputs: [{ type: "uint256", name: "price" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getMintPrice",
-    outputs: [{ type: "uint256", name: "price" }],
-    stateMutability: "view",
-    type: "function",
-  },
-] as const;
 
 export function NFTMintFlow({
-  amount,
-  chainId,
   contractAddress,
+  chainId,
+  provider,
+  amount = 1,
+  manifoldParams,
   className,
   variant = "default",
   size = "default",
@@ -69,138 +59,201 @@ export function NFTMintFlow({
   onMintSuccess,
   onMintError,
 }: NFTMintFlowProps) {
-  const [step, setStep] = React.useState<MintStep>("initial");
-  const [error, setError] = React.useState<string>("");
-  const [txHash, setTxHash] = React.useState<string>("");
+  const [state, dispatch] = React.useReducer(mintReducer, initialState);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+  
+  // Destructure commonly used values
+  const { step, contractInfo, priceData, error, txHash, txType, isLoading, validationErrors } = state;
+  const { erc20Details } = priceData;
+  
   const { isSDKLoaded } = useMiniAppSdk();
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { connect } = useConnect();
   const { writeContract, isPending: isWritePending, data: writeData, error: writeError } = useWriteContract();
-  
-  // Read mint price from contract with proper configuration
-  const {data: mintPrice, isError: isPriceError, isLoading:isMintPriceLoading } = useReadContract({
-    address: contractAddress,
-    abi: priceAbi,
-    functionName: "mintPrice",
+
+  // Build mint params
+  const mintParams: MintParams = React.useMemo(() => ({
+    contractAddress,
     chainId,
-    query: {
-      enabled: !!contractAddress && !!chainId ,
-      retry: 3,
-      retryDelay: 1000,
-    },
-  });
+    provider,
+    amount,
+    instanceId: manifoldParams?.instanceId,
+    tokenId: manifoldParams?.tokenId,
+    recipient: address
+  }), [contractAddress, chainId, provider, amount, manifoldParams, address]);
 
-  // Fallback to other price function names if mintPrice fails
-  const { data: price, isLoading: isPriceLoading ,isError: isPriceError2} = useReadContract({
-    address: contractAddress,
-    abi: priceAbi,
-    functionName: "price",
-    chainId,
-    query: {
-      enabled: !!contractAddress && !!chainId && isPriceError && (isPriceError || mintPrice === undefined),
-      retry: 3,
-      retryDelay: 1000,
-    },
-  });
-
-  const { data: MINT_PRICE, isLoading: isMintPriceConstLoading,isError: isMintPriceConstError } =  useReadContract({
-    address: contractAddress,
-    abi: priceAbi,
-    functionName: "MINT_PRICE",
-    chainId,
-    query: {
-      enabled: !!contractAddress && !!chainId && isPriceError2 && (isPriceError2 || price === undefined),
-      retry: 3,
-      retryDelay: 1000,
-    },
-  });
-
-  const { data: getMintPrice, isLoading: isGetMintPriceLoading } = useReadContract({
-    address: contractAddress,
-    abi: priceAbi,
-    functionName: "getMintPrice",
-    chainId,
-    query: {
-      enabled: !!contractAddress && !!chainId && isMintPriceConstError && (isMintPriceConstError || MINT_PRICE === undefined),
-      retry: 3,
-      retryDelay: 1000,
-    },
-  });
-
-  const contractPrice = mintPrice === BigInt(0) ? BigInt(0) : mintPrice ? mintPrice : price === BigInt(0) ? BigInt(0) : price ? price : MINT_PRICE === BigInt(0) ? BigInt(0) : MINT_PRICE ? MINT_PRICE : getMintPrice === BigInt(0) ? BigInt(0) : getMintPrice ? getMintPrice : undefined;
-  const isLoadingPrice = isMintPriceLoading || isPriceLoading || isMintPriceConstLoading || isGetMintPriceLoading;
-
+  // Watch for transaction completion
   const { isSuccess: isTxSuccess, isError: isTxError, error: txError } = useWaitForTransactionReceipt({
     hash: writeData,
   });
 
-  // Calculate total cost
-  const totalCost = contractPrice ? (Number(formatEther(contractPrice)) * amount).toString() : "0";
+  // Get provider config
+  const providerConfig = contractInfo ? getProviderConfig(contractInfo.provider) : null;
 
-  // Reset error when step changes
-  React.useEffect(() => {
-    if (step !== "error") {
-      setError("");
-    }
-  }, [step]);
-
-  // Handle transaction success
+  // Handle transaction status updates
   React.useEffect(() => {
     if (writeError) {
-      if(writeError.message.toLowerCase().includes("user rejected the request")) {
-        handleClose();
+      // Don't show error state for user rejections - just close
+      if(writeError.message.toLowerCase().includes("user rejected")) {
+        dispatch({ type: "RESET" });
         return;
       }
-      setStep("error");
-      setError(writeError.message);
-      onMintError?.(writeError.message);
+      dispatch({ type: "TX_ERROR", payload: writeError.message });
+      if (txType === "mint") {
+        onMintError?.(writeError.message);
+      }
     }
     if (isTxError && txError) {
-      setStep("error");
-      setError(txError.message);
-      onMintError?.(txError.message);
+      dispatch({ type: "TX_ERROR", payload: txError.message });
+      if (txType === "mint") {
+        onMintError?.(txError.message);
+      }
     }
     if (isTxSuccess && writeData) {
-      setStep("success");
-      setTxHash(writeData);
-      onMintSuccess?.(writeData);
+      if (txType === "approval") {
+        dispatch({ type: "APPROVE_SUCCESS" });
+      } else if (txType === "mint") {
+        dispatch({ type: "TX_SUCCESS", payload: writeData });
+        onMintSuccess?.(writeData);
+      }
     }
-  }, [isTxSuccess, writeData, onMintSuccess, isTxError, txError, onMintError, writeError]);
+  }, [isTxSuccess, writeData, onMintSuccess, isTxError, txError, onMintError, writeError, txType]);
 
-  // Handle writeContract data update
+  // Auto-close on success after 10 seconds
   React.useEffect(() => {
-    if (writeData && step === "waiting") {
-      setTxHash(writeData);
+    if (step === "success") {
+      const timer = setTimeout(() => {
+        handleClose();
+      }, 10000);
+      return () => clearTimeout(timer);
     }
-  }, [writeData, step]);
+  }, [step]);
+  
+  const handleClose = React.useCallback(() => {
+    setIsSheetOpen(false);
+    dispatch({ type: "RESET" });
+  }, []);
 
-  const handleInitialMint = () => {
+  // Detect NFT provider and validate
+  const detectAndValidate = async () => {
+    dispatch({ type: "DETECT_START" });
+    
+    try {
+      // Detect provider
+      const info = await detectNFTProvider(mintParams);
+      console.log("Detected provider:", info);
+      
+      // Validate parameters
+      const validation = validateParameters(mintParams, info);
+      
+      if (!validation.isValid) {
+        dispatch({ type: "VALIDATION_ERROR", payload: validation.errors });
+        return;
+      }
+      
+      // Fetch optimized price data
+      const client = getClientForChain(chainId);
+      const fetchedPriceData = await fetchPriceData(client, mintParams, info);
+      console.log("Fetched price data:", fetchedPriceData);
+      
+      // Update contract info with ERC20 details and claim data
+      if (fetchedPriceData.erc20Details) {
+        info.erc20Token = fetchedPriceData.erc20Details.address as `0x${string}`;
+        info.erc20Symbol = fetchedPriceData.erc20Details.symbol;
+        info.erc20Decimals = fetchedPriceData.erc20Details.decimals;
+      }
+      
+      // Add claim data if available
+      if (fetchedPriceData.claim) {
+        info.claim = fetchedPriceData.claim;
+      }
+      
+      dispatch({ 
+        type: "DETECT_SUCCESS", 
+        payload: { 
+          contractInfo: info, 
+          priceData: {
+            mintPrice: fetchedPriceData.mintPrice,
+            totalCost: fetchedPriceData.totalCost,
+            erc20Details: fetchedPriceData.erc20Details
+          }
+        } 
+      });
+    } catch (err) {
+      console.error("Detection failed:", err);
+      dispatch({ type: "DETECT_ERROR", payload: "Failed to detect NFT contract type" });
+    }
+  };
+  
+  // Re-check allowance after wallet connection
+  React.useEffect(() => {
+    if (isConnected && address && erc20Details && erc20Details.allowance === undefined) {
+      // Re-run detection to get allowance
+      detectAndValidate();
+    }
+  }, [isConnected, address]);
+
+  const handleInitialMint = async () => {
     if (!isSDKLoaded) {
-      setError("Farcaster SDK not loaded");
-      setStep("error");
+      dispatch({ type: "MINT_ERROR", payload: "Farcaster SDK not loaded" });
       setIsSheetOpen(true);
       return;
     }
-    setStep("sheet");
+    
     setIsSheetOpen(true);
+    await detectAndValidate();
   };
 
   const handleConnectWallet = async () => {
     try {
-      setStep("connecting");
+      dispatch({ type: "CONNECT_START" });
       const connector = farcasterFrame();
       connect({ connector });
-      // Connection handled by wagmi hooks
     } catch (err) {
-      console.error("Failed to connect wallet:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to connect wallet";
-      
-      // For other errors, show error state
-      setError(errorMessage);
-      setStep("error");
+      handleError(err, "Failed to connect wallet");
     }
   };
+
+  const handleApprove = async () => {
+    if (!isConnected || !erc20Details || !contractInfo?.claim) {
+      dispatch({ type: "MINT_ERROR", payload: "Missing required information for approval" });
+      return;
+    }
+
+    try {
+      dispatch({ type: "APPROVE_START" });
+      
+      // For Manifold, approve the extension contract, not the NFT contract
+      const spenderAddress = contractInfo.provider === "manifold" && contractInfo.extensionAddress 
+        ? contractInfo.extensionAddress 
+        : contractAddress;
+      
+      // Approve exact amount needed
+      const tx = await writeContract({
+        address: erc20Details.address as `0x${string}`,
+        abi: [{
+          name: "approve",
+          type: "function",
+          inputs: [
+            { name: "spender", type: "address" },
+            { name: "amount", type: "uint256" }
+          ],
+          outputs: [{ type: "bool" }],
+          stateMutability: "nonpayable"
+        }],
+        functionName: "approve",
+        args: [spenderAddress, contractInfo.claim.cost],
+        chainId
+      });
+      
+      if (tx) {
+        dispatch({ type: "APPROVE_TX_SUBMITTED", payload: tx });
+      }
+    } catch (err) {
+      handleError(err, "Approval failed");
+    }
+  };
+  
 
   const handleMint = async () => {
     if (!isConnected) {
@@ -208,62 +261,90 @@ export function NFTMintFlow({
       return;
     }
 
-    if (contractPrice === undefined) {
-      setError("Could not fetch mint price from contract");
-      setStep("error");
+    if (!contractInfo || !providerConfig) {
+      dispatch({ type: "MINT_ERROR", payload: "Contract information not available" });
       return;
     }
 
     try {
-      setStep("minting");
+      dispatch({ type: "MINT_START" });
       
-      // Simple mint function call - adjust ABI based on your NFT contract
-      writeContract({
-        address: contractAddress,
-        abi: [
-          {
-            name: "mint",
-            type: "function",
-            inputs: [{ name: "amount", type: "uint256" }],
-            outputs: [],
-            stateMutability: "payable",
-          },
-        ] as const,
-        functionName: "mint",
-        args: [BigInt(amount)],
-        value: contractPrice * BigInt(amount),
-        chainId,
+      const args = providerConfig.mintConfig.buildArgs(mintParams);
+      const value = priceData.mintPrice ? providerConfig.mintConfig.calculateValue(priceData.mintPrice, mintParams) : BigInt(0);
+      
+      // Handle Manifold's special case
+      const mintAddress = contractInfo.provider === "manifold" && contractInfo.extensionAddress 
+        ? contractInfo.extensionAddress 
+        : contractAddress;
+        
+      const tx = await writeContract({
+        address: mintAddress,
+        abi: providerConfig.mintConfig.abi,
+        functionName: providerConfig.mintConfig.functionName as any,
+        args,
+        value,
+        chainId
       });
 
-      // Transaction initiated, will be handled by wagmi hooks
-      setStep("waiting");
-    } catch (err) {
-      console.error("Mint failed:", err);
-      const errorMessage = err instanceof Error ? err.message : "Mint transaction failed";
-      
-      // Check if user rejected
-      if (err instanceof Error && err.name === "UserRejectedRequestError") {
-        handleClose(); // Close the sheet on user rejection
-        return;
+      if (tx) {
+        dispatch({ type: "MINT_TX_SUBMITTED", payload: tx });
       }
-      
-      // For other errors, show error state
-      setError(errorMessage);
-      setStep("error");
-      onMintError?.(errorMessage);
+    } catch (err) {
+      handleError(err, "Mint transaction failed");
     }
   };
 
-  const handleClose = () => {
-    setIsSheetOpen(false);
-    setStep("initial");
-    setError("");
-    setTxHash("");
+  // Centralized error handler
+  const handleError = (error: unknown, context: string) => {
+    console.error(`${context}:`, error);
+    const message = error instanceof Error ? error.message : `${context}`;
+    dispatch({ type: "TX_ERROR", payload: message });
+    if (txType === "mint") {
+      onMintError?.(message);
+    }
   };
 
   const handleRetry = () => {
-    setError("");
-    setStep("sheet");
+    dispatch({ type: "RESET" });
+    detectAndValidate();
+  };
+
+  // Display helpers (quick win: centralized formatting)
+  const formatPrice = (amount: bigint, decimals: number, symbol: string) => {
+    if (amount === BigInt(0)) return "Free";
+    return `${Number(amount) / (10 ** decimals)} ${symbol}`;
+  };
+  
+  const displayPrice = () => {
+    if (erc20Details && contractInfo?.claim) {
+      return formatPrice(contractInfo.claim.cost || BigInt(0), erc20Details.decimals || 18, erc20Details.symbol);
+    }
+    return priceData.mintPrice ? `${formatEther(priceData.mintPrice)} ETH` : "Free";
+  };
+  
+  const displayTotalCost = () => {
+    if (erc20Details && contractInfo?.claim) {
+      // For Manifold, cost is per claim, not per NFT amount
+      return formatPrice(contractInfo.claim.cost || BigInt(0), erc20Details.decimals || 18, erc20Details.symbol);
+    }
+    return priceData.totalCost ? `${formatEther(priceData.totalCost)} ETH` : "Free";
+  };
+  
+  const displayMintFee = () => {
+    const fee = priceData.mintPrice || BigInt(0);
+    return fee > BigInt(0) ? `${formatEther(fee)} ETH` : "0 ETH";
+  };
+  
+  const providerName = contractInfo?.provider 
+    ? contractInfo.provider.charAt(0).toUpperCase() + contractInfo.provider.slice(1)
+    : "Unknown";
+    
+  // Quick win: validation helper
+  const isReadyToMint = () => {
+    return isConnected && 
+           contractInfo && 
+           !isLoading && 
+           (!erc20Details || !erc20Details.needsApproval);
   };
 
   return (
@@ -277,7 +358,7 @@ export function NFTMintFlow({
         variant={variant}
         size={size}
         onClick={handleInitialMint}
-        disabled={disabled || !isSDKLoaded}
+        disabled={disabled || !isSDKLoaded || isLoading}
         className={cn("w-full", className)}
       >
         <Coins className="h-4 w-4 mr-2" />
@@ -287,19 +368,92 @@ export function NFTMintFlow({
       <SheetContent side="bottom" onClose={handleClose}>
         <SheetHeader className="mb-6">
           <SheetTitle>
+            {step === "detecting" && "Detecting NFT Type"}
             {step === "sheet" && "Mint NFT"}
             {step === "connecting" && "Connecting Wallet"}
+            {step === "approve" && "Approve Token"}
+            {step === "approving" && "Approving..."}
             {step === "minting" && "Preparing Mint"}
-            {step === "waiting" && "Minting..."}
+            {step === "waiting" && (txType === "approval" ? "Approving..." : "Minting...")}
             {step === "success" && "Mint Successful!"}
-            {step === "error" && "Mint Failed"}
+            {step === "error" && "Transaction Failed"}
+            {step === "validation-error" && "Missing Information"}
           </SheetTitle>
         </SheetHeader>
 
-        {/* Step 2: Sheet Content */}
-        {step === "sheet" && (
+        {/* Detecting Provider */}
+        {step === "detecting" && (
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+            <p className="text-muted-foreground">
+              Detecting NFT contract type...
+            </p>
+          </div>
+        )}
+
+        {/* Validation Error */}
+        {step === "validation-error" && (
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <Info className="h-12 w-12 text-yellow-500" />
+            </div>
+            <div className="space-y-2">
+              <p className="font-semibold text-center">Missing Required Information</p>
+              {validationErrors.map((err, idx) => (
+                <p key={idx} className="text-sm text-muted-foreground text-center">
+                  {err}
+                </p>
+              ))}
+            </div>
+            <Button onClick={handleClose} className="w-full">
+              Close
+            </Button>
+          </div>
+        )}
+
+        {/* Approve Step */}
+        {step === "approve" && erc20Details && (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <p className="font-semibold">Approval Required</p>
+              <p className="text-sm text-muted-foreground">
+                This NFT requires payment in {erc20Details.symbol}. You need to approve the contract to spend your tokens.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-muted-foreground">Token</span>
+                <span className="font-semibold">{erc20Details.symbol}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-muted-foreground">Amount to Approve</span>
+                <span className="font-semibold">
+                  {contractInfo?.claim ? Number(contractInfo.claim.cost) / (10 ** erc20Details.decimals) : 0} {erc20Details.symbol}
+                </span>
+              </div>
+            </div>
+            <Button
+              onClick={handleApprove}
+              size="lg"
+              className="w-full"
+              disabled={isWritePending}
+            >
+              <Coins className="h-5 w-5 mr-2" />
+              Approve {erc20Details.symbol}
+            </Button>
+          </div>
+        )}
+
+        {/* Main Sheet Content */}
+        {step === "sheet" && contractInfo && (
           <div className="space-y-6">
             <div className="space-y-4">
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-muted-foreground">Provider</span>
+                <span className="font-semibold">{providerName}</span>
+              </div>
               <div className="flex justify-between items-center py-3 border-b">
                 <span className="text-muted-foreground">Contract</span>
                 <span className="font-mono text-sm">
@@ -312,21 +466,17 @@ export function NFTMintFlow({
               </div>
               <div className="flex justify-between items-center py-3 border-b">
                 <span className="text-muted-foreground">Price per NFT</span>
-                <span className="font-semibold">
-                  {isLoadingPrice ? (
-                    "Loading..."
-                  ) : contractPrice === BigInt(0) ? (
-                    "0 ETH"
-                  ) : contractPrice ? (
-                    `${Number(formatEther(contractPrice)).toFixed(4)} ETH`
-                  ) : (
-                    "Error loading price"
-                  )}
-                </span>
+                <span className="font-semibold">{displayPrice()}</span>
               </div>
+              {erc20Details && (
+                <div className="flex justify-between items-center py-3 border-b">
+                  <span className="text-muted-foreground">Mint Fee</span>
+                  <span className="font-semibold">{displayMintFee()}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center py-3 text-lg font-semibold">
                 <span>Total Cost</span>
-                <span>{totalCost} ETH</span>
+                <span>{displayTotalCost()}</span>
               </div>
             </div>
             
@@ -334,7 +484,7 @@ export function NFTMintFlow({
               onClick={isConnected ? handleMint : handleConnectWallet}
               size="lg"
               className="w-full"
-              disabled={isWritePending}
+              disabled={isWritePending || !isReadyToMint()}
             >
               {isConnected ? (
                 <>
@@ -348,7 +498,7 @@ export function NFTMintFlow({
           </div>
         )}
 
-        {/* Step 3: Connecting */}
+        {/* Connecting */}
         {step === "connecting" && (
           <div className="text-center space-y-4">
             <div className="flex justify-center">
@@ -360,14 +510,16 @@ export function NFTMintFlow({
           </div>
         )}
 
-        {/* Step 3/4: Minting */}
-        {step === "minting" && (
+        {/* Minting/Approving */}
+        {(step === "minting" || step === "approving") && (
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
             <div>
-              <p className="font-semibold">Preparing mint transaction</p>
+              <p className="font-semibold">
+                {step === "approving" ? "Preparing approval" : "Preparing mint transaction"}
+              </p>
               <p className="text-sm text-muted-foreground">
                 Please approve the transaction in your wallet
               </p>
@@ -375,14 +527,16 @@ export function NFTMintFlow({
           </div>
         )}
 
-        {/* Step 4: Waiting for Transaction */}
+        {/* Waiting for Transaction */}
         {step === "waiting" && (
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
             <div>
-              <p className="font-semibold">Transaction submitted</p>
+              <p className="font-semibold">
+                {txType === "approval" ? "Approval submitted" : "Transaction submitted"}
+              </p>
               <p className="text-sm text-muted-foreground">
                 Waiting for confirmation on the blockchain...
               </p>
@@ -395,25 +549,39 @@ export function NFTMintFlow({
           </div>
         )}
 
-        {/* Step 5: Success */}
+        {/* Success */}
         {step === "success" && (
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-6">
             <div className="flex justify-center">
-              <CheckCircle className="h-12 w-12 text-green-500" />
+              <CheckCircle className="h-20 w-20 text-green-500" />
             </div>
-            <div>
-              <p className="font-semibold text-green-600">Mint successful!</p>
-              <p className="text-sm text-muted-foreground">
-                Your {amount} NFT{amount > 1 ? 's have' : ' has'} been minted successfully
+            <div className="space-y-3">
+              <p className="text-2xl font-semibold">Minted! 🎉</p>
+              <p className="text-muted-foreground">
+                {amount} NFT{amount > 1 ? 's' : ''} successfully minted
               </p>
-              {txHash && (
-                <p className="text-xs font-mono mt-2 px-3 py-1 bg-muted rounded">
-                  {txHash.slice(0, 10)}...{txHash.slice(-8)}
-                </p>
-              )}
             </div>
-            <Button onClick={handleClose} className="w-full">
-              Close
+            {txHash && (
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  asChild
+                >
+                  <a
+                    href={`https://txha.sh/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View transaction
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </Button>
+              </div>
+            )}
+            <Button onClick={handleClose} className="w-full" size="lg">
+              Done
             </Button>
           </div>
         )}
@@ -443,4 +611,4 @@ export function NFTMintFlow({
       </SheetContent>
     </Sheet>
   );
-} 
+}
