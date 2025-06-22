@@ -136,7 +136,7 @@ export function mintReducer(state: MintState, action: MintAction): MintState {
     case "UPDATE_ALLOWANCE":
       if (!state.priceData.erc20Details) return state;
       
-      const needsApproval = state.contractInfo?.claim 
+      const updatedNeedsApproval = state.contractInfo?.claim 
         ? action.payload < state.contractInfo.claim.cost
         : false;
         
@@ -147,7 +147,7 @@ export function mintReducer(state: MintState, action: MintAction): MintState {
           erc20Details: {
             ...state.priceData.erc20Details,
             allowance: action.payload,
-            needsApproval
+            needsApproval: updatedNeedsApproval
           }
         }
       };

@@ -29,7 +29,8 @@ export async function fetchPriceData(
       {
         address: contractInfo.extensionAddress,
         abi: config.mintConfig.abi,
-        functionName: "MINT_FEE"
+        functionName: "MINT_FEE",
+        args: []
       }
     ];
     
@@ -40,7 +41,7 @@ export async function fetchPriceData(
         abi: config.mintConfig.abi,
         functionName: "getClaim",
         args: [params.contractAddress, BigInt(params.instanceId)]
-      });
+      } as any);
     }
     
     try {
@@ -132,7 +133,8 @@ export async function fetchPriceData(
         const price = await client.readContract({
           address: params.contractAddress,
           abi: config.priceDiscovery.abis[0],
-          functionName: functionName as any
+          functionName: functionName as any,
+          args: []
         });
         
         if (price !== undefined) {

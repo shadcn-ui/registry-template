@@ -41,12 +41,12 @@ const getTransport = (chainId: number) => {
   }
 };
 
-export const getClientForChain = (chainId: number): PublicClient => {
+export const getClientForChain = (chainId: number) => {
   const chain = chainId === 1 ? mainnet : chainId === 8453 ? base : mainnet;
   return createPublicClient({
     chain,
     transport: getTransport(chainId)
-  });
+  }) as PublicClient;
 };
 
 /**

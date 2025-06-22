@@ -270,6 +270,14 @@ export function NFTMintFlow({
         onMintError?.(txError.message);
       }
     }
+    if (writeData && !isTxSuccess && !isTxError) {
+      // Transaction submitted, waiting for confirmation
+      if (txType === "approval") {
+        dispatch({ type: "APPROVE_TX_SUBMITTED", payload: writeData });
+      } else if (txType === "mint") {
+        dispatch({ type: "MINT_TX_SUBMITTED", payload: writeData });
+      }
+    }
     if (isTxSuccess && writeData) {
       if (txType === "approval") {
         dispatch({ type: "APPROVE_SUCCESS" });
@@ -309,7 +317,7 @@ export function NFTMintFlow({
     try {
       await switchChain({ chainId });
     } catch (err) {
-      console.error("Failed to switch network:", err);
+      // Network switch failed - user likely rejected or wallet doesn't support it
     }
   };
 
@@ -320,7 +328,6 @@ export function NFTMintFlow({
     try {
       // Detect provider
       const info = await detectNFTProvider(mintParams);
-      console.log("Detected provider:", info);
 
       // Validate parameters
       const validation = validateParameters(mintParams, info);
@@ -333,7 +340,6 @@ export function NFTMintFlow({
       // Fetch optimized price data
       const client = getClientForChain(chainId);
       const fetchedPriceData = await fetchPriceData(client, mintParams, info);
-      console.log("Fetched price data:", fetchedPriceData);
 
       // Update contract info with ERC20 details and claim data
       if (fetchedPriceData.erc20Details) {
@@ -360,7 +366,6 @@ export function NFTMintFlow({
         },
       });
     } catch (err) {
-      console.error("Detection failed:", err);
       dispatch({
         type: "DETECT_ERROR",
         payload: "Failed to detect NFT contract type",
@@ -399,7 +404,7 @@ export function NFTMintFlow({
 
       dispatch({ type: "UPDATE_ALLOWANCE", payload: allowance as bigint });
     } catch (err) {
-      console.error("Failed to check allowance:", err);
+      // Allowance check failed - will proceed without pre-checked allowance
     }
   }, [contractInfo, erc20Details, address, chainId, contractAddress]);
 
@@ -417,7 +422,7 @@ export function NFTMintFlow({
 
   const handleInitialMint = async () => {
     if (!isSDKLoaded) {
-      dispatch({ type: "MINT_ERROR", payload: "Farcaster SDK not loaded" });
+      dispatch({ type: "TX_ERROR", payload: "Farcaster SDK not loaded" });
       setIsSheetOpen(true);
       return;
     }
@@ -439,7 +444,7 @@ export function NFTMintFlow({
   const handleApprove = async () => {
     if (!isConnected || !erc20Details || !contractInfo?.claim) {
       dispatch({
-        type: "MINT_ERROR",
+        type: "TX_ERROR",
         payload: "Missing required information for approval",
       });
       return;
@@ -455,7 +460,7 @@ export function NFTMintFlow({
           : contractAddress;
 
       // Approve exact amount needed
-      const tx = await writeContract({
+      await writeContract({
         address: erc20Details.address as `0x${string}`,
         abi: [
           {
@@ -473,10 +478,8 @@ export function NFTMintFlow({
         args: [spenderAddress, contractInfo.claim.cost],
         chainId,
       });
-
-      if (tx) {
-        dispatch({ type: "APPROVE_TX_SUBMITTED", payload: tx });
-      }
+      
+      // The transaction has been initiated - we'll track it via writeData in the effect
     } catch (err) {
       handleError(err, "Approval failed", "approval");
     }
@@ -490,7 +493,7 @@ export function NFTMintFlow({
 
     if (!contractInfo || !providerConfig) {
       dispatch({
-        type: "MINT_ERROR",
+        type: "TX_ERROR",
         payload: "Contract information not available",
       });
       return;
@@ -513,7 +516,7 @@ export function NFTMintFlow({
           ? contractInfo.extensionAddress
           : contractAddress;
 
-      const tx = await writeContract({
+      await writeContract({
         address: mintAddress,
         abi: providerConfig.mintConfig.abi,
         functionName: providerConfig.mintConfig.functionName as any,
@@ -521,10 +524,8 @@ export function NFTMintFlow({
         value,
         chainId,
       });
-
-      if (tx) {
-        dispatch({ type: "MINT_TX_SUBMITTED", payload: tx });
-      }
+      
+      // The transaction has been initiated - we'll track it via writeData in the effect
     } catch (err) {
       handleError(err, "Mint transaction failed", "mint");
     }
