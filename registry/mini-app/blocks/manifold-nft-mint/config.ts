@@ -1,7 +1,7 @@
 import { type Address } from "viem";
 import { Config } from "./manifold-nft-mint";
 import { getPublicClient } from "@/registry/mini-app/lib/chains";
-import { MANIFOLD_ABI, KNOWN_CONTRACTS } from "@/registry/mini-app/lib/nft-standards";
+import { MANIFOLD_DETECTION_ABI, MANIFOLD_EXTENSION_ABI, KNOWN_CONTRACTS, ERC20_ABI } from "@/registry/mini-app/lib/nft-standards";
 import { isZeroAddress } from "@/registry/mini-app/lib/manifold-utils";
 
 export type Claim = {
@@ -20,17 +20,32 @@ export type Claim = {
   signingAddress: Address;
 } | undefined;
 
-// Re-export ERC20 ABI for backward compatibility
-export const ERC20Abi = [
-  {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
-  {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-  {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}
-] as const;
 
 
 
 
 export async function getNftDetails(contractAddress: Address, instanceId: string, tokenId: string, chainId: number) {
+  // Validate inputs
+  if (!contractAddress) {
+    throw new Error("Contract address is required");
+  }
+  
+  // Validate instanceId and tokenId can be converted to BigInt
+  if (instanceId) {
+    try {
+      BigInt(instanceId);
+    } catch {
+      throw new Error("Invalid instanceId: must be a valid number string");
+    }
+  }
+  
+  if (tokenId) {
+    try {
+      BigInt(tokenId);
+    } catch {
+      throw new Error("Invalid tokenId: must be a valid number string");
+    }
+  }
   
   
   const client = getPublicClient(chainId);
@@ -42,49 +57,80 @@ export async function getNftDetails(contractAddress: Address, instanceId: string
   try{
     const extensionContractAddresses = await client.readContract({
       address: contractAddress,
-      abi: MANIFOLD_ABI.detection,
+      abi: MANIFOLD_DETECTION_ABI,
       functionName: "getExtensions",
     }) as Address[];
-    if(extensionContractAddresses.length > 0 && extensionContractAddresses.includes(KNOWN_CONTRACTS.manifoldExtension)){
+    
+    // Validate extension addresses exist
+    if(!extensionContractAddresses || extensionContractAddresses.length === 0) {
+      throw new Error("No Manifold extensions found on contract");
+    }
+    
+    if(extensionContractAddresses.includes(KNOWN_CONTRACTS.manifoldExtension)){
       if(instanceId){
     claim = await client.readContract({
       address: KNOWN_CONTRACTS.manifoldExtension,
-      abi: MANIFOLD_ABI.extension.getClaim,
+      abi: MANIFOLD_EXTENSION_ABI,
       functionName: "getClaim",
       args: [contractAddress, BigInt(instanceId)],
     });}else{
       const data = await client.readContract({
         address: KNOWN_CONTRACTS.manifoldExtension,
-        abi: MANIFOLD_ABI.extension.getClaimForToken,
+        abi: MANIFOLD_EXTENSION_ABI,
         functionName: "getClaimForToken",
         args: [contractAddress, BigInt(tokenId)],
       });
-     
-      instance = BigInt(data[0]);
-      claim = data[1] as Claim;
+      
+      // Validate response structure
+      if (!Array.isArray(data) || data.length !== 2) {
+        throw new Error("Invalid response from getClaimForToken");
+      }
+      
+      const [rawInstanceId, rawClaim] = data;
+      
+      // Validate types
+      if (typeof rawInstanceId !== 'bigint' || !rawClaim || typeof rawClaim !== 'object') {
+        throw new Error("Invalid data types in getClaimForToken response");
+      }
+      
+      instance = rawInstanceId;
+      claim = rawClaim as Claim;
     }
     fee = await client.readContract({
       address: KNOWN_CONTRACTS.manifoldExtension,
-      abi: MANIFOLD_ABI.extension.fees,
+      abi: MANIFOLD_EXTENSION_ABI,
       functionName: "MINT_FEE",
     });
   }else{
     if(instanceId){
     claim = await client.readContract({
       address: extensionContractAddresses[0],
-      abi: MANIFOLD_ABI.extension.getClaim,
+      abi: MANIFOLD_EXTENSION_ABI,
       functionName: "getClaim",
       args: [contractAddress, BigInt(instanceId)],
     });
   }else{
     const data = await client.readContract({
       address: extensionContractAddresses[0],
-      abi: MANIFOLD_ABI.extension.getClaim,
+      abi: MANIFOLD_EXTENSION_ABI,
       functionName: "getClaimForToken",
       args: [contractAddress, BigInt(tokenId)],
     });
-    instance = BigInt(data[0]);
-    claim = data[1] as Claim;
+    
+    // Validate response structure
+    if (!Array.isArray(data) || data.length !== 2) {
+      throw new Error("Invalid response from getClaimForToken");
+    }
+    
+    const [rawInstanceId, rawClaim] = data;
+    
+    // Validate types
+    if (typeof rawInstanceId !== 'bigint' || !rawClaim || typeof rawClaim !== 'object') {
+      throw new Error("Invalid data types in getClaimForToken response");
+    }
+    
+    instance = rawInstanceId;
+    claim = rawClaim as Claim;
   }
   fee = await client.readContract({
     address: extensionContractAddresses[0],
@@ -96,15 +142,23 @@ export async function getNftDetails(contractAddress: Address, instanceId: string
   if(claim && claim.erc20 && !isZeroAddress(claim.erc20)){
     erc20Symbol = await client.readContract({
       address: claim.erc20,
-      abi: ERC20Abi,
+      abi: ERC20_ABI,
       functionName: "symbol",
-    });
+    }) as string;
     console.log("erc20Symbol", erc20Symbol);
-    erc20Decimals = await client.readContract({
+    
+    const decimalsResult = await client.readContract({
       address: claim.erc20,
-      abi: ERC20Abi,
+      abi: ERC20_ABI,
       functionName: "decimals",
     });
+    
+    // Validate decimals is a valid number
+    erc20Decimals = Number(decimalsResult);
+    if (isNaN(erc20Decimals) || erc20Decimals < 0 || erc20Decimals > 255) {
+      console.error("Invalid ERC20 decimals:", decimalsResult);
+      erc20Decimals = 18; // Default to 18 if invalid
+    }
     console.log("erc20Decimals", erc20Decimals);
   }
     const config: Config = {

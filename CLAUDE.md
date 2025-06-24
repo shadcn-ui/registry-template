@@ -4,90 +4,190 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a shadcn/ui-based component registry for Farcaster mini apps. It provides reusable components, hooks, and utilities designed for building mini apps with consistent UX across Farcaster clients.
+This is a Next.js-based component registry for Farcaster mini apps, built using the shadcn architecture. It provides reusable components, hooks, and utilities that developers can install via shadcn CLI from the custom registry.
 
-## Key Commands
+## LLM Component Development Guide
 
-```bash
-# Development
-pnpm dev          # Start Next.js dev server with Turbopack on http://localhost:3000
+### Interface Design Rules
 
-# Build & Production
-pnpm build        # Production build
-pnpm start        # Start production server
+- **FLAT PROPS**: No nested objects in component props
+- **EXPLICIT TYPES**: `contractAddress: string` not `contract: { address: string }`
+- **SINGLE RESPONSIBILITY**: One component = one clear purpose
+- **NO HOOKS EXPORT**: Components only, no separate hook files
+- **SELF-CONTAINED**: Each component includes all logic it needs
 
-# Code Quality
-pnpm lint         # Run ESLint (automatically runs in pre-commit hook)
+### Code Patterns
 
-# Registry Management
-pnpm registry:build  # Generate registry JSON files in public/r/ (runs automatically in pre-commit)
-
-# Install a component from this registry
-pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/<component-name>.json
+#### ✅ GOOD: Self-contained with flat props
+```tsx
+<NFTCard 
+  contractAddress="0x..." 
+  tokenId="1"
+  network="ethereum"
+  showTitle={true}
+  showOwner={false}
+/>
 ```
 
-## Architecture & Structure
+#### ❌ BAD: Nested config objects
+```tsx
+<NFTCard 
+  config={{ 
+    contract: { address: "0x...", tokenId: "1" },
+    display: { showTitle: true, showOwner: false }
+  }}
+/>
+```
 
-### Component Organization
-- **Registry components**: `registry/mini-app/blocks/<component-name>/` - Self-contained component implementations
-- **Hooks**: `registry/mini-app/hooks/` - Reusable React hooks
-- **UI primitives**: `registry/mini-app/ui/` - Base shadcn UI components
-- **Generated registry**: `public/r/*.json` - Auto-generated component registry files
+#### ❌ BAD: Too many abstractions
+```tsx
+// Don't create separate files for every piece
+useNFTMetadata.ts
+useNFTImage.ts  
+useNFTPrice.ts
+NFTCard.tsx
+NFTCardTypes.ts
+NFTCardUtils.ts
+NFTCardContext.tsx
+```
 
-### Registry System
-Components must be registered in `registry.json` with:
-- `name`: Component identifier
-- `type`: One of `registry:component`, `registry:hook`, or `registry:block`
-- `files`: Array of paths relative to project root
-- `dependencies`: NPM packages required
-- `registryDependencies`: Other components from this registry
-
-Example registry entry:
-```json
-{
-  "name": "nft-mint",
-  "type": "registry:block",
-  "files": ["registry/mini-app/blocks/nft-mint/nft-mint.tsx"],
-  "dependencies": ["wagmi", "viem"],
-  "registryDependencies": ["mini-app-provider", "use-miniapp-sdk"]
+#### ✅ GOOD: Everything in one place
+```tsx
+// nft-card.tsx - contains everything needed
+export function NFTCard(props: NFTCardProps) {
+  // All logic contained within component
 }
 ```
 
-### Key Patterns
+### Standard Libraries Location
 
-1. **Farcaster SDK Integration**
-   - Always use `useMiniAppSdk()` hook to access SDK
-   - Check `isSDKLoaded` before SDK operations
-   - Call `sdk.actions.ready({})` when component initializes
-   - Components should gracefully handle non-mini-app contexts
+Always use these shared libraries instead of creating duplicates:
+- **Chains**: `/registry/mini-app/lib/chains.ts` - RPC configuration, chain detection
+- **NFT Standards**: `/registry/mini-app/lib/nft-standards.ts` - ABIs and constants
+- **Manifold Utils**: `/registry/mini-app/lib/manifold-utils.ts` - Manifold-specific logic
 
-2. **Component Standards**
-   - All components use `"use client"` directive
-   - Props interfaces clearly defined with TypeScript
-   - Use `cn()` utility from `@/lib/utils` for className merging
-   - Support standard props: `className`, `variant`, `size` where applicable
+### ABI Usage Pattern
 
-3. **Web3 Integration**
-   - Wagmi provider wraps the entire app (in layout.tsx)
-   - Use `@farcaster/frame-wagmi-connector` for wallet connection
-   - Components can interact with blockchain via wagmi hooks
+Always use full contract ABIs, not parsed fragments:
 
-4. **Import Conventions**
-   - Use `@/` alias for project root imports
-   - External registry dependencies use full URLs: `https://hellno-mini-app-ui.vercel.app/r/<component>.json`
+```typescript
+// ✅ GOOD: Full ABI as const array
+export const MANIFOLD_EXTENSION_ABI = [
+  { name: "tokenURI", inputs: [...], outputs: [...], type: "function" },
+  { name: "getClaim", inputs: [...], outputs: [...], type: "function" },
+  // ... all functions
+] as const;
 
-## Adding New Components
+// ❌ BAD: Mixed formats
+export const MANIFOLD_ABI = {
+  tokenURI: parseAbi([...]),     // parsed
+  getClaim: [{...}] as const,     // raw array
+  mint: parseAbi([...])           // parsed
+};
+```
 
-1. Create component directory: `registry/mini-app/blocks/<component-name>/`
-2. Add component implementation with proper TypeScript types
-3. Add entry to `registry.json` with metadata and dependencies
-4. Run `pnpm registry:build` to generate registry files
-5. Component demo page automatically available at `/component/<component-name>`
+### Error Handling Checklist
+
+- [ ] **Abort controllers** for all async operations
+- [ ] **Input validation** with clear error messages
+- [ ] **Network failure** fallbacks
+- [ ] **Type validation** for external data
+- [ ] **Race condition** prevention
+
+Example implementation:
+```tsx
+const abortControllerRef = useRef<AbortController | null>(null);
+
+useEffect(() => {
+  // Cancel previous request
+  if (abortControllerRef.current) {
+    abortControllerRef.current.abort();
+  }
+  
+  const abortController = new AbortController();
+  abortControllerRef.current = abortController;
+  
+  // Make request with abort signal
+  fetch(url, { signal: abortController.signal })
+    .then(handleResponse)
+    .catch(err => {
+      if (err.name === 'AbortError') return;
+      handleError(err);
+    });
+    
+  return () => abortController.abort();
+}, [deps]);
+```
+
+### Data Validation Pattern
+
+Never trust external data:
+```typescript
+// Validate contract response
+const data = await client.readContract({...});
+
+if (!Array.isArray(data) || data.length !== 2) {
+  throw new Error("Invalid response structure");
+}
+
+const [instanceId, claim] = data;
+
+if (typeof instanceId !== 'bigint' || !claim || typeof claim !== 'object') {
+  throw new Error("Invalid data types");
+}
+```
+
+## Key Commands
+
+**Development:**
+- `pnpm dev` - Start development server with Turbopack
+- `pnpm build` - Build for production
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
+
+**Registry Management:**
+- `pnpm registry:build` - Build shadcn registry (generates public/r/*.json files)
+
+**Pre-commit Hook:**
+The repository uses Husky to run `pnpm lint` and `pnpm registry:build` before each commit. Both must pass for the commit to succeed.
+
+## Architecture
+
+**Registry Structure:**
+- Components live in `registry/mini-app/blocks/<component-name>/`
+- Hooks live in `registry/mini-app/hooks/`
+- UI primitives live in `registry/mini-app/ui/`
+- Shared libraries live in `registry/mini-app/lib/`
+- Registry metadata is defined in `registry.json`
+- Built registry files are generated in `public/r/` for CLI consumption
+
+**Component Installation Flow:**
+1. Users run `pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/<component>.json`
+2. shadcn CLI fetches from the custom registry endpoint
+3. Components are installed with their dependencies and registryDependencies
+
+**Key Technologies:**
+- Next.js 15 with React 19
+- Farcaster Frame SDK (@farcaster/frame-sdk, @farcaster/frame-core)
+- Daimo Pay integration (@daimo/pay, @daimo/contract)
+- Wagmi for Ethereum interaction
+- Tailwind CSS for styling
+- Lucide React for icons
+
+**Registry Dependencies:**
+Components can depend on other registry items via `registryDependencies` field in registry.json. The `use-miniapp-sdk` hook is commonly referenced by components.
+
+## Development Workflow
+
+When adding new components:
+1. Create component files in `registry/mini-app/blocks/<name>/`
+2. Add registry entry to `registry.json` with proper metadata
+3. The pre-commit hook will automatically run `registry:build` to generate public files
+4. Deploy triggers automatic Vercel deployment
 
 ## Important Notes
 
-- Pre-commit hooks automatically run linting and registry build
-- Registry JSON files in `public/r/` are auto-generated - never edit directly
-- Components should work both inside Farcaster frames and standalone web contexts
-- All components follow shadcn/ui patterns with New York style
-- Project uses Tailwind CSS v4 with CSS variables for theming
+- **90/10 Principle**: Start with simple version that covers 80% of use cases
+- **Real Examples**: Always test with actual on-chain contracts
+- **No Over-Engineering**: Avoid unnecessary abstractions
+- **LLM Friendly**: Keep interfaces flat and explicit for AI code generation

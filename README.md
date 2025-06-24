@@ -8,6 +8,7 @@ Website: [https://hellno-mini-app-ui.vercel.app](https://hellno-mini-app-ui.verc
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Component Development Guide](#component-development-guide)
 - [Develop: Add to the Registry](#develop-add-to-the-registry)
 - [Scripts](#scripts)
 - [License](#license)
@@ -27,6 +28,61 @@ Example to install simple token transfer button:
 pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/daimo-pay-transfer-button.json
 ```
 
+
+## Component Development Guide
+
+### Design Philosophy
+
+**90/10 Principle**: Maximum impact with minimum effort. Start with the simplest solution that covers 90% of use cases.
+
+### Key Lessons
+
+1. **Avoid Over-Engineering**
+   - Don't create abstractions that "no one will use separately"
+   - Keep components self-contained rather than splitting into many files
+   - Example: NFTCard should include its own data fetching, not require separate hooks
+
+2. **LLM-Friendly Interfaces**
+   - Use flat props, avoid nested objects
+   - Make each prop's purpose obvious from its name
+   - Example: `showTitle={true}` not `display={{ title: true }}`
+
+3. **Clear Component Boundaries**
+   - Each component should have a single, clear responsibility
+   - NFTCard: Display only (no actions)
+   - NFTMintButton: Action only (no preview)
+   - NFTMintFlow: Combined experience
+
+4. **Production-Ready Patterns**
+   ```tsx
+   // Always validate external data
+   if (!Array.isArray(data) || data.length !== 2) {
+     throw new Error("Invalid response structure");
+   }
+   
+   // Prevent race conditions
+   const abortController = new AbortController();
+   useEffect(() => {
+     return () => abortController.abort();
+   }, [deps]);
+   
+   // Use reliable infrastructure
+   const transport = process.env.NEXT_PUBLIC_ALCHEMY_KEY
+     ? http(`https://${alchemyUrl}.g.alchemy.com/v2/${key}`)
+     : http(); // fallback
+   ```
+
+5. **Eliminate Duplication**
+   - Create shared libraries for common patterns
+   - `/lib/chains.ts` - Chain configurations
+   - `/lib/nft-standards.ts` - ABIs and utilities
+   - `/lib/manifold-utils.ts` - Contract-specific logic
+
+### Testing with Real Contracts
+
+- Manifold: `0x612b60c14ea517e1a538aee7b443e014a95de2d0`
+- Zora: `0x7c2668BD0D3c050703CEcC956C11Bd520c26f7d4`
+- Base: `0xba5e05cb26b78eda3a2f8e3b3814726305dcac83`
 
 ⸻
 

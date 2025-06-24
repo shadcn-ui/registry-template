@@ -5,7 +5,7 @@ import { getPublicClient } from "@/registry/mini-app/lib/chains";
 import { 
   ERC165_ABI, 
   INTERFACE_IDS, 
-  MANIFOLD_ABI 
+  MANIFOLD_DETECTION_ABI 
 } from "@/registry/mini-app/lib/nft-standards";
 
 // Re-export from shared library for backward compatibility
@@ -61,7 +61,7 @@ export async function detectNFTProvider(params: MintParams): Promise<NFTContract
       
       client.readContract({
         address: contractAddress,
-        abi: MANIFOLD_ABI.detection,
+        abi: MANIFOLD_DETECTION_ABI,
         functionName: "getExtensions"
       }).catch(() => null)
     ]);

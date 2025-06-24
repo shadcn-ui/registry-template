@@ -1,5 +1,5 @@
 import { type Address, type PublicClient, getAddress } from "viem";
-import { MANIFOLD_ABI, KNOWN_CONTRACTS, ERC721_ABI } from "./nft-standards";
+import { MANIFOLD_DETECTION_ABI, MANIFOLD_EXTENSION_ABI, KNOWN_CONTRACTS, ERC721_ABI } from "./nft-standards";
 
 /**
  * Manifold contract utilities
@@ -37,7 +37,7 @@ export async function detectManifoldContract(
   try {
     const extensions = await client.readContract({
       address: getAddress(contractAddress),
-      abi: MANIFOLD_ABI.detection,
+      abi: MANIFOLD_DETECTION_ABI,
       functionName: "getExtensions",
     }) as Address[];
     
@@ -73,7 +73,7 @@ export async function getManifoldTokenURI(
   
   return await client.readContract({
     address: getAddress(extension),
-    abi: MANIFOLD_ABI.extension.tokenURI,
+    abi: MANIFOLD_EXTENSION_ABI,
     functionName: "tokenURI",
     args: [getAddress(contractAddress), BigInt(tokenId)],
   }) as string;
@@ -126,7 +126,7 @@ export async function getManifoldClaim(
     
     const claim = await client.readContract({
       address: getAddress(extension),
-      abi: MANIFOLD_ABI.extension.getClaim,
+      abi: MANIFOLD_EXTENSION_ABI,
       functionName: "getClaim",
       args: [getAddress(contractAddress), BigInt(instanceId)],
     });
@@ -149,7 +149,7 @@ export async function getManifoldMintFee(
   try {
     return await client.readContract({
       address: getAddress(extension),
-      abi: MANIFOLD_ABI.extension.fees,
+      abi: MANIFOLD_EXTENSION_ABI,
       functionName: "MINT_FEE",
     }) as bigint;
   } catch {
@@ -157,7 +157,7 @@ export async function getManifoldMintFee(
     try {
       return await client.readContract({
         address: getAddress(extension),
-        abi: MANIFOLD_ABI.extension.fees,
+        abi: MANIFOLD_EXTENSION_ABI,
         functionName: "MINT_FEE_MERKLE",
       }) as bigint;
     } catch {

@@ -16,6 +16,7 @@ export async function fetchPriceData(
     symbol: string;
     decimals: number;
     allowance?: bigint;
+    balance?: bigint;
   };
   totalCost: bigint;
   claim?: NFTContractInfo["claim"];
@@ -74,7 +75,7 @@ export async function fetchPriceData(
         // Check if ERC20 payment
         if (claim.erc20 && claim.erc20 !== "0x0000000000000000000000000000000000000000") {
           // Batch ERC20 details fetch
-          const [symbol, decimals, allowance] = await Promise.all([
+          const [symbol, decimals, allowance, balance] = await Promise.all([
             client.readContract({
               address: claim.erc20,
               abi: [{ name: "symbol", type: "function", inputs: [], outputs: [{ type: "string" }], stateMutability: "view" }],
@@ -96,14 +97,34 @@ export async function fetchPriceData(
               }],
               functionName: "allowance",
               args: [params.recipient, contractInfo.extensionAddress || params.contractAddress]
-            }).catch(() => BigInt(0)) : Promise.resolve(undefined) // Return undefined when no recipient, not 0
+            }).catch(() => BigInt(0)) : Promise.resolve(undefined), // Return undefined when no recipient, not 0
+            params.recipient ? client.readContract({
+              address: claim.erc20,
+              abi: [{ 
+                name: "balanceOf", 
+                type: "function", 
+                inputs: [{ name: "owner", type: "address" }], 
+                outputs: [{ type: "uint256" }], 
+                stateMutability: "view" 
+              }],
+              functionName: "balanceOf",
+              args: [params.recipient]
+            }).catch(() => BigInt(0)) : Promise.resolve(undefined)
           ]);
+          
+          // Validate decimals
+          const validatedDecimals = Number(decimals);
+          if (isNaN(validatedDecimals) || validatedDecimals < 0 || validatedDecimals > 255) {
+            console.error(`Invalid ERC20 decimals for ${claim.erc20}:`, decimals);
+            throw new Error(`Invalid ERC20 decimals: ${decimals}`);
+          }
           
           erc20Details = {
             address: claim.erc20,
             symbol: symbol as string,
-            decimals: decimals as number,
-            allowance: allowance as bigint
+            decimals: validatedDecimals,
+            allowance: allowance as bigint,
+            balance: balance as bigint | undefined
           };
           
           // For ERC20, total cost in ETH is just the mint fee

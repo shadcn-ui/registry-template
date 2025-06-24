@@ -15,39 +15,43 @@ interface NFTMintExample {
 const nftExamples: NFTMintExample[] = [
   {
     title: "Generic NFT Mint",
-    description: "Standard ETH-based mint without provider detection",
+    description: "",
     contractAddress: "0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4",
     instanceId: "",
     tokenId: "",
     buttonText: "Mint Demo NFT",
   },
   {
-    title: "Higher + ETH Fee",
-    description: "Manifold NFT with higher price + platform fee",
+    title: "Manifold Higher ERC20 + ETH Fee",
+    description: "",
     contractAddress: "0x32dd0a7190b5bba94549a0d04659a9258f5b1387",
     instanceId: "4293509360",
     tokenId: "2",
-    buttonText: "Mint NFT (Higher Fee)",
+    buttonText: "Mint NFT (Higher ERC20)",
   },
   {
-    title: "Free Mint + ETH Fee",
-    description: "Free Manifold NFT with only platform fee",
+    title: "Manifold Free Mint + ETH Fee",
+    description: "",
     contractAddress: "0x22fbd94bfc652dcb8b7958dda318566138d4bedc",
     instanceId: "4280815856",
     tokenId: "3",
     buttonText: "Free Mint (Fee Only)",
   },
   {
-    title: "USDC Payment + ETH Fee",
-    description: "Manifold NFT requiring USDC payment + ETH platform fee",
+    title: "Manifold USDC Payment + ETH Fee",
+    description: "",
     contractAddress: "0x612b60c14ea517e1a538aee7b443e014a95de2d0",
     instanceId: "4223785200",
     tokenId: "1",
-    buttonText: "Mint with USDC",
+    buttonText: "Mint NFT (USDC ERC20)",
   },
 ];
 
-export function NFTMintExamples({ showHeader = true }: { showHeader?: boolean }) {
+export function NFTMintExamples({
+  showHeader = true,
+}: {
+  showHeader?: boolean;
+}) {
   return (
     <div className="space-y-6">
       {showHeader && (

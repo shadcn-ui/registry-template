@@ -39,96 +39,125 @@ export const MINT_ABI = parseAbi([
   "function mintTo(address to, uint256 amount) payable",
 ]);
 
-// Manifold specific ABIs
-export const MANIFOLD_ABI = {
-  // Contract detection
-  detection: parseAbi([
-    "function getExtensions() view returns (address[])",
-  ]),
-  
-  // Extension functions
-  extension: {
-    tokenURI: parseAbi([
-      "function tokenURI(address creatorContractAddress, uint256 tokenId) view returns (string uri)",
-    ]),
-    
-    getClaim: [
-      {
-        inputs: [
-          { name: "creatorContractAddress", type: "address" },
-          { name: "instanceId", type: "uint256" }
-        ],
-        name: "getClaim",
-        outputs: [
-          {
-            components: [
-              { name: "total", type: "uint32" },
-              { name: "totalMax", type: "uint32" },
-              { name: "walletMax", type: "uint32" },
-              { name: "startDate", type: "uint48" },
-              { name: "endDate", type: "uint48" },
-              { name: "storageProtocol", type: "uint8" },
-              { name: "merkleRoot", type: "bytes32" },
-              { name: "location", type: "string" },
-              { name: "tokenId", type: "uint256" },
-              { name: "cost", type: "uint256" },
-              { name: "paymentReceiver", type: "address" },
-              { name: "erc20", type: "address" },
-              { name: "signingAddress", type: "address" }
-            ],
-            name: "claim",
-            type: "tuple"
-          }
-        ],
-        stateMutability: "view",
-        type: "function"
-      }
-    ] as const,
-    
-    getClaimForToken: [
-      {
-        inputs: [
-          { name: "creatorContractAddress", type: "address" },
-          { name: "tokenId", type: "uint256" }
-        ],
-        name: "getClaimForToken",
-        outputs: [
-          { name: "instanceId", type: "uint256" },
-          {
-            components: [
-              { name: "total", type: "uint32" },
-              { name: "totalMax", type: "uint32" },
-              { name: "walletMax", type: "uint32" },
-              { name: "startDate", type: "uint48" },
-              { name: "endDate", type: "uint48" },
-              { name: "storageProtocol", type: "uint8" },
-              { name: "merkleRoot", type: "bytes32" },
-              { name: "location", type: "string" },
-              { name: "tokenId", type: "uint256" },
-              { name: "cost", type: "uint256" },
-              { name: "paymentReceiver", type: "address" },
-              { name: "erc20", type: "address" },
-              { name: "signingAddress", type: "address" }
-            ],
-            name: "claim",
-            type: "tuple"
-          }
-        ],
-        stateMutability: "view",
-        type: "function"
-      }
-    ] as const,
-    
-    mint: parseAbi([
-      "function mint(address creatorContractAddress, uint256 instanceId, uint32 mintIndex, bytes32[] merkleProof, address mintFor) payable",
-    ]),
-    
-    fees: parseAbi([
-      "function MINT_FEE() view returns (uint256)",
-      "function MINT_FEE_MERKLE() view returns (uint256)",
-    ]),
+// ERC20 ABI for token interactions
+export const ERC20_ABI = parseAbi([
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+  "function name() view returns (string)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address owner) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 value) returns (bool)",
+  "function transfer(address to, uint256 value) returns (bool)",
+  "function transferFrom(address from, address to, uint256 value) returns (bool)",
+]);
+
+// Manifold contract detection ABI (kept separate as it's used on the main contract)
+export const MANIFOLD_DETECTION_ABI = parseAbi([
+  "function getExtensions() view returns (address[])",
+]);
+
+// Manifold extension contract full ABI
+export const MANIFOLD_EXTENSION_ABI = [
+  {
+    inputs: [
+      { name: "creatorContractAddress", type: "address" },
+      { name: "tokenId", type: "uint256" }
+    ],
+    name: "tokenURI",
+    outputs: [{ name: "uri", type: "string" }],
+    stateMutability: "view",
+    type: "function"
   },
-};
+  {
+    inputs: [
+      { name: "creatorContractAddress", type: "address" },
+      { name: "instanceId", type: "uint256" }
+    ],
+    name: "getClaim",
+    outputs: [
+      {
+        components: [
+          { name: "total", type: "uint32" },
+          { name: "totalMax", type: "uint32" },
+          { name: "walletMax", type: "uint32" },
+          { name: "startDate", type: "uint48" },
+          { name: "endDate", type: "uint48" },
+          { name: "storageProtocol", type: "uint8" },
+          { name: "merkleRoot", type: "bytes32" },
+          { name: "location", type: "string" },
+          { name: "tokenId", type: "uint256" },
+          { name: "cost", type: "uint256" },
+          { name: "paymentReceiver", type: "address" },
+          { name: "erc20", type: "address" },
+          { name: "signingAddress", type: "address" }
+        ],
+        name: "claim",
+        type: "tuple"
+      }
+    ],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [
+      { name: "creatorContractAddress", type: "address" },
+      { name: "tokenId", type: "uint256" }
+    ],
+    name: "getClaimForToken",
+    outputs: [
+      { name: "instanceId", type: "uint256" },
+      {
+        components: [
+          { name: "total", type: "uint32" },
+          { name: "totalMax", type: "uint32" },
+          { name: "walletMax", type: "uint32" },
+          { name: "startDate", type: "uint48" },
+          { name: "endDate", type: "uint48" },
+          { name: "storageProtocol", type: "uint8" },
+          { name: "merkleRoot", type: "bytes32" },
+          { name: "location", type: "string" },
+          { name: "tokenId", type: "uint256" },
+          { name: "cost", type: "uint256" },
+          { name: "paymentReceiver", type: "address" },
+          { name: "erc20", type: "address" },
+          { name: "signingAddress", type: "address" }
+        ],
+        name: "claim",
+        type: "tuple"
+      }
+    ],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [
+      { name: "creatorContractAddress", type: "address" },
+      { name: "instanceId", type: "uint256" },
+      { name: "mintIndex", type: "uint32" },
+      { name: "merkleProof", type: "bytes32[]" },
+      { name: "mintFor", type: "address" }
+    ],
+    name: "mint",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function"
+  },
+  {
+    inputs: [],
+    name: "MINT_FEE",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    inputs: [],
+    name: "MINT_FEE_MERKLE",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function"
+  }
+] as const;
 
 // ERC165 interface detection
 export const ERC165_ABI = parseAbi([

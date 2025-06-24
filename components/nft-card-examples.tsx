@@ -49,7 +49,7 @@ const nftExamples: NFTExample[] = [
   },
   {
     title: "Manifold NFT",
-    description: "Free mint on Base (Manifold)",
+    description: "Manifold on Base",
     contractAddress: "0x22fbd94bfc652dcb8b7958dda318566138d4bedc",
     tokenId: "3",
     network: "base",

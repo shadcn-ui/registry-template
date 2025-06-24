@@ -1,13 +1,6 @@
 import { type Address } from "viem";
 import type { ProviderConfig } from "./types";
-import { MANIFOLD_ABI, KNOWN_CONTRACTS, PRICE_DISCOVERY_ABI, MINT_ABI } from "@/registry/mini-app/lib/nft-standards";
-
-// Create a combined Manifold extension ABI for provider config
-const manifoldExtensionAbi = [
-  ...MANIFOLD_ABI.extension.getClaim,
-  ...MANIFOLD_ABI.extension.mint,
-  ...MANIFOLD_ABI.extension.fees
-] as const;
+import { MANIFOLD_EXTENSION_ABI, KNOWN_CONTRACTS, PRICE_DISCOVERY_ABI, MINT_ABI } from "@/registry/mini-app/lib/nft-standards";
 
 export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
   manifold: {
@@ -16,12 +9,12 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
       KNOWN_CONTRACTS.manifoldExtension, // Known Manifold extension
     ],
     priceDiscovery: {
-      abis: [manifoldExtensionAbi],
+      abis: [MANIFOLD_EXTENSION_ABI],
       functionNames: ["MINT_FEE"],
       requiresInstanceId: true
     },
     mintConfig: {
-      abi: manifoldExtensionAbi,
+      abi: MANIFOLD_EXTENSION_ABI,
       functionName: "mint",
       buildArgs: (params) => [
         params.contractAddress,

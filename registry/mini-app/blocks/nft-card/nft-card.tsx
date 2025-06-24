@@ -2,7 +2,7 @@
 
 import { cn } from "@/registry/mini-app/lib/utils";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface NFTMetadata {
   name?: string;
@@ -115,6 +115,7 @@ export function NFTCard({
   );
   const [owner, setOwner] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const roundedClasses = {
     none: "rounded-none",
@@ -146,6 +147,15 @@ export function NFTCard({
   useEffect(() => {
     const fetchNFTData = async () => {
       if (!contractAddress || !tokenId) return;
+      
+      // Cancel any previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // Create new AbortController for this request
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
 
       setIsLoading(true);
       setError(null);
@@ -216,8 +226,16 @@ export function NFTCard({
           // Handle IPFS URLs using shared utility
           metadataUrl = ipfsToHttp(metadataUrl);
 
-          // Fetch metadata
-          const fetchedMetadata = await fetch(metadataUrl).then((res) => res.json());
+          // Fetch metadata with abort signal
+          const response = await fetch(metadataUrl, {
+            signal: abortController.signal
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch metadata: ${response.status}`);
+          }
+          
+          const fetchedMetadata = await response.json();
           console.log("NFT metadata:", fetchedMetadata);
           
           // Store metadata in state
@@ -244,6 +262,12 @@ export function NFTCard({
           }
         }
       } catch (err) {
+        // Don't update state if request was aborted
+        if (err instanceof Error && err.name === 'AbortError') {
+          console.log('NFT data fetch was cancelled');
+          return;
+        }
+        
         console.error("Error fetching NFT:", err);
         const error = err instanceof Error ? err : new Error(String(err));
         setError(`Failed to load NFT data: ${error.message}`);
@@ -254,11 +278,21 @@ export function NFTCard({
           onError(error);
         }
       } finally {
-        setIsLoading(false);
+        // Only update loading state if this request wasn't aborted
+        if (!abortController.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchNFTData();
+    
+    // Cleanup function to abort request if component unmounts or deps change
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [
     contractAddress,
     tokenId,
