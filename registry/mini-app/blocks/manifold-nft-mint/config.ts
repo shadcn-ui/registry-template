@@ -134,7 +134,7 @@ export async function getNftDetails(contractAddress: Address, instanceId: string
   }
   fee = await client.readContract({
     address: extensionContractAddresses[0],
-    abi: MANIFOLD_ABI.extension.fees,
+    abi: MANIFOLD_EXTENSION_ABI,
     functionName: "MINT_FEE",
   });
   }

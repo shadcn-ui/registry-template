@@ -34,8 +34,8 @@ export function getChainById(chainId: number): Chain {
     default:
       // Try to find in all chains
       const chain = Object.values(chains).find(
-        (c): c is Chain => typeof c === 'object' && c !== null && 'id' in c && c.id === chainId
-      );
+        (c) => typeof c === 'object' && c !== null && 'id' in c && (c as any).id === chainId
+      ) as Chain | undefined;
       return chain || chains.mainnet;
   }
 }

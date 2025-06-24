@@ -131,7 +131,7 @@ export async function getManifoldClaim(
       args: [getAddress(contractAddress), BigInt(instanceId)],
     });
     
-    return claim as ManifoldClaim;
+    return claim as unknown as ManifoldClaim;
   } catch {
     return null;
   }

@@ -9,7 +9,9 @@ import { formatEther, type Address } from "viem";
 import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
 import { Coins, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Claim, ERC20Abi, getClientForChain, getNftDetails, manifoldERC1155ExtensionAbi } from "./config";
+import { Claim, getNftDetails } from "./config";
+import { getPublicClient } from "@/registry/mini-app/lib/chains";
+import { ERC20_ABI, MANIFOLD_EXTENSION_ABI } from "@/registry/mini-app/lib/nft-standards";
 
 type ManifoldNFTMintFlowProps = {
   chainId: number;
@@ -158,10 +160,10 @@ export function ManifoldNFTMint({
       return;
     }
     try {
-      const publicClient = getClientForChain(chainId);
+      const publicClient = getPublicClient(chainId);
       const allowance = await publicClient.readContract({
         address: config.claim?.erc20,
-        abi: ERC20Abi,
+        abi: ERC20_ABI,
         functionName: "allowance",
         args: [address as Address, config.contractAddress],
       });
@@ -206,7 +208,7 @@ export function ManifoldNFTMint({
     try {
       const approveTx = await writeContractAsync({
         address: config.erc20ContractAddress as Address,
-        abi: ERC20Abi,
+        abi: ERC20_ABI,
         functionName: "approve",
         // Use the exact amount needed for this mint
         args: [config.contractAddress, BigInt(config.claim?.cost)], // spender, exact amount
@@ -252,7 +254,7 @@ export function ManifoldNFTMint({
       const mintFees = BigInt(config.mintFee)+BigInt(config.claim?.cost);
       mintTx = await writeContractAsync({
         address: config.extenstionContractAddress,
-        abi: manifoldERC1155ExtensionAbi,
+        abi: MANIFOLD_EXTENSION_ABI,
         functionName: "mint",
         args: [config.contractAddress, BigInt(config.instanceId), Number(config.tokenId), [], address as Address],
         chainId: config.chainId,
@@ -264,7 +266,7 @@ export function ManifoldNFTMint({
       const mintFees = BigInt(config.mintFee);
       mintTx = await writeContractAsync({
         address: config.extenstionContractAddress,
-        abi: manifoldERC1155ExtensionAbi,
+        abi: MANIFOLD_EXTENSION_ABI,
         functionName: "mint",
         args: [config.contractAddress, BigInt(config.instanceId), Number(config.tokenId), [], address as Address],
         chainId: config.chainId,

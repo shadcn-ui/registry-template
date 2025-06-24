@@ -33,12 +33,12 @@ import {
   detectNFTProvider,
   validateParameters,
   getClientForChain,
-} from "./lib/provider-detector";
-import { getProviderConfig } from "./lib/provider-configs";
-import { fetchPriceData } from "./lib/price-optimizer";
-import { mintReducer, initialState, type MintStep } from "./lib/mint-reducer";
-import type { MintParams } from "./lib/types";
-import { parseError, type ParsedError } from "./lib/error-parser";
+} from "../lib/provider-detector";
+import { getProviderConfig } from "../lib/provider-configs";
+import { fetchPriceData } from "../lib/price-optimizer";
+import { mintReducer, initialState, type MintStep } from "../lib/mint-reducer";
+import type { MintParams } from "../lib/types";
+import { parseError, type ParsedError } from "../lib/error-parser";
 
 /**
  * NFTMintFlow - Universal NFT minting component with automatic provider detection and ERC20 approval handling
