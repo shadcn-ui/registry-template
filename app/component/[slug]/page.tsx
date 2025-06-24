@@ -5,9 +5,7 @@ import * as React from "react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { componentItems } from "@/lib/components-config";
-import {
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ComponentWrapper } from "./component-wrapper";
 import { InstallSnippet } from "./InstallSnippet"; // Import the new InstallSnippet component
 
@@ -38,15 +36,15 @@ export default function ComponentPage() {
             >
               <ArrowLeft className="h-5 w-5 text-foreground/80" />
             </Link>
-            <h1 className="text-xl font-bold tracking-tight">{item.title}</h1>
+            <h1 className="text-muted-foreground tracking-tight">
+              hellno/mini-app-ui
+            </h1>
           </div>
         </header>
 
         <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6">
           <div className="mb-6">
-            <p className="text-muted-foreground">
-              Component: {item.installName}
-            </p>
+            <h1 className="text-xl font-bold tracking-tight">{item.title}</h1>
           </div>
 
           <div className="flex flex-col gap-8">
@@ -60,7 +58,8 @@ export default function ComponentPage() {
             </div>
 
             <div className="border rounded-xl p-6 bg-card/30 shadow-sm backdrop-blur-sm">
-              <InstallSnippet installName={item.installName} /> {/* Use the new InstallSnippet component */}
+              <InstallSnippet installName={item.installName} />{" "}
+              {/* Use the new InstallSnippet component */}
             </div>
           </div>
         </main>

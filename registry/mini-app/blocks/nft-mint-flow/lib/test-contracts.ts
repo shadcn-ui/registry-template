@@ -1,6 +1,7 @@
 import { getClientForChain } from "./provider-detector";
 import { fetchPriceData } from "./price-optimizer";
 import type { MintParams, NFTContractInfo } from "./types";
+import { KNOWN_CONTRACTS } from "@/registry/mini-app/lib/nft-standards";
 
 export interface TestContract {
   name: string;
@@ -104,7 +105,7 @@ export async function runContractTests() {
         provider: test.params.provider as any,
         isERC1155: true,
         isERC721: false,
-        extensionAddress: "0x26BBEA7803DcAc346D5F5f135b57Cf2c752A02bE" as `0x${string}`
+        extensionAddress: KNOWN_CONTRACTS.manifoldExtension
       };
       
       // Fetch price data

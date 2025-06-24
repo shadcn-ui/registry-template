@@ -191,7 +191,10 @@
       "description": "A versatile NFT display component that supports multiple blockchains with rich metadata and custom styling options",
       "dependencies": ["viem"],
       "registryDependencies": [
-        "https://hellno-mini-app-ui.vercel.app/r/utils.json"
+        "https://hellno-mini-app-ui.vercel.app/r/utils.json",
+        "https://hellno-mini-app-ui.vercel.app/r/chains.json",
+        "https://hellno-mini-app-ui.vercel.app/r/nft-standards.json",
+        "https://hellno-mini-app-ui.vercel.app/r/manifold-utils.json"
       ],
       "meta": {
         "use_cases": ["NFT Showcase", "Digital Collectibles Display"],
@@ -241,7 +244,9 @@
       "registryDependencies": [
         "button",
         "sheet",
-        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json"
+        "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json",
+        "https://hellno-mini-app-ui.vercel.app/r/chains.json",
+        "https://hellno-mini-app-ui.vercel.app/r/nft-standards.json"
       ],
       "files": [
         {
@@ -268,6 +273,50 @@
           "path": "registry/mini-app/blocks/nft-mint-flow/lib/mint-reducer.ts",
           "type": "registry:lib"
         }
+      ]
+    },
+    {
+      "name": "chains",
+      "type": "registry:lib", 
+      "title": "chains",
+      "description": "Centralized chain configuration with Alchemy RPC support",
+      "files": [
+        {
+          "path": "registry/mini-app/lib/chains.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": ["viem"],
+      "registryDependencies": []
+    },
+    {
+      "name": "nft-standards",
+      "type": "registry:lib",
+      "title": "nftStandards", 
+      "description": "Common NFT contract ABIs and standards including ERC721 and Manifold",
+      "files": [
+        {
+          "path": "registry/mini-app/lib/nft-standards.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": ["viem"],
+      "registryDependencies": []
+    },
+    {
+      "name": "manifold-utils",
+      "type": "registry:lib",
+      "title": "manifoldUtils",
+      "description": "Manifold contract detection and token URI utilities",
+      "files": [
+        {
+          "path": "registry/mini-app/lib/manifold-utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": ["viem"],
+      "registryDependencies": [
+        "https://hellno-mini-app-ui.vercel.app/r/nft-standards.json"
       ]
     },
     {

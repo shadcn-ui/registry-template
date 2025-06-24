@@ -40,23 +40,25 @@ const nftExamples: NFTMintExample[] = [
   {
     title: "USDC Payment + ETH Fee",
     description: "Manifold NFT requiring USDC payment + ETH platform fee",
-    contractAddress: "0x22fbd94bfc652dcb8b7958dda318566138d4bedc",
-    instanceId: "4214018288",
-    tokenId: "4",
+    contractAddress: "0x612b60c14ea517e1a538aee7b443e014a95de2d0",
+    instanceId: "4223785200",
+    tokenId: "1",
     buttonText: "Mint with USDC",
   },
 ];
 
-export function NFTMintExamples() {
+export function NFTMintExamples({ showHeader = true }: { showHeader?: boolean }) {
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h3 className="text-lg font-semibold mb-2">NFT Mint Examples</h3>
-        <p className="text-sm text-muted-foreground">
-          Click any button below to see how the universal NFT mint component
-          handles different scenarios
-        </p>
-      </div>
+      {showHeader && (
+        <div className="text-center mb-8">
+          <h3 className="text-lg font-semibold mb-2">NFT Mint Examples</h3>
+          <p className="text-sm text-muted-foreground">
+            Click any button below to see how the universal NFT mint component
+            handles different scenarios
+          </p>
+        </div>
+      )}
 
       <div className="grid gap-4 max-w-2xl mx-auto">
         {nftExamples.map((example, index) => (

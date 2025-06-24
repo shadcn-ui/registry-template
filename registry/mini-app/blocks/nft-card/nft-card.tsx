@@ -8,36 +8,39 @@ interface NFTMetadata {
   name?: string;
   description?: string;
   image?: string;
+  image_url?: string;
   external_url?: string;
   attributes?: Array<{
     trait_type: string;
     value: string | number;
     display_type?: string;
   }>;
+  image_details?: {
+    bytes?: number;
+    format?: string;
+    sha256?: string;
+    width?: number;
+    height?: number;
+  };
   [key: string]: unknown;
 }
-import { createPublicClient, http, parseAbi, getAddress, Chain } from "viem";
-import * as chains from "viem/chains";
+import { getAddress, type Address } from "viem";
+import { 
+  findChainByName, 
+  getPublicClient 
+} from "@/registry/mini-app/lib/chains";
+import { 
+  ERC721_ABI, 
+  ipfsToHttp 
+} from "@/registry/mini-app/lib/nft-standards";
+import { 
+  getTokenURIWithManifoldSupport 
+} from "@/registry/mini-app/lib/manifold-utils";
 
 // Base64 placeholder image
 const PLACEHOLDER_IMAGE =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YxZjFmMSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiM5OTkiPk5GVCBJbWFnZTwvdGV4dD48L3N2Zz4=";
 
-// ERC721 ABI for tokenURI and name functions
-const erc721Abi = parseAbi([
-  "function tokenURI(uint256 tokenId) view returns (string)",
-  "function name() view returns (string)",
-  "function symbol() view returns (string)",
-  "function ownerOf(uint256 tokenId) view returns (address)",
-]);
-
-// Get all available chains from viem
-const availableChains: Record<string, Chain> = {};
-Object.entries(chains).forEach(([name, chain]) => {
-  if (typeof chain === "object" && chain !== null && "id" in chain) {
-    availableChains[name.toLowerCase()] = chain as Chain;
-  }
-});
 
 type NFTCardProps = {
   contractAddress: string;
@@ -111,6 +114,7 @@ export function NFTCard({
     customNetworkName || "",
   );
   const [owner, setOwner] = useState<string | null>(null);
+  const [metadata, setMetadata] = useState<NFTMetadata | null>(null);
 
   const roundedClasses = {
     none: "rounded-none",
@@ -149,49 +153,23 @@ export function NFTCard({
       try {
         // Skip chain setup if we have customNetworkName
         if (!customNetworkName) {
-          // Normalize network name
-          const normalizedNetwork = (network || "ethereum")
-            .toLowerCase()
-            .replace(/[\s-]/g, "");
-
-          // Find the chain by name
-          let selectedChain: Chain | undefined;
-
-          // Try to find exact match first
-          if (availableChains[normalizedNetwork]) {
-            selectedChain = availableChains[normalizedNetwork];
-          } else {
-            // Try to find partial match
-            const matchingChainName = Object.keys(availableChains).find(
-              (chainName) =>
-                chainName.includes(normalizedNetwork) ||
-                normalizedNetwork.includes(chainName),
-            );
-
-            if (matchingChainName) {
-              selectedChain = availableChains[matchingChainName];
-            }
-          }
-
-          // Default to mainnet if no match found
+          // Find the chain by name using shared utility
+          const selectedChain = findChainByName(network || "ethereum");
+          
           if (!selectedChain) {
             console.warn(
               `Chain "${network}" not found, defaulting to Ethereum mainnet`,
             );
-            selectedChain = chains.mainnet;
             setNetworkName("Ethereum");
           } else {
             setNetworkName(selectedChain.name);
           }
 
-          // Create public client for the selected chain
-          const client = createPublicClient({
-            chain: selectedChain,
-            transport: http(),
-          });
+          // Create public client using shared utility
+          const client = getPublicClient(selectedChain?.id || 1);
 
           console.log(
-            `Fetching NFT data from ${selectedChain.name} for contract ${contractAddress} token ${tokenId}`,
+            `Fetching NFT data from ${selectedChain?.name || 'Ethereum'} for contract ${contractAddress} token ${tokenId}`,
           );
 
           // Skip title setup if we have customTitle
@@ -200,7 +178,7 @@ export function NFTCard({
               // Get contract name
               const name = (await client.readContract({
                 address: getAddress(contractAddress),
-                abi: erc721Abi,
+                abi: ERC721_ABI.name,
                 functionName: "name",
               })) as string;
 
@@ -217,7 +195,7 @@ export function NFTCard({
             try {
               const ownerAddress = (await client.readContract({
                 address: getAddress(contractAddress),
-                abi: erc721Abi,
+                abi: ERC721_ABI.ownerOf,
                 functionName: "ownerOf",
                 args: [BigInt(tokenId)],
               })) as string;
@@ -228,43 +206,34 @@ export function NFTCard({
             }
           }
 
-          // Get tokenURI
-          const tokenURI = (await client.readContract({
-            address: getAddress(contractAddress),
-            abi: erc721Abi,
-            functionName: "tokenURI",
-            args: [BigInt(tokenId)],
-          })) as string;
+          // Get tokenURI with automatic Manifold support
+          let metadataUrl = await getTokenURIWithManifoldSupport(
+            client,
+            getAddress(contractAddress) as Address,
+            tokenId
+          );
 
-          // Process tokenURI to get metadata
-          let metadataUrl = tokenURI;
-
-          // Handle IPFS URLs
-          if (metadataUrl.startsWith("ipfs://")) {
-            metadataUrl = metadataUrl.replace(
-              "ipfs://",
-              "https://ipfs.io/ipfs/",
-            );
-          }
+          // Handle IPFS URLs using shared utility
+          metadataUrl = ipfsToHttp(metadataUrl);
 
           // Fetch metadata
-          const metadata = await fetch(metadataUrl).then((res) => res.json());
-          console.log("NFT metadata:", metadata);
+          const fetchedMetadata = await fetch(metadataUrl).then((res) => res.json());
+          console.log("NFT metadata:", fetchedMetadata);
+          
+          // Store metadata in state
+          setMetadata(fetchedMetadata);
 
           // Call onLoad callback if provided
           if (onLoad) {
-            onLoad(metadata);
+            onLoad(fetchedMetadata);
           }
 
           // Get image URL from metadata
-          let nftImageUrl = metadata.image;
+          let nftImageUrl = fetchedMetadata.image || fetchedMetadata.image_url;
 
-          // Handle IPFS URLs for image
-          if (nftImageUrl && nftImageUrl.startsWith("ipfs://")) {
-            nftImageUrl = nftImageUrl.replace(
-              "ipfs://",
-              "https://ipfs.io/ipfs/",
-            );
+          // Handle IPFS URLs for image using shared utility
+          if (nftImageUrl) {
+            nftImageUrl = ipfsToHttp(nftImageUrl);
           }
 
           if (nftImageUrl) {
@@ -405,8 +374,41 @@ export function NFTCard({
     }
   };
 
-  // Create CSS class for width and height
-  // Dimension classes will be applied via className
+  // Calculate display dimensions that preserve aspect ratio
+  const getDisplayDimensions = () => {
+    const maxWidth = width || 300;
+    const maxHeight = height || 300;
+    
+    // Check if we have image_details with dimensions
+    if (metadata?.image_details?.width && metadata?.image_details?.height) {
+      const originalAspectRatio = metadata.image_details.width / metadata.image_details.height;
+      
+      // Scale to fit within bounds while preserving aspect ratio
+      const widthBasedHeight = maxWidth / originalAspectRatio;
+      const heightBasedWidth = maxHeight * originalAspectRatio;
+      
+      if (widthBasedHeight <= maxHeight) {
+        // Width is the limiting factor
+        return { 
+          width: maxWidth, 
+          height: Math.round(widthBasedHeight),
+          useContain: true // Use contain to show full image
+        };
+      } else {
+        // Height is the limiting factor
+        return { 
+          width: Math.round(heightBasedWidth), 
+          height: maxHeight,
+          useContain: true
+        };
+      }
+    }
+    
+    // No image_details, use provided dimensions
+    return { width: maxWidth, height: maxHeight, useContain: false };
+  };
+
+  const displayDimensions = getDisplayDimensions();
 
   return (
     <div className={cn(getContainerClasses(), containerClassName)}>
@@ -417,7 +419,10 @@ export function NFTCard({
           shadow && "shadow-md",
           className,
         )}
-        style={{ width: `${width}px`, height: `${height}px` }} // Using style prop as a last resort for dynamic dimensions
+        style={{ 
+          width: `${displayDimensions.width}px`, 
+          height: `${displayDimensions.height}px` 
+        }}
       >
         {isLoading && (loadingComponent || defaultLoadingComponent)}
 
@@ -427,7 +432,10 @@ export function NFTCard({
           src={imageUrl}
           alt={alt}
           fill={true}
-          className={cn("object-" + objectFit, isLoading && "opacity-0")}
+          className={cn(
+            displayDimensions.useContain ? "object-contain" : `object-${objectFit}`,
+            isLoading && "opacity-0"
+          )}
           unoptimized={true}
           onError={() => setImageUrl(PLACEHOLDER_IMAGE)}
           {...imageProps}

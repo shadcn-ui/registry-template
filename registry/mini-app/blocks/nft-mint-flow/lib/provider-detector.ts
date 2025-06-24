@@ -1,53 +1,15 @@
-import { createPublicClient, http, type Address, type PublicClient } from "viem";
-import { base, mainnet } from "viem/chains";
+import { type Address, type PublicClient } from "viem";
 import type { NFTProvider, NFTContractInfo, MintParams } from "./types";
 import { PROVIDER_CONFIGS } from "./provider-configs";
+import { getPublicClient } from "@/registry/mini-app/lib/chains";
+import { 
+  ERC165_ABI, 
+  INTERFACE_IDS, 
+  MANIFOLD_ABI 
+} from "@/registry/mini-app/lib/nft-standards";
 
-// Minimal ABIs for detection
-const erc165Abi = [
-  {
-    inputs: [{ internalType: "bytes4", name: "interfaceId", type: "bytes4" }],
-    name: "supportsInterface",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function"
-  }
-] as const;
-
-const manifoldAbi = [
-  {
-    inputs: [],
-    name: "getExtensions",
-    outputs: [{ internalType: "address[]", name: "extensions", type: "address[]" }],
-    stateMutability: "view",
-    type: "function"
-  }
-] as const;
-
-// Interface IDs
-const ERC721_INTERFACE_ID = "0x80ac58cd";
-const ERC1155_INTERFACE_ID = "0xd9b67a26";
-
-// Transport configuration
-const getTransport = (chainId: number) => {
-  const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_KEY;
-  switch (chainId) {
-    case 8453:
-      return http(alchemyKey ? `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}` : undefined);
-    case 1:
-      return http(alchemyKey ? `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}` : undefined);
-    default:
-      return http();
-  }
-};
-
-export const getClientForChain = (chainId: number) => {
-  const chain = chainId === 1 ? mainnet : chainId === 8453 ? base : mainnet;
-  return createPublicClient({
-    chain,
-    transport: getTransport(chainId)
-  }) as PublicClient;
-};
+// Re-export from shared library for backward compatibility
+export const getClientForChain = getPublicClient;
 
 /**
  * Detects NFT provider and contract info with minimal RPC calls
@@ -85,21 +47,21 @@ export async function detectNFTProvider(params: MintParams): Promise<NFTContract
     const [isERC721, isERC1155, extensions] = await Promise.all([
       client.readContract({
         address: contractAddress,
-        abi: erc165Abi,
+        abi: ERC165_ABI,
         functionName: "supportsInterface",
-        args: [ERC721_INTERFACE_ID]
+        args: [INTERFACE_IDS.ERC721]
       }).catch(() => false),
       
       client.readContract({
         address: contractAddress,
-        abi: erc165Abi,
+        abi: ERC165_ABI,
         functionName: "supportsInterface",
-        args: [ERC1155_INTERFACE_ID]
+        args: [INTERFACE_IDS.ERC1155]
       }).catch(() => false),
       
       client.readContract({
         address: contractAddress,
-        abi: manifoldAbi,
+        abi: MANIFOLD_ABI.detection,
         functionName: "getExtensions"
       }).catch(() => null)
     ]);
