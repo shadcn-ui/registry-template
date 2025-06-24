@@ -1,5 +1,5 @@
 import { type Address } from "viem";
-import type { ProviderConfig } from "./types";
+import type { ProviderConfig } from "@/registry/mini-app/blocks/nft-mint-flow/lib/types";
 import { MANIFOLD_EXTENSION_ABI, KNOWN_CONTRACTS, PRICE_DISCOVERY_ABI, MINT_ABI } from "@/registry/mini-app/lib/nft-standards";
 
 export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {

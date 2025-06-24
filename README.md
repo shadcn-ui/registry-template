@@ -92,6 +92,42 @@ This will install all available components and their dependencies at once.
 - Zora: `0x7c2668BD0D3c050703CEcC956C11Bd520c26f7d4`
 - Base: `0xba5e05cb26b78eda3a2f8e3b3814726305dcac83`
 
+### Custom shadcn Registry Pitfalls
+
+Working with a custom shadcn registry has unique challenges:
+
+1. **Import Path Requirements**
+   - All imports MUST use `@/registry/mini-app/...` format
+   - The shadcn CLI transforms these paths during installation
+   - Relative imports (`./lib/types`) will fail after installation
+   - Even imports within the same component's lib folder need full paths
+
+2. **File Naming Constraints**
+   - Avoid `page.tsx` - it installs to `src/components/page.tsx` (wrong location)
+   - Use descriptive names that match the component: `nft-mint-flow.tsx`
+   - Main component file should match the folder name
+
+3. **Multi-File Component Structure**
+   ```
+   blocks/my-component/
+   ├── my-component.tsx      # Main component (not page.tsx!)
+   ├── my-component-part.tsx # Sub-components
+   └── lib/                  # Supporting files
+       ├── types.ts
+       └── utils.ts
+   ```
+
+4. **Registry Dependencies**
+   - Components can depend on other registry items via `registryDependencies`
+   - Shared code should go in top-level `/lib` folder
+   - Import shared code with `@/registry/mini-app/lib/...`
+
+5. **Installation Behavior**
+   - All files in the component folder get installed
+   - Directory structure is preserved
+   - The shadcn CLI handles path transformations
+   - Test installation in a separate project to verify paths
+
 ⸻
 
 ## Develop: Add to the Registry

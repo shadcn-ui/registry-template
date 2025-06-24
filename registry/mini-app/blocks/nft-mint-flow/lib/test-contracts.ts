@@ -1,6 +1,6 @@
-import { getClientForChain } from "./provider-detector";
-import { fetchPriceData } from "./price-optimizer";
-import type { MintParams, NFTContractInfo } from "./types";
+import { getClientForChain } from "@/registry/mini-app/blocks/nft-mint-flow/lib/provider-detector";
+import { fetchPriceData } from "@/registry/mini-app/blocks/nft-mint-flow/lib/price-optimizer";
+import type { MintParams, NFTContractInfo } from "@/registry/mini-app/blocks/nft-mint-flow/lib/types";
 import { KNOWN_CONTRACTS } from "@/registry/mini-app/lib/nft-standards";
 
 export interface TestContract {

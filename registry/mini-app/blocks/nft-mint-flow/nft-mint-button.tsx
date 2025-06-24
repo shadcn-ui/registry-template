@@ -33,12 +33,12 @@ import {
   detectNFTProvider,
   validateParameters,
   getClientForChain,
-} from "./lib/provider-detector";
-import { getProviderConfig } from "./lib/provider-configs";
-import { fetchPriceData } from "./lib/price-optimizer";
-import { mintReducer, initialState, type MintStep } from "./lib/mint-reducer";
-import type { MintParams } from "./lib/types";
-import { parseError, type ParsedError } from "./lib/error-parser";
+} from "@/registry/mini-app/blocks/nft-mint-flow/lib/provider-detector";
+import { getProviderConfig } from "@/registry/mini-app/blocks/nft-mint-flow/lib/provider-configs";
+import { fetchPriceData } from "@/registry/mini-app/blocks/nft-mint-flow/lib/price-optimizer";
+import { mintReducer, initialState, type MintStep } from "@/registry/mini-app/blocks/nft-mint-flow/lib/mint-reducer";
+import type { MintParams } from "@/registry/mini-app/blocks/nft-mint-flow/lib/types";
+import { parseError, type ParsedError } from "@/registry/mini-app/blocks/nft-mint-flow/lib/error-parser";
 
 /**
  * NFTMintButton - Universal NFT minting button with automatic provider detection and ERC20 approval handling

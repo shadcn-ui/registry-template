@@ -1,6 +1,6 @@
 import type { PublicClient } from "viem";
-import type { NFTContractInfo, MintParams } from "./types";
-import { getProviderConfig } from "./provider-configs";
+import type { NFTContractInfo, MintParams } from "@/registry/mini-app/blocks/nft-mint-flow/lib/types";
+import { getProviderConfig } from "@/registry/mini-app/blocks/nft-mint-flow/lib/provider-configs";
 
 /**
  * Optimized price discovery that batches RPC calls where possible

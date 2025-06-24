@@ -1,5 +1,5 @@
 import { type Address, type PublicClient, getAddress } from "viem";
-import { MANIFOLD_DETECTION_ABI, MANIFOLD_EXTENSION_ABI, KNOWN_CONTRACTS, ERC721_ABI } from "./nft-standards";
+import { MANIFOLD_DETECTION_ABI, MANIFOLD_EXTENSION_ABI, KNOWN_CONTRACTS, ERC721_ABI } from "@/registry/mini-app/lib/nft-standards";
 
 /**
  * Manifold contract utilities

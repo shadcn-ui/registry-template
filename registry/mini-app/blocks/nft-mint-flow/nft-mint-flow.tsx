@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { NFTCard } from "@/registry/mini-app/blocks/nft-card/nft-card";
-import { NFTMintButton } from "./nft-mint-button";
+import { NFTMintButton } from "@/registry/mini-app/blocks/nft-mint-flow/nft-mint-button";
 
 interface NFTMintPageProps {
   contractAddress: `0x${string}`;

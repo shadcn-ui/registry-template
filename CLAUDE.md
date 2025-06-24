@@ -208,3 +208,74 @@ When adding new components:
 - **Real Examples**: Always test with actual on-chain contracts
 - **No Over-Engineering**: Avoid unnecessary abstractions
 - **LLM Friendly**: Keep interfaces flat and explicit for AI code generation
+
+## Custom shadcn Registry Challenges
+
+Working with this custom shadcn registry has specific requirements that differ from normal Next.js development:
+
+### Import Path Rules
+
+**CRITICAL**: All imports in registry components MUST use `@/registry/mini-app/...` format, even for files in the same folder:
+
+```typescript
+// ❌ WRONG - Will break after installation
+import { types } from "./lib/types";
+import { utils } from "../utils";
+
+// ✅ CORRECT - shadcn CLI transforms these paths
+import { types } from "@/registry/mini-app/blocks/my-component/lib/types";
+import { utils } from "@/registry/mini-app/lib/utils";
+```
+
+This is because the shadcn CLI transforms `@/registry/mini-app/` to the user's local path during installation.
+
+### File Naming Restrictions
+
+- **NEVER** name a component file `page.tsx` - it installs to wrong location (`src/components/page.tsx`)
+- Main component file should match folder name: `nft-mint-flow/nft-mint-flow.tsx`
+- Use descriptive names for sub-components: `nft-mint-button.tsx`, not `button.tsx`
+
+### Multi-File Component Pattern
+
+When a component needs multiple files:
+
+```
+blocks/my-component/
+├── my-component.tsx          # Main export, same name as folder
+├── my-component-button.tsx   # Sub-component with prefix
+├── my-component-modal.tsx    # Another sub-component
+└── lib/
+    ├── types.ts             # All imports use @/registry/mini-app/blocks/my-component/lib/types
+    ├── utils.ts             # All imports use @/registry/mini-app/blocks/my-component/lib/utils
+    └── constants.ts         # All imports use @/registry/mini-app/blocks/my-component/lib/constants
+```
+
+### Registry Build Errors
+
+Common issues and solutions:
+
+1. **"Module not found"** during `pnpm registry:build`
+   - Check all imports use `@/registry/mini-app/...` format
+   - Verify file paths are correct
+
+2. **Component installs to wrong location**
+   - Don't use `page.tsx` as filename
+   - Check registry.json paths match actual files
+
+3. **Import errors after installation**
+   - Relative imports (`./lib/utils`) don't work
+   - Must use full registry paths
+
+### Testing Installation
+
+Always test your component installation in a separate project:
+
+```bash
+# In a different project
+pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/your-component.json
+
+# Check:
+# 1. All files installed to correct locations
+# 2. Imports resolve correctly
+# 3. Component builds without errors
+```

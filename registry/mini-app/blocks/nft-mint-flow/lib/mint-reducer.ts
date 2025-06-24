@@ -1,4 +1,4 @@
-import type { NFTContractInfo } from "./types";
+import type { NFTContractInfo } from "@/registry/mini-app/blocks/nft-mint-flow/lib/types";
 
 export type MintStep = "initial" | "detecting" | "sheet" | "connecting" | "approve" | "approving" | "minting" | "waiting" | "success" | "error" | "validation-error";
 

@@ -1,6 +1,6 @@
 import { type Address, type PublicClient } from "viem";
-import type { NFTProvider, NFTContractInfo, MintParams } from "./types";
-import { PROVIDER_CONFIGS } from "./provider-configs";
+import type { NFTProvider, NFTContractInfo, MintParams } from "@/registry/mini-app/blocks/nft-mint-flow/lib/types";
+import { PROVIDER_CONFIGS } from "@/registry/mini-app/blocks/nft-mint-flow/lib/provider-configs";
 import { getPublicClient } from "@/registry/mini-app/lib/chains";
 import { 
   ERC165_ABI, 

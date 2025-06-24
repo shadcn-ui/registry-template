@@ -1,6 +1,6 @@
 "use client";
 
-import { useMiniAppSdk } from "./use-miniapp-sdk";
+import { useMiniAppSdk } from "@/registry/mini-app/hooks/use-miniapp-sdk";
 import { useEffect, useState, useCallback } from "react";
 
 export type ProfileData = {
