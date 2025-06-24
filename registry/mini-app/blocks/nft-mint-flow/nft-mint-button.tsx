@@ -33,26 +33,26 @@ import {
   detectNFTProvider,
   validateParameters,
   getClientForChain,
-} from "../lib/provider-detector";
-import { getProviderConfig } from "../lib/provider-configs";
-import { fetchPriceData } from "../lib/price-optimizer";
-import { mintReducer, initialState, type MintStep } from "../lib/mint-reducer";
-import type { MintParams } from "../lib/types";
-import { parseError, type ParsedError } from "../lib/error-parser";
+} from "./lib/provider-detector";
+import { getProviderConfig } from "./lib/provider-configs";
+import { fetchPriceData } from "./lib/price-optimizer";
+import { mintReducer, initialState, type MintStep } from "./lib/mint-reducer";
+import type { MintParams } from "./lib/types";
+import { parseError, type ParsedError } from "./lib/error-parser";
 
 /**
- * NFTMintFlow - Universal NFT minting component with automatic provider detection and ERC20 approval handling
+ * NFTMintButton - Universal NFT minting button with automatic provider detection and ERC20 approval handling
  *
  * @example
  * ```tsx
  * // Basic ETH mint (auto-detects provider)
- * <NFTMintFlow
+ * <NFTMintButton
  *   contractAddress="0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4"
  *   chainId={1}
  * />
  *
  * // Manifold NFT with ERC20 payment (HIGHER token)
- * <NFTMintFlow
+ * <NFTMintButton
  *   contractAddress="0x32dd0a7190b5bba94549a0d04659a9258f5b1387"
  *   chainId={8453}
  *   provider="manifold"
@@ -60,7 +60,7 @@ import { parseError, type ParsedError } from "../lib/error-parser";
  * />
  *
  * // Multiple NFTs with custom button
- * <NFTMintFlow
+ * <NFTMintButton
  *   contractAddress="0x..."
  *   chainId={8453}
  *   amount={5}
@@ -136,7 +136,7 @@ type NFTMintFlowProps = {
   onMintError?: (error: string) => void;
 };
 
-export function NFTMintFlow({
+export function NFTMintButton({
   contractAddress,
   chainId,
   provider,
@@ -986,14 +986,14 @@ export function NFTMintFlow({
 
 /**
  * Preset builders for common NFT minting scenarios.
- * These provide type-safe, self-documenting ways to create NFTMintFlow components.
+ * These provide type-safe, self-documenting ways to create NFTMintButton components.
  */
-NFTMintFlow.presets = {
+NFTMintButton.presets = {
   /**
    * Create a basic ETH-based NFT mint
    * @example
    * ```tsx
-   * <NFTMintFlow {...NFTMintFlow.presets.generic({
+   * <NFTMintButton {...NFTMintButton.presets.generic({
    *   contractAddress: "0x5b97886E4e1fC0F7d19146DEC03C917994b3c3a4",
    *   chainId: 1,
    *   amount: 1
@@ -1017,7 +1017,7 @@ NFTMintFlow.presets = {
    * Create a Manifold NFT mint with proper configuration
    * @example
    * ```tsx
-   * <NFTMintFlow {...NFTMintFlow.presets.manifold({
+   * <NFTMintButton {...NFTMintButton.presets.manifold({
    *   contractAddress: "0x32dd0a7190b5bba94549a0d04659a9258f5b1387",
    *   chainId: 8453,
    *   instanceId: "4293509360"
@@ -1051,7 +1051,7 @@ NFTMintFlow.presets = {
    * Create an auto-detecting NFT mint (tries to figure out the provider)
    * @example
    * ```tsx
-   * <NFTMintFlow {...NFTMintFlow.presets.auto({
+   * <NFTMintButton {...NFTMintButton.presets.auto({
    *   contractAddress: "0x...",
    *   chainId: 8453
    * })} />

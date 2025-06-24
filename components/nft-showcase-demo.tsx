@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import NFTMintPage from "@/registry/mini-app/blocks/nft-mint-flow/page";
+import { NFTMintFlow } from "@/registry/mini-app/blocks/nft-mint-flow/nft-mint-flow";
 
 export function NFTShowcaseDemo({ showHeader = true }: { showHeader?: boolean }) {
   return (
@@ -15,7 +15,7 @@ export function NFTShowcaseDemo({ showHeader = true }: { showHeader?: boolean })
         </div>
       )}
       
-      <NFTMintPage
+      <NFTMintFlow
         contractAddress="0x32dd0a7190b5bba94549a0d04659a9258f5b1387"
         tokenId="2"
         network="base"

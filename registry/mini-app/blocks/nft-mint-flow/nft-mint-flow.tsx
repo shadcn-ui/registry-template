@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { NFTCard } from "@/registry/mini-app/blocks/nft-card/nft-card";
-import { NFTMintFlow } from "./components/nft-mint-flow";
+import { NFTMintButton } from "./nft-mint-button";
 
 interface NFTMintPageProps {
   contractAddress: `0x${string}`;
@@ -39,7 +39,7 @@ interface NFTMintPageProps {
  * />
  * ```
  */
-export default function NFTMintPage({
+export function NFTMintFlow({
   contractAddress,
   tokenId,
   network = "ethereum",
@@ -68,7 +68,7 @@ export default function NFTMintPage({
         networkPosition="outside"
       />
       
-      <NFTMintFlow
+      <NFTMintButton
         contractAddress={contractAddress}
         chainId={chainId}
         provider={provider}

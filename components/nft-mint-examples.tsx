@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { NFTMintFlow } from "@/registry/mini-app/blocks/nft-mint-flow/components/nft-mint-flow";
+import { NFTMintButton } from "@/registry/mini-app/blocks/nft-mint-flow/nft-mint-button";
 
 interface NFTMintExample {
   title: string;
@@ -87,7 +87,7 @@ export function NFTMintExamples({
                 )}
               </div>
 
-              <NFTMintFlow
+              <NFTMintButton
                 contractAddress={example.contractAddress}
                 chainId={8453} // Base mainnet
                 provider={example.instanceId ? "manifold" : undefined}
