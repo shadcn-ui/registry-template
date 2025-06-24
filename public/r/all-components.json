@@ -1,0 +1,28 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "all-components",
+  "type": "registry:component",
+  "title": "All Mini App UI Components",
+  "description": "Install all hellno/mini-app-ui components at once",
+  "dependencies": [
+    "@daimo/contract",
+    "@daimo/pay",
+    "@farcaster/frame-wagmi-connector",
+    "alchemy-sdk",
+    "lucide-react",
+    "viem",
+    "wagmi"
+  ],
+  "registryDependencies": [
+    "https://hellno-mini-app-ui.vercel.app/r/daimo-pay-transfer-button.json",
+    "https://hellno-mini-app-ui.vercel.app/r/share-cast-button.json",
+    "https://hellno-mini-app-ui.vercel.app/r/add-miniapp-button.json",
+    "https://hellno-mini-app-ui.vercel.app/r/show-coin-balance.json",
+    "https://hellno-mini-app-ui.vercel.app/r/avatar.json",
+    "https://hellno-mini-app-ui.vercel.app/r/user-context.json",
+    "https://hellno-mini-app-ui.vercel.app/r/nft-card.json",
+    "https://hellno-mini-app-ui.vercel.app/r/profile-search.json",
+    "https://hellno-mini-app-ui.vercel.app/r/nft-mint-flow.json"
+  ],
+  "files": []
+}

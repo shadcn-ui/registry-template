@@ -28,6 +28,14 @@ Example to install simple token transfer button:
 pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/daimo-pay-transfer-button.json
 ```
 
+### Install all components
+
+```bash
+pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/all-components.json
+```
+
+This will install all available components and their dependencies at once.
+
 
 ## Component Development Guide
 
