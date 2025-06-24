@@ -246,12 +246,17 @@
         "sheet",
         "https://hellno-mini-app-ui.vercel.app/r/use-miniapp-sdk.json",
         "https://hellno-mini-app-ui.vercel.app/r/chains.json",
-        "https://hellno-mini-app-ui.vercel.app/r/nft-standards.json"
+        "https://hellno-mini-app-ui.vercel.app/r/nft-standards.json",
+        "https://hellno-mini-app-ui.vercel.app/r/nft-card.json"
       ],
       "files": [
         {
-          "path": "registry/mini-app/blocks/nft-mint-flow/nft-mint-flow.tsx",
+          "path": "registry/mini-app/blocks/nft-mint-flow/page.tsx",
           "type": "registry:block"
+        },
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/components/nft-mint-flow.tsx",
+          "type": "registry:component"
         },
         {
           "path": "registry/mini-app/blocks/nft-mint-flow/lib/types.ts",
@@ -271,6 +276,10 @@
         },
         {
           "path": "registry/mini-app/blocks/nft-mint-flow/lib/mint-reducer.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/mini-app/blocks/nft-mint-flow/lib/error-parser.ts",
           "type": "registry:lib"
         }
       ]

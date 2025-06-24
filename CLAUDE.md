@@ -66,6 +66,23 @@ Always use these shared libraries instead of creating duplicates:
 - **NFT Standards**: `/registry/mini-app/lib/nft-standards.ts` - ABIs and constants
 - **Manifold Utils**: `/registry/mini-app/lib/manifold-utils.ts` - Manifold-specific logic
 
+### Component Organization Pattern
+
+For complex components with multiple use cases, use this structure:
+```
+blocks/component-name/
+├── page.tsx                    # Default composed view (what users see)
+├── components/
+│   └── component-name.tsx      # Core component logic
+└── lib/
+    └── helper-files.ts         # Supporting utilities
+```
+
+Example with NFT Mint Flow:
+- `page.tsx` - Shows NFTCard + NFTMintFlow composed together
+- `components/nft-mint-flow.tsx` - Just the mint button logic
+- Users can import either the full page or just the component
+
 ### ABI Usage Pattern
 
 Always use full contract ABIs, not parsed fragments:

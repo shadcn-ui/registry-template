@@ -50,8 +50,10 @@ const nftExamples: NFTExample[] = [
   {
     title: "Manifold NFT",
     description: "Manifold on Base",
-    contractAddress: "0x22fbd94bfc652dcb8b7958dda318566138d4bedc",
-    tokenId: "3",
+    // contractAddress: "0x22fbd94bfc652dcb8b7958dda318566138d4bedc",
+    // tokenId: "3",
+    contractAddress: "0x32dd0a7190b5bba94549a0d04659a9258f5b1387",
+    tokenId: "2",
     network: "base",
     networkPosition: "outside",
   },

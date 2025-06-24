@@ -8,6 +8,7 @@ import * as React from "react";
 import { ProfileSearchSimulationDemo } from "@/registry/mini-app/blocks/profile-search/simulationHelper";
 import { NFTMintExamples } from "@/components/nft-mint-examples";
 import { NftCardExamples } from "@/components/nft-card-examples";
+import { NFTShowcaseDemo } from "@/components/nft-showcase-demo";
 
 export interface ComponentItem {
   title: string;
@@ -108,5 +109,10 @@ export const componentItems: ComponentItem[] = [
     title: "NFT Mint Examples",
     component: <NFTMintExamples showHeader={false} />,
     installName: "nft-mint-flow",
+  },
+  {
+    title: "NFT Composition Example",
+    component: <NFTShowcaseDemo showHeader={false} />,
+    installName: "nft-card",
   },
 ];

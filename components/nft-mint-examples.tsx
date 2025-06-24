@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { NFTMintFlow } from "@/registry/mini-app/blocks/nft-mint-flow/nft-mint-flow";
+import { NFTMintFlow } from "@/registry/mini-app/blocks/nft-mint-flow/components/nft-mint-flow";
 
 interface NFTMintExample {
   title: string;
