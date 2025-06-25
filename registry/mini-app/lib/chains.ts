@@ -2,42 +2,45 @@ import { http, type Chain, type PublicClient, createPublicClient } from "viem";
 import * as chains from "viem/chains";
 
 /**
- * Centralized chain configuration with Alchemy RPC support
- * Maps chain IDs to their Alchemy subdomain prefixes
+ * Supported chains configuration with Alchemy RPC support
  */
-export const ALCHEMY_CHAIN_CONFIGS: Record<number, { name: string; url: string | null }> = {
-  1: { name: 'ethereum', url: 'eth-mainnet' },
-  10: { name: 'optimism', url: 'opt-mainnet' },
-  137: { name: 'polygon', url: 'polygon-mainnet' },
-  8453: { name: 'base', url: 'base-mainnet' },
-  42161: { name: 'arbitrum', url: 'arb-mainnet' },
-  7777777: { name: 'zora', url: null }, // No Alchemy support
-} as const;
+export const SUPPORTED_CHAINS = [
+  { id: 1, chain: chains.mainnet, alchemyPrefix: "eth-mainnet" },
+  { id: 8453, chain: chains.base, alchemyPrefix: "base-mainnet" },
+  { id: 42161, chain: chains.arbitrum, alchemyPrefix: "arb-mainnet" },
+  { id: 421614, chain: chains.arbitrumSepolia, alchemyPrefix: "arb-sepolia" },
+  { id: 84532, chain: chains.baseSepolia, alchemyPrefix: "base-sepolia" },
+  { id: 666666666, chain: chains.degen, alchemyPrefix: "degen-mainnet" },
+  { id: 100, chain: chains.gnosis, alchemyPrefix: "gnosis-mainnet" },
+  { id: 10, chain: chains.optimism, alchemyPrefix: "opt-mainnet" },
+  { id: 11155420, chain: chains.optimismSepolia, alchemyPrefix: "opt-sepolia" },
+  { id: 137, chain: chains.polygon, alchemyPrefix: "polygon-mainnet" },
+  { id: 11155111, chain: chains.sepolia, alchemyPrefix: "eth-sepolia" },
+  { id: 7777777, chain: chains.zora, alchemyPrefix: "zora-mainnet" },
+  { id: 130, chain: chains.ham, alchemyPrefix: "unichain-mainnet" }, // Unichain
+  {
+    id: 10143,
+    chain: {
+      id: 10143,
+      name: "Monad Testnet",
+      network: "monad-testnet",
+      nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
+      rpcUrls: {
+        default: { http: ["https://testnet.monad.xyz"] },
+        public: { http: ["https://testnet.monad.xyz"] },
+      },
+    } as const,
+    alchemyPrefix: null,
+  },
+  { id: 42220, chain: chains.celo, alchemyPrefix: null },
+] as const;
 
 /**
  * Get viem Chain object by ID
  */
 export function getChainById(chainId: number): Chain {
-  switch (chainId) {
-    case 1:
-      return chains.mainnet;
-    case 10:
-      return chains.optimism;
-    case 137:
-      return chains.polygon;
-    case 8453:
-      return chains.base;
-    case 42161:
-      return chains.arbitrum;
-    case 7777777:
-      return chains.zora;
-    default:
-      // Try to find in all chains
-      const chain = Object.values(chains).find(
-        (c) => typeof c === 'object' && c !== null && 'id' in c && (c as any).id === chainId
-      ) as Chain | undefined;
-      return chain || chains.mainnet;
-  }
+  const config = SUPPORTED_CHAINS.find((c) => c.id === chainId);
+  return config?.chain || chains.mainnet;
 }
 
 /**
@@ -46,12 +49,14 @@ export function getChainById(chainId: number): Chain {
  */
 export function getTransport(chainId: number) {
   const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_KEY;
-  const config = ALCHEMY_CHAIN_CONFIGS[chainId];
-  
-  if (config?.url && alchemyKey) {
-    return http(`https://${config.url}.g.alchemy.com/v2/${alchemyKey}`);
+  const config = SUPPORTED_CHAINS.find((c) => c.id === chainId);
+
+  if (config?.alchemyPrefix && alchemyKey) {
+    return http(
+      `https://${config.alchemyPrefix}.g.alchemy.com/v2/${alchemyKey}`,
+    );
   }
-  
+
   // Fallback to default public RPC
   return http();
 }
@@ -67,38 +72,35 @@ export function getPublicClient(chainId: number): PublicClient {
 }
 
 /**
- * Get all available chains mapped by normalized name
- */
-export function getAvailableChains(): Record<string, Chain> {
-  const availableChains: Record<string, Chain> = {};
-  
-  Object.entries(chains).forEach(([name, chain]) => {
-    if (typeof chain === "object" && chain !== null && "id" in chain) {
-      availableChains[name.toLowerCase()] = chain as Chain;
-    }
-  });
-  
-  return availableChains;
-}
-
-/**
- * Find chain by network name (fuzzy match)
+ * Find chain by network name (case-insensitive)
  */
 export function findChainByName(networkName: string): Chain | undefined {
-  const normalizedName = networkName.toLowerCase().replace(/[\s-]/g, "");
-  const availableChains = getAvailableChains();
+  const normalizedName = networkName.toLowerCase().trim();
   
-  // Try exact match first
-  if (availableChains[normalizedName]) {
-    return availableChains[normalizedName];
-  }
+  // Direct name mappings
+  const nameToId: Record<string, number> = {
+    ethereum: 1,
+    mainnet: 1,
+    base: 8453,
+    arbitrum: 42161,
+    "arbitrum one": 42161,
+    "arbitrum sepolia": 421614,
+    "base sepolia": 84532,
+    degen: 666666666,
+    gnosis: 100,
+    optimism: 10,
+    "optimism sepolia": 11155420,
+    polygon: 137,
+    sepolia: 11155111,
+    "ethereum sepolia": 11155111,
+    zora: 7777777,
+    unichain: 130,
+    ham: 130,
+    "monad testnet": 10143,
+    monad: 10143,
+    celo: 42220,
+  };
   
-  // Try partial match
-  const matchingChainName = Object.keys(availableChains).find(
-    (chainName) =>
-      chainName.includes(normalizedName) ||
-      normalizedName.includes(chainName)
-  );
-  
-  return matchingChainName ? availableChains[matchingChainName] : undefined;
+  const chainId = nameToId[normalizedName];
+  return chainId ? getChainById(chainId) : undefined;
 }
