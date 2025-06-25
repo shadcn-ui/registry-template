@@ -279,3 +279,29 @@ pnpm dlx shadcn@latest add https://hellno-mini-app-ui.vercel.app/r/your-componen
 # 2. Imports resolve correctly
 # 3. Component builds without errors
 ```
+
+### shadcn CLI Transformation Issues
+
+The shadcn CLI sometimes adds extra quotes around string literals during installation. To avoid TypeScript errors:
+
+1. **Avoid default parameters with string literals**
+   ```typescript
+   // ❌ RISKY - May transform to "'default'" with extra quotes
+   export function fn(param: string = 'default') {}
+   
+   // ✅ SAFER - Use optional parameter + variable assignment
+   export function fn(param?: string) {
+     const value = param || "default";
+   }
+   ```
+
+2. **Be careful with string comparisons**
+   ```typescript
+   // ❌ RISKY - May transform incorrectly
+   if (typeof x === 'object') {}
+   
+   // ✅ SAFER - Use consistent quote style
+   if (typeof x === "object") {}
+   ```
+
+3. **Test registry output** - After running `pnpm registry:build`, check the generated JSON files in `public/r/` to ensure no transformation issues
