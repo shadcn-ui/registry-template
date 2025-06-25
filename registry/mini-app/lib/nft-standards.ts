@@ -190,12 +190,13 @@ export const IPFS_GATEWAYS = {
 /**
  * Convert IPFS URL to HTTP gateway URL
  */
-export function ipfsToHttp(url: string, gateway: keyof typeof IPFS_GATEWAYS = 'default'): string {
-  if (!url || !url.startsWith('ipfs://')) {
+export function ipfsToHttp(url: string, gateway?: keyof typeof IPFS_GATEWAYS): string {
+  const selectedGateway = gateway || "default";
+  if (!url || !url.startsWith("ipfs://")) {
     return url;
   }
   
-  return url.replace('ipfs://', IPFS_GATEWAYS[gateway]);
+  return url.replace("ipfs://", IPFS_GATEWAYS[selectedGateway]);
 }
 
 /**
