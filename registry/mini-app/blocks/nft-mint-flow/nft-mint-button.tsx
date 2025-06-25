@@ -633,7 +633,6 @@ export function NFTMintButton({
 
       <SheetContent
         side="bottom"
-        onClose={handleClose}
         className="!bottom-0 !rounded-t-xl !rounded-b-none !max-h-[90vh] !h-auto"
       >
         <SheetHeader className="mb-6">

@@ -329,7 +329,7 @@ export function ManifoldNFTMint({
         {buttonText}
       </Button>
 
-      <SheetContent side="bottom" onClose={handleClose}>
+      <SheetContent side="bottom">
         <SheetHeader className="mb-6">
           <SheetTitle>
             {step === "sheet" && "Mint NFT"}
