@@ -297,6 +297,12 @@ export function NFTMintButton({
     txType,
   ]);
 
+  const handleClose = React.useCallback(() => {
+    setIsSheetOpen(false);
+    dispatch({ type: "RESET" });
+    setParsedError(null);
+  }, []);
+
   // Auto-close on success after 10 seconds
   React.useEffect(() => {
     if (step === "success") {
@@ -305,13 +311,7 @@ export function NFTMintButton({
       }, 10000);
       return () => clearTimeout(timer);
     }
-  }, [step]);
-
-  const handleClose = React.useCallback(() => {
-    setIsSheetOpen(false);
-    dispatch({ type: "RESET" });
-    setParsedError(null);
-  }, []);
+  }, [step, handleClose]);
 
   const handleSwitchNetwork = async () => {
     try {
