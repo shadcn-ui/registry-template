@@ -128,4 +128,58 @@
     @apply bg-background text-foreground;
     overflow: hidden;
   }
+  
+  /* Code block styling to match shadcn exactly */
+  [data-rehype-pretty-code-figure] {
+    @apply relative w-full rounded-lg font-mono text-sm;
+    background-color: oklch(0.98 0 0);
+  }
+
+  .dark [data-rehype-pretty-code-figure] {
+    background-color: oklch(0.2 0 0);
+  }
+
+  [data-rehype-pretty-code-figure] pre {
+    @apply overflow-x-auto text-sm leading-relaxed font-mono;
+    padding-left: 1.5rem !important;
+    padding-right: 1rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    background: transparent !important;
+  }
+
+  [data-rehype-pretty-code-figure] code {
+    @apply font-mono text-sm;
+  }
+
+  /* Shiki dual theme support */
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  [data-rehype-pretty-code-figure] span {
+    color: var(--shiki-light);
+  }
+
+  .dark [data-rehype-pretty-code-figure] span,
+  html.dark [data-rehype-pretty-code-figure] span,
+  [data-theme="dark"] [data-rehype-pretty-code-figure] span {
+    color: var(--shiki-dark) !important;
+  }
+
+  [data-rehype-pretty-code-title] {
+    @apply border-b border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-900 font-mono;
+  }
+
+  .dark [data-rehype-pretty-code-title] {
+    @apply border-zinc-800 bg-zinc-900 text-zinc-50;
+  }
+
+  [data-rehype-pretty-code-figure]:has([data-rehype-pretty-code-title]) pre {
+    @apply rounded-t-none;
+  }
 }

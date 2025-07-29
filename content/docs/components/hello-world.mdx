@@ -1,0 +1,45 @@
+---
+title: Hello World
+description: A simple hello world component to get you started.
+component: hello-world
+date: 2024-07-29
+author: AGW Reusables
+published: true
+---
+
+import { HelloWorld } from "@/registry/new-york/blocks/hello-world/hello-world"
+import { ComponentPreview } from "@/components/mdx/component-preview"
+import { CodeBlock } from "@/components/mdx/code-block"
+
+A simple hello world component to get you started with the AGW Reusables component library.
+
+## Preview
+
+<ComponentPreview name="hello-world">
+  <HelloWorld />
+</ComponentPreview>
+
+## Installation
+
+Install the hello-world component using the shadcn CLI:
+
+<CodeBlock language="bash">
+npx shadcn add hello-world
+</CodeBlock>
+
+## Usage
+
+Import and use the HelloWorld component in your React application:
+
+<CodeBlock language="tsx">
+{`import { HelloWorld } from "@/components/hello-world"
+
+export default function App() {
+  return (
+    <div>
+      <HelloWorld />
+    </div>
+  )
+}`}
+</CodeBlock>
+

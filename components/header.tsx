@@ -1,12 +1,12 @@
 "use client"
 
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { Menu } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useState } from "react"
 import { MobileMenu } from "@/components/mobile-menu"
+import { GitHubLink } from "@/components/github-link"
 import Image from "next/image"
 
 export function Header() {
@@ -40,16 +40,7 @@ export function Header() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-            >
-              <GitHubLogoIcon className="h-6 w-6" />
-            </a>
-          </Button>
+          <GitHubLink />
           <ModeToggle />
         </div>
       </div>

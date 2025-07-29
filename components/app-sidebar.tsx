@@ -28,7 +28,7 @@ const componentSections = [
     items: [
       {
         title: "Hello World",
-        url: "/hello-world",
+        url: "/docs/components/hello-world",
       },
     ],
   },
