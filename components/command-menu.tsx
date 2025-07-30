@@ -6,7 +6,6 @@ import { type DialogProps } from "@radix-ui/react-dialog"
 import { IconArrowRight } from "@tabler/icons-react"
 import { CornerDownLeftIcon, SquareDashedIcon } from "lucide-react"
 
-import { type Color, type ColorPalette } from "@/lib/colors"
 import { source } from "@/lib/source"
 import { cn } from "@/lib/utils"
 import { useConfig } from "@/hooks/use-config"
@@ -34,13 +33,11 @@ import { Separator } from "@/registry/new-york/ui/separator"
 
 export function CommandMenu({
   tree,
-  colors,
   blocks,
   navItems,
   ...props
 }: DialogProps & {
   tree: typeof source.pageTree
-  colors: ColorPalette[]
   blocks?: { name: string; description: string; categories: string[] }[]
   navItems?: { href: string; label: string }[]
 }) {
@@ -70,13 +67,6 @@ export function CommandMenu({
     [packageManager, setSelectedType, setCopyPayload]
   )
 
-  const handleColorHighlight = React.useCallback(
-    (color: Color) => {
-      setSelectedType("color")
-      setCopyPayload(color.className)
-    },
-    [setSelectedType, setCopyPayload]
-  )
 
   const handleBlockHighlight = React.useCallback(
     (block: { name: string; description: string; categories: string[] }) => {
@@ -241,42 +231,6 @@ export function CommandMenu({
                     }
                     return null
                   })}
-              </CommandGroup>
-            ))}
-            {colors.map((colorPalette) => (
-              <CommandGroup
-                key={colorPalette.name}
-                heading={
-                  colorPalette.name.charAt(0).toUpperCase() +
-                  colorPalette.name.slice(1)
-                }
-                className="!p-0 [&_[cmdk-group-heading]]:!p-3"
-              >
-                {colorPalette.colors.map((color) => (
-                  <CommandMenuItem
-                    key={color.hex}
-                    value={color.className}
-                    keywords={["color", color.name, color.className]}
-                    onHighlight={() => handleColorHighlight(color)}
-                    onSelect={() => {
-                      runCommand(() =>
-                        copyToClipboardWithMeta(color.oklch, {
-                          name: "copy_color",
-                          properties: { color: color.oklch },
-                        })
-                      )
-                    }}
-                  >
-                    <div
-                      className="border-ghost aspect-square size-4 rounded-sm bg-(--color) after:rounded-sm"
-                      style={{ "--color": color.oklch } as React.CSSProperties}
-                    />
-                    {color.className}
-                    <span className="text-muted-foreground ml-auto font-mono text-xs font-normal tabular-nums">
-                      {color.oklch}
-                    </span>
-                  </CommandMenuItem>
-                ))}
               </CommandGroup>
             ))}
             {blocks?.length ? (

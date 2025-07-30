@@ -1,0 +1,75 @@
+---
+title: Example with CSS
+description: A component demonstrating how to use CSS files alongside Tailwind CSS for custom styling.
+---
+
+# Example with CSS
+
+A login form component that demonstrates how to combine custom CSS files with Tailwind CSS for advanced styling effects and animations.
+
+<ComponentPreview name="example-with-css" />
+
+## Installation
+
+Copy and paste the following files into your project:
+
+<ComponentSource name="example-with-css" />
+
+## Usage
+
+```tsx
+import { ExampleCard } from "@/components/example-card"
+
+export function LoginPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <ExampleCard />
+    </div>
+  )
+}
+```
+
+## Features
+
+- **CSS + Tailwind** - Combines custom CSS with Tailwind utility classes
+- **Custom Animations** - Uses CSS animations for enhanced UX
+- **Form Styling** - Custom styled form inputs and buttons
+- **Responsive Design** - Mobile-friendly login form
+- **Modern Design** - Clean, professional appearance
+
+## CSS Integration
+
+This component shows how to:
+
+- **Import CSS files** alongside TypeScript components
+- **Use CSS modules** for scoped styling
+- **Combine CSS classes** with Tailwind utilities
+- **Create custom animations** that work with Tailwind
+
+## Custom Styles
+
+The component includes custom CSS for:
+
+- **Input focus effects** - Custom border and shadow animations
+- **Button hover states** - Smooth color transitions
+- **Card shadows** - Enhanced depth and visual hierarchy
+- **Typography** - Custom font styling and spacing
+
+## File Structure
+
+```
+example-with-css/
+├── example-card.tsx  # React component
+└── example-card.css  # Custom styles
+```
+
+## Best Practices
+
+When combining CSS with Tailwind:
+
+- **Use CSS for complex animations** that are hard to achieve with utilities
+- **Keep Tailwind for layout** and basic styling
+- **Scope CSS classes** to avoid conflicts
+- **Document custom CSS** for maintainability
+
+This approach gives you the best of both worlds: Tailwind's utility-first approach with the power of custom CSS when needed.

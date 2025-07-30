@@ -1,37 +1,21 @@
 export const siteConfig = {
-  name: "shadcn/ui",
-  url: "https://ui.shadcn.com",
-  ogImage: "https://ui.shadcn.com/og.jpg",
+  name: "AGW Reusables",
+  url: "https://agw-reusables.com",
+  ogImage: "https://agw-reusables.com/og.jpg",
   description:
-    "A set of beautifully designed components that you can customize, extend, and build on. Start here then make it your own. Open Source. Open Code.",
+    "A custom component registry built with shadcn/ui. Reusable components you can copy and paste into your apps.",
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/shadcn-ui/ui",
+    twitter: "https://twitter.com/yourusername",
+    github: "https://github.com/yourusername/agw-reusables",
   },
   navItems: [
     {
-      href: "/docs/installation",
+      href: "/docs",
       label: "Docs",
     },
     {
       href: "/docs/components",
       label: "Components",
-    },
-    {
-      href: "/blocks",
-      label: "Blocks",
-    },
-    {
-      href: "/charts/area",
-      label: "Charts",
-    },
-    {
-      href: "/themes",
-      label: "Themes",
-    },
-    {
-      href: "/colors",
-      label: "Colors",
     },
   ],
 }

@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { getColors } from "@/lib/colors"
 import { siteConfig } from "@/lib/config"
 import { source } from "@/lib/source"
 import { CommandMenu } from "@/components/command-menu"
@@ -10,12 +9,10 @@ import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { ModeSwitcher } from "@/components/mode-switcher"
 import { SiteConfig } from "@/components/site-config"
-// import blocks from "@/registry/__blocks__.json"
 import { Button } from "@/registry/new-york/ui/button"
 import { Separator } from "@/registry/new-york/ui/separator"
 
 export function SiteHeader() {
-  const colors = getColors()
   const pageTree = source.pageTree
 
   return (
@@ -43,7 +40,6 @@ export function SiteHeader() {
             <div className="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
               <CommandMenu
                 tree={pageTree}
-                colors={colors}
                 navItems={siteConfig.navItems}
               />
             </div>
