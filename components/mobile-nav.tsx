@@ -15,11 +15,10 @@ import {
 
 export function MobileNav({
   tree,
-  items,
   className,
 }: {
   tree: typeof source.pageTree
-  items: { href: string; label: string }[]
+  items?: { href: string; label: string }[]
   className?: string
 }) {
   const [open, setOpen] = React.useState(false)
