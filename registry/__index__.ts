@@ -42,9 +42,9 @@ export const Index: Record<string, any> = {
   },
   "connect-wallet-button": {
     name: "connect-wallet-button",
-    description: "A connect wallet button using Abstract Global Wallet",
+    description: "A connect wallet button using Abstract Global Wallet with dropdown menu when connected",
     type: "registry:component",
-    registryDependencies: ["button"],
+    registryDependencies: ["button","dropdown-menu"],
     files: [{
       path: "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
       type: "registry:component",
