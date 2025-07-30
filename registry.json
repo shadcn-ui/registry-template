@@ -75,6 +75,26 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "connect-wallet-button",
+      "type": "registry:component",
+      "title": "Connect Wallet Button",
+      "description": "A connect wallet button using Abstract Global Wallet",
+      "dependencies": [
+        "@abstract-foundation/agw-react",
+        "@abstract-foundation/agw-client",
+        "wagmi",
+        "viem",
+        "@tanstack/react-query"
+      ],
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

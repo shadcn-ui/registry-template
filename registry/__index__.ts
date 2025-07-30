@@ -40,6 +40,24 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
+  "connect-wallet-button": {
+    name: "connect-wallet-button",
+    description: "A connect wallet button using Abstract Global Wallet",
+    type: "registry:component",
+    registryDependencies: ["button"],
+    files: [{
+      path: "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
+      type: "registry:component",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "connect-wallet-button"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
   "example-form": {
     name: "example-form",
     description: "A contact form with Zod validation.",

@@ -1,0 +1,43 @@
+---
+title: Connect Wallet Button
+description: A connect wallet button using Abstract Global Wallet
+---
+
+# Connect Wallet Button
+
+A reusable button component that integrates with Abstract Global Wallet (AGW) for seamless wallet connection and disconnection.
+
+<ComponentPreview name="connect-wallet-button" />
+
+## Installation
+
+<ComponentSource name="connect-wallet-button" />
+
+## Usage
+
+```tsx
+import { ConnectWalletButton } from "@/components/connect-wallet-button"
+
+export default function App() {
+  return <ConnectWalletButton />
+}
+```
+
+## Features
+
+- Uses Abstract Global Wallet React hooks
+- Automatic connect/disconnect state management
+- Follows shadcn/ui design patterns
+- Built on top of the Button component
+
+## Dependencies
+
+This component requires the following packages:
+
+- `@abstract-foundation/agw-react`
+- `@abstract-foundation/agw-client`
+- `wagmi`
+- `viem`
+- `@tanstack/react-query`
+
+Make sure to wrap your app with the necessary providers for AGW to work properly.

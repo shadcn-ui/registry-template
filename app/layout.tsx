@@ -7,6 +7,7 @@ import { LayoutProvider } from "@/hooks/use-layout"
 import { ActiveThemeProvider } from "@/components/active-theme"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AGWProvider } from "@/components/agw-provider"
 import { Toaster } from "@/registry/new-york/ui/sonner"
 
 import "@/styles/globals.css"
@@ -90,9 +91,11 @@ export default function RootLayout({
         <ThemeProvider>
           <LayoutProvider>
             <ActiveThemeProvider>
-              {children}
-              <TailwindIndicator />
-              <Toaster position="top-center" />
+              <AGWProvider>
+                {children}
+                <TailwindIndicator />
+                <Toaster position="top-center" />
+              </AGWProvider>
             </ActiveThemeProvider>
           </LayoutProvider>
         </ThemeProvider>
