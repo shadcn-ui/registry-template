@@ -11,7 +11,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Blocks, Home, Layers, Puzzle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
 
@@ -51,8 +50,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {gettingStartedItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     className={cn(
                       "text-sm font-medium hover:bg-accent hover:text-accent-foreground",
                       pathname === item.url && "bg-accent text-accent-foreground"
@@ -75,8 +74,8 @@ export function AppSidebar() {
               <SidebarMenu>
                 {section.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild 
+                    <SidebarMenuButton
+                      asChild
                       className={cn(
                         "text-sm font-medium hover:bg-accent hover:text-accent-foreground",
                         pathname === item.url && "bg-accent text-accent-foreground"
