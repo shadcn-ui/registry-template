@@ -64,21 +64,6 @@ export function MobileNav({
         sideOffset={14}
       >
         <div className="flex flex-col gap-12 overflow-auto px-6 py-6">
-          <div className="flex flex-col gap-4">
-            <div className="text-muted-foreground text-sm font-medium">
-              Menu
-            </div>
-            <div className="flex flex-col gap-3">
-              <MobileLink href="/" onOpenChange={setOpen}>
-                Home
-              </MobileLink>
-              {items.map((item, index) => (
-                <MobileLink key={index} href={item.href} onOpenChange={setOpen}>
-                  {item.label}
-                </MobileLink>
-              ))}
-            </div>
-          </div>
           <div className="flex flex-col gap-8">
             {tree?.children?.map((group, index) => {
               if (group.type === "folder") {
