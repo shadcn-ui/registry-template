@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
+
 import { cn } from "@/lib/utils"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/registry/new-york/ui/tabs"
 
 export function ComponentPreviewTabs({
   className,
@@ -50,10 +51,7 @@ export function ComponentPreviewTabs({
       </Tabs>
       <div
         data-tab={tab}
-        className={cn(
-          "relative rounded-lg border md:-mx-1",
-          tab === "code" && "component-preview-container"
-        )}
+        className="data-[tab=code]:border-code relative rounded-lg border md:-mx-1"
       >
         <div
           data-slot="preview"
@@ -72,7 +70,7 @@ export function ComponentPreviewTabs({
         <div
           data-slot="code"
           data-active={tab === "code"}
-          className="absolute inset-0 hidden overflow-hidden data-[active=true]:block"
+          className="absolute inset-0 hidden overflow-hidden data-[active=true]:block **:[figure]:!m-0 **:[pre]:h-[450px]"
         >
           {source}
         </div>

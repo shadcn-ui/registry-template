@@ -3,7 +3,7 @@ import path from "node:path"
 import * as React from "react"
 
 import { highlightCode } from "@/lib/highlight-code"
-import { getComponentSource } from "@/lib/get-component-source"
+import { getRegistryItem } from "@/lib/registry"
 import { cn } from "@/lib/utils"
 import { CodeCollapsibleWrapper } from "@/components/code-collapsible-wrapper"
 import { CopyButton } from "@/components/copy-button"
@@ -14,7 +14,7 @@ export async function ComponentSource({
   src,
   title,
   language,
-  collapsible = false,
+  collapsible = true,
   className,
 }: React.ComponentProps<"div"> & {
   name?: string
@@ -30,7 +30,8 @@ export async function ComponentSource({
   let code: string | undefined
 
   if (name) {
-    code = getComponentSource(name)
+    const item = await getRegistryItem(name)
+    code = item?.files?.[0]?.content
   }
 
   if (src) {

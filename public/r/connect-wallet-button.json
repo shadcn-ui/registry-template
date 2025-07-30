@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "connect-wallet-button",
+  "type": "registry:component",
+  "title": "Connect Wallet Button",
+  "description": "A connect wallet button using Abstract Global Wallet",
+  "dependencies": [
+    "@abstract-foundation/agw-react",
+    "@abstract-foundation/agw-client",
+    "wagmi",
+    "viem",
+    "@tanstack/react-query"
+  ],
+  "registryDependencies": [
+    "button"
+  ],
+  "files": [
+    {
+      "path": "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
+      "content": "\"use client\"\n\nimport { useLoginWithAbstract } from \"@abstract-foundation/agw-react\"\nimport { Button } from \"@/registry/new-york/ui/button\"\n\nexport function ConnectWalletButton() {\n  const { login, logout, isLoggedIn } = useLoginWithAbstract()\n\n  return (\n    <Button onClick={isLoggedIn ? logout : login}>\n      {isLoggedIn ? \"Disconnect\" : \"Connect Wallet\"}\n    </Button>\n  )\n}",
+      "type": "registry:component"
+    }
+  ]
+}
