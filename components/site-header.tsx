@@ -1,10 +1,10 @@
 import Link from "next/link"
+import Image from "next/image"
 
 import { siteConfig } from "@/lib/config"
 import { source } from "@/lib/source"
 import { CommandMenu } from "@/components/command-menu"
 import { GitHubLink } from "@/components/github-link"
-import { Icons } from "@/components/icons"
 import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { ModeSwitcher } from "@/components/mode-switcher"
@@ -27,11 +27,19 @@ export function SiteHeader() {
           <Button
             asChild
             variant="ghost"
-            size="icon"
-            className="hidden size-8 lg:flex"
+            className="hidden size-12 lg:flex px-0"
           >
             <Link href="/">
-              <Icons.logo className="size-5" />
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={48}
+                height={48}
+                className="h-10 w-10"
+                priority
+                quality={100}
+                unoptimized
+              />
               <span className="sr-only">{siteConfig.name}</span>
             </Link>
           </Button>

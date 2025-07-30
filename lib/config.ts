@@ -5,8 +5,8 @@ export const siteConfig = {
   description:
     "A custom component registry built with shadcn/ui. Reusable components you can copy and paste into your apps.",
   links: {
-    twitter: "https://twitter.com/yourusername",
-    github: "https://github.com/yourusername/agw-reusables",
+    twitter: "https://twitter.com/jarrodwattsdev",
+    github: "https://github.com/jarrodwatts/agw-reusables",
   },
   navItems: [
     {
