@@ -182,4 +182,13 @@
   [data-rehype-pretty-code-figure]:has([data-rehype-pretty-code-title]) pre {
     @apply rounded-t-none;
   }
+
+  /* Component preview container background to match code blocks */
+  .component-preview-container {
+    background-color: oklch(0.98 0 0);
+  }
+
+  .dark .component-preview-container {
+    background-color: oklch(0.2 0 0);
+  }
 }

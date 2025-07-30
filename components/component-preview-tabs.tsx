@@ -50,7 +50,10 @@ export function ComponentPreviewTabs({
       </Tabs>
       <div
         data-tab={tab}
-        className="relative rounded-lg border md:-mx-1"
+        className={cn(
+          "relative rounded-lg border md:-mx-1",
+          tab === "code" && "component-preview-container"
+        )}
       >
         <div
           data-slot="preview"
