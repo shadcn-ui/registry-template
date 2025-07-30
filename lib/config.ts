@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "AGW Reusables",
-  url: "https://agw-reusables.com",
-  ogImage: "https://agw-reusables.com/og.jpg",
+  url: "https://agw-reusables.vercel.app/",
+  ogImage: "https://agw-reusables.vercel.app/og.jpg",
   description:
     "A custom component registry built with shadcn/ui. Reusable components you can copy and paste into your apps.",
   links: {

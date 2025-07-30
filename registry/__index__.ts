@@ -102,7 +102,7 @@ export const Index: Record<string, any> = {
     name: "hello-world",
     description: "A simple hello world component",
     type: "registry:component",
-    registryDependencies: ["button"],
+    registryDependencies: undefined,
     files: [{
       path: "registry/new-york/blocks/hello-world/hello-world.tsx",
       type: "registry:component",

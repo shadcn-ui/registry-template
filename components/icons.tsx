@@ -1,10 +1,11 @@
 import { FileIcon } from "lucide-react"
+import Image from "next/image"
 
 type IconProps = React.HTMLAttributes<SVGElement>
 
 export const Icons = {
-  logo: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img src="/logo.png" alt="Logo" {...props} />
+  logo: (props: Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt' | 'width' | 'height'>) => (
+    <Image src="/logo.png" alt="Logo" width={24} height={24} {...props} />
   ),
   twitter: (props: IconProps) => (
     <svg
