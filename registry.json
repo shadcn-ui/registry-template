@@ -141,6 +141,77 @@
           "target": "app/api/user-profile/[address]/route.ts"
         }
       ]
+    },
+    {
+      "name": "siwe-auth",
+      "type": "registry:component",
+      "title": "Sign-in with Ethereum Auth",
+      "description": "A comprehensive authentication component using Sign-in with Ethereum (SIWE) with Iron Session for secure wallet-based authentication",
+      "dependencies": [
+        "iron-session",
+        "viem",
+        "wagmi",
+        "@tanstack/react-query",
+        "sonner"
+      ],
+      "registryDependencies": ["button", "card", "sonner", "dropdown-menu"],
+      "envVars": {
+        "IRON_SESSION_PASSWORD": ""
+      },
+      "files": [
+        {
+          "path": "registry/new-york/blocks/siwe-auth/siwe-auth.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/new-york/blocks/siwe-auth/hooks/use-siwe-auth-query.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "registry/new-york/blocks/siwe-auth/hooks/use-siwe-sign-in-mutation.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "registry/new-york/blocks/siwe-auth/hooks/use-siwe-logout-mutation.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "registry/new-york/blocks/siwe-auth/lib/types.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/siwe-auth/lib/config.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/siwe-auth/lib/auth-server.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "app/api/auth/nonce/route.ts",
+          "type": "registry:page",
+          "target": "app/api/auth/nonce/route.ts"
+        },
+        {
+          "path": "app/api/auth/verify/route.ts",
+          "type": "registry:page",
+          "target": "app/api/auth/verify/route.ts"
+        },
+        {
+          "path": "app/api/auth/user/route.ts",
+          "type": "registry:page",
+          "target": "app/api/auth/user/route.ts"
+        },
+        {
+          "path": "app/api/auth/logout/route.ts",
+          "type": "registry:page",
+          "target": "app/api/auth/logout/route.ts"
+        },
+        {
+          "path": "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

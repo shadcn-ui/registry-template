@@ -162,4 +162,66 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
+  "siwe-auth": {
+    name: "siwe-auth",
+    description: "A comprehensive authentication component using Sign-in with Ethereum (SIWE) with Iron Session for secure wallet-based authentication",
+    type: "registry:component",
+    registryDependencies: ["button","card","sonner","dropdown-menu"],
+    files: [{
+      path: "registry/new-york/blocks/siwe-auth/siwe-auth.tsx",
+      type: "registry:component",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/siwe-auth/hooks/use-siwe-auth-query.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/siwe-auth/hooks/use-siwe-sign-in-mutation.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/siwe-auth/hooks/use-siwe-logout-mutation.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/siwe-auth/lib/types.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/siwe-auth/lib/config.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/siwe-auth/lib/auth-server.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "app/api/auth/nonce/route.ts",
+      type: "registry:page",
+      target: "app/api/auth/nonce/route.ts"
+    }, {
+      path: "app/api/auth/verify/route.ts",
+      type: "registry:page",
+      target: "app/api/auth/verify/route.ts"
+    }, {
+      path: "app/api/auth/user/route.ts",
+      type: "registry:page",
+      target: "app/api/auth/user/route.ts"
+    }, {
+      path: "app/api/auth/logout/route.ts",
+      type: "registry:page",
+      target: "app/api/auth/logout/route.ts"
+    }, {
+      path: "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
+      type: "registry:component",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/blocks/siwe-auth/siwe-auth.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "siwe-auth"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
 }

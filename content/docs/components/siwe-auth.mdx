@@ -1,0 +1,251 @@
+---
+title: SIWE Auth
+description: Sign-in with Ethereum authentication component using Iron Session for secure wallet-based authentication.
+---
+
+<ComponentPreview name="siwe-auth" />
+
+## Installation
+
+<CodeTabs>
+
+<TabsList>
+  <TabsTrigger value="cli">CLI</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/siwe-auth.json"
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install siwe iron-session viem wagmi @tanstack/react-query sonner
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="siwe-auth" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+<Step>Set up environment variables:</Step>
+
+```bash
+# Generate using: openssl rand -base64 32
+IRON_SESSION_PASSWORD="your_secure_password_here"
+```
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## About
+
+The SIWE Auth component provides comprehensive Sign-in with Ethereum (SIWE) authentication using Iron Session for secure server-side session management. It integrates seamlessly with wagmi for wallet connectivity and uses TanStack Query for state management.
+
+## Features
+
+- **Wallet Integration**: Automatically detects wallet connection status
+- **SIWE Protocol**: Implements the Sign-in with Ethereum standard
+- **Secure Sessions**: Uses Iron Session for server-side session management  
+- **Server-side Utilities**: Safe authentication checking for API routes and Server Components
+- **Logout Functionality**: Complete logout flow with session cleanup
+- **Environment-based Chain Selection**: Automatically switches between mainnet and testnet
+- **Toast Notifications**: Success/error feedback via Sonner
+- **Loading States**: Comprehensive loading and error state handling
+- **TypeScript**: Full TypeScript support with proper types
+
+## Usage
+
+### Basic Usage
+
+```tsx
+import { SiweAuth } from "@/components/siwe-auth"
+
+export default function App() {
+  return (
+    <SiweAuth 
+      title="Sign in with Ethereum"
+      description="Authenticate your wallet to access protected features"
+    />
+  )
+}
+```
+
+### Using the Hooks Separately
+
+```tsx
+import { useSiweAuthQuery } from "@/registry/new-york/blocks/siwe-auth/hooks/use-siwe-auth-query"
+import { useSiweSignInMutation } from "@/registry/new-york/blocks/siwe-auth/hooks/use-siwe-sign-in-mutation"
+import { useSiweLogoutMutation } from "@/registry/new-york/blocks/siwe-auth/hooks/use-siwe-logout-mutation"
+
+function MyComponent() {
+  const { data: authData, isLoading } = useSiweAuthQuery()
+  const signInMutation = useSiweSignInMutation()
+  const logoutMutation = useSiweLogoutMutation()
+
+  const isAuthenticated = authData?.ok && authData?.user?.isAuthenticated
+
+  return (
+    <div>
+      {isAuthenticated ? (
+        <div>
+          <p>Welcome! Address: {authData.user.address}</p>
+          <button 
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+          >
+            {logoutMutation.isPending ? "Signing out..." : "Sign Out"}
+          </button>
+        </div>
+      ) : (
+        <button onClick={() => signInMutation.mutate()}>
+          Sign In
+        </button>
+      )}
+    </div>
+  )
+}
+```
+
+### Server-side Authentication
+
+The component includes server-side utilities for safely checking authentication state in API routes and Server Components:
+
+```tsx
+// In a Server Component
+import { getServerAuthUser } from "@/registry/new-york/blocks/siwe-auth/lib/auth-server"
+
+export default async function ProtectedPage() {
+  const auth = await getServerAuthUser()
+  
+  if (!auth.isAuthenticated) {
+    return <div>Please sign in to access this page</div>
+  }
+  
+  return (
+    <div>
+      <h1>Welcome!</h1>
+      <p>Your address: {auth.user?.address}</p>
+    </div>
+  )
+}
+```
+
+```tsx
+// In an API route
+import { requireServerAuth } from "@/registry/new-york/blocks/siwe-auth/lib/auth-server"
+
+export async function GET() {
+  try {
+    const user = await requireServerAuth()
+    
+    // User is guaranteed to be authenticated here
+    const userData = await getUserData(user.address)
+    return NextResponse.json(userData)
+    
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message }, 
+      { status: 401 }
+    )
+  }
+}
+```
+
+```tsx
+// Simple boolean check
+import { isServerAuthenticated } from "@/registry/new-york/blocks/siwe-auth/lib/auth-server"
+
+export default async function HomePage() {
+  const isAuthenticated = await isServerAuthenticated()
+  
+  return (
+    <div>
+      {isAuthenticated ? (
+        <p>Welcome back!</p>
+      ) : (
+        <p>Please sign in</p>
+      )}
+    </div>
+  )
+}
+```
+
+## API Routes
+
+The component includes four API routes that handle the SIWE flow:
+
+- `POST /api/auth/nonce` - Generates unique nonces for SIWE messages
+- `POST /api/auth/verify` - Verifies signed messages and creates sessions
+- `GET /api/auth/user` - Returns current authentication state
+- `POST /api/auth/logout` - Destroys the current session
+
+## Configuration
+
+You can customize the chain and session options by modifying the config file:
+
+```tsx
+// registry/new-york/blocks/siwe-auth/lib/config.ts
+import { mainnet } from "viem/chains"
+
+// Use a different chain
+export const chain = mainnet
+
+// Customize session options
+export const ironOptions: SessionOptions = {
+  password: process.env.IRON_SESSION_PASSWORD!,
+  cookieName: "my-app-session",
+  cookieOptions: {
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  },
+}
+```
+
+## Props
+
+### SiweAuth
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `className` | `ClassValue` | `undefined` | Additional CSS classes |
+| `title` | `string` | `"Sign in with Ethereum"` | Component title |
+| `description` | `string` | `"Authenticate your wallet..."` | Component description |
+
+## Server-side Utilities
+
+### getServerAuthUser()
+
+Returns comprehensive authentication state with user data or error information.
+
+**Returns:** `Promise<ServerAuthResult>`
+
+### requireServerAuth()
+
+Requires authentication and throws an error if not authenticated. Useful for API routes.
+
+**Returns:** `Promise<AuthUser>`
+**Throws:** `Error` if not authenticated
+
+### isServerAuthenticated()
+
+Simple boolean check for authentication status.
+
+**Returns:** `Promise<boolean>`
+
+### getServerAuthAddress()
+
+Gets the authenticated user's address safely.
+
+**Returns:** `Promise<string | null>`
