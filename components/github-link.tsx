@@ -43,7 +43,7 @@ export async function StarsCount() {
           : starCount.toLocaleString()}
       </span>
     )
-  } catch (error) {
+  } catch {
     return <span className="text-muted-foreground w-2 text-xs tabular-nums">-</span>
   }
 }

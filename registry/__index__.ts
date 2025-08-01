@@ -162,37 +162,41 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
-  "siwe-auth": {
-    name: "siwe-auth",
-    description: "A comprehensive authentication component using Sign-in with Ethereum (SIWE) with Iron Session for secure wallet-based authentication",
+  "siwe-button": {
+    name: "siwe-button",
+    description: "A streamlined SIWE authentication button that handles wallet connection, message signing, and authentication state",
     type: "registry:component",
     registryDependencies: ["button","card","sonner","dropdown-menu"],
     files: [{
-      path: "registry/new-york/blocks/siwe-auth/siwe-auth.tsx",
+      path: "registry/new-york/blocks/siwe-button/siwe-button.tsx",
       type: "registry:component",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-auth/hooks/use-siwe-auth-query.ts",
+      path: "registry/new-york/blocks/siwe-button/siwe-button-demo.tsx",
+      type: "registry:component",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/siwe-button/hooks/use-siwe-auth-query.ts",
       type: "registry:hook",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-auth/hooks/use-siwe-sign-in-mutation.ts",
+      path: "registry/new-york/blocks/siwe-button/hooks/use-siwe-sign-in-mutation.ts",
       type: "registry:hook",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-auth/hooks/use-siwe-logout-mutation.ts",
+      path: "registry/new-york/blocks/siwe-button/hooks/use-siwe-logout-mutation.ts",
       type: "registry:hook",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-auth/lib/types.ts",
+      path: "registry/new-york/blocks/siwe-button/lib/types.ts",
       type: "registry:lib",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-auth/lib/config.ts",
+      path: "registry/new-york/blocks/siwe-button/lib/config.ts",
       type: "registry:lib",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-auth/lib/auth-server.ts",
+      path: "registry/new-york/blocks/siwe-button/lib/auth-server.ts",
       type: "registry:lib",
       target: ""
     }, {
@@ -217,8 +221,8 @@ export const Index: Record<string, any> = {
       target: ""
     }],
     component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/siwe-auth/siwe-auth.tsx")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "siwe-auth"
+      const mod = await import("@/registry/new-york/blocks/siwe-button/siwe-button.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "siwe-button"
       return { default: mod.default || mod[exportName] }
     }),
     categories: undefined,

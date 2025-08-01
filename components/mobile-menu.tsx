@@ -17,17 +17,7 @@ const gettingStartedItems = [
   },
 ]
 
-const componentSections = [
-  {
-    title: "Components",
-    items: [
-      {
-        title: "Hello World",
-        url: "/docs/components/hello-world",
-      },
-    ],
-  },
-]
+const componentSections = []
 
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname()

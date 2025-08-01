@@ -2,6 +2,7 @@
   "root": true,
   "pages": [
     "(root)",
-    "components"
+    "authentication",
+    "examples"
   ]
 }

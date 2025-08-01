@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAccount, useSignMessage } from "wagmi";
 import { createSiweMessage } from "viem/siwe";
 import { toast } from "sonner";
-import { AuthResponse, SignInRequest, ClientSiweConfigurationError } from "@/registry/new-york/blocks/siwe-auth/lib/types";
+import { AuthResponse, SignInRequest, ClientSiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/types";
 
 async function fetchNonce(): Promise<string> {
   const response = await fetch("/api/auth/nonce");

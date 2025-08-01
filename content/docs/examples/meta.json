@@ -1,0 +1,9 @@
+{
+  "title": "Examples",
+  "pages": [
+    "hello-world",
+    "example-form",
+    "example-with-css",
+    "complex-component"
+  ]
+}

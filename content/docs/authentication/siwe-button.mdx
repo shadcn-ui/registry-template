@@ -1,9 +1,9 @@
 ---
-title: SIWE Auth
-description: Sign-in with Ethereum authentication component using Iron Session for secure wallet-based authentication.
+title: SIWE Button
+description: A streamlined SIWE authentication button that handles wallet connection, message signing, and authentication state.
 ---
 
-<ComponentPreview name="siwe-auth" />
+<ComponentPreview name="siwe-button" />
 
 ## Installation
 
@@ -16,7 +16,7 @@ description: Sign-in with Ethereum authentication component using Iron Session f
 <TabsContent value="cli">
 
 ```bash
-npx shadcn@latest add "https://agw-reusables.vercel.app/r/siwe-auth.json"
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/siwe-button.json"
 ```
 
 </TabsContent>
@@ -33,7 +33,7 @@ npm install siwe iron-session viem wagmi @tanstack/react-query sonner
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource name="siwe-auth" />
+<ComponentSource name="siwe-button" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -52,7 +52,7 @@ IRON_SESSION_PASSWORD="your_secure_password_here"
 
 ## About
 
-The SIWE Auth component provides comprehensive Sign-in with Ethereum (SIWE) authentication using Iron Session for secure server-side session management. It integrates seamlessly with wagmi for wallet connectivity and uses TanStack Query for state management.
+The SIWE Button provides streamlined Sign-in with Ethereum (SIWE) authentication using Iron Session for secure server-side session management. It integrates seamlessly with wagmi for wallet connectivity and uses TanStack Query for state management.
 
 ## Features
 
@@ -71,24 +71,19 @@ The SIWE Auth component provides comprehensive Sign-in with Ethereum (SIWE) auth
 ### Basic Usage
 
 ```tsx
-import { SiweAuth } from "@/components/siwe-auth"
+import { SiweButton } from "@/components/siwe-button"
 
 export default function App() {
-  return (
-    <SiweAuth 
-      title="Sign in with Ethereum"
-      description="Authenticate your wallet to access protected features"
-    />
-  )
+  return <SiweButton />
 }
 ```
 
 ### Using the Hooks Separately
 
 ```tsx
-import { useSiweAuthQuery } from "@/registry/new-york/blocks/siwe-auth/hooks/use-siwe-auth-query"
-import { useSiweSignInMutation } from "@/registry/new-york/blocks/siwe-auth/hooks/use-siwe-sign-in-mutation"
-import { useSiweLogoutMutation } from "@/registry/new-york/blocks/siwe-auth/hooks/use-siwe-logout-mutation"
+import { useSiweAuthQuery } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-auth-query"
+import { useSiweSignInMutation } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-sign-in-mutation"
+import { useSiweLogoutMutation } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-logout-mutation"
 
 function MyComponent() {
   const { data: authData, isLoading } = useSiweAuthQuery()
@@ -125,7 +120,7 @@ The component includes server-side utilities for safely checking authentication 
 
 ```tsx
 // In a Server Component
-import { getServerAuthUser } from "@/registry/new-york/blocks/siwe-auth/lib/auth-server"
+import { getServerAuthUser } from "@/registry/new-york/blocks/siwe-button/lib/auth-server"
 
 export default async function ProtectedPage() {
   const auth = await getServerAuthUser()
@@ -145,7 +140,7 @@ export default async function ProtectedPage() {
 
 ```tsx
 // In an API route
-import { requireServerAuth } from "@/registry/new-york/blocks/siwe-auth/lib/auth-server"
+import { requireServerAuth } from "@/registry/new-york/blocks/siwe-button/lib/auth-server"
 
 export async function GET() {
   try {
@@ -166,7 +161,7 @@ export async function GET() {
 
 ```tsx
 // Simple boolean check
-import { isServerAuthenticated } from "@/registry/new-york/blocks/siwe-auth/lib/auth-server"
+import { isServerAuthenticated } from "@/registry/new-york/blocks/siwe-button/lib/auth-server"
 
 export default async function HomePage() {
   const isAuthenticated = await isServerAuthenticated()
@@ -197,7 +192,7 @@ The component includes four API routes that handle the SIWE flow:
 You can customize the chain and session options by modifying the config file:
 
 ```tsx
-// registry/new-york/blocks/siwe-auth/lib/config.ts
+// registry/new-york/blocks/siwe-button/lib/config.ts
 import { mainnet } from "viem/chains"
 
 // Use a different chain
@@ -215,13 +210,11 @@ export const ironOptions: SessionOptions = {
 
 ## Props
 
-### SiweAuth
+### SiweButton
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `className` | `ClassValue` | `undefined` | Additional CSS classes |
-| `title` | `string` | `"Sign in with Ethereum"` | Component title |
-| `description` | `string` | `"Authenticate your wallet..."` | Component description |
 
 ## Server-side Utilities
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData } from "../nonce/route";
-import { getIronOptions, SiweConfigurationError } from "@/registry/new-york/blocks/siwe-auth/lib/config";
+import { getIronOptions, SiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/config";
 
 /**
  * Sign in with Ethereum - Logout and destroy the current session.

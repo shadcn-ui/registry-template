@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
-import { AuthResponse, ClientSiweConfigurationError } from "@/registry/new-york/blocks/siwe-auth/lib/types";
+import { AuthResponse, ClientSiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/types";
 
 const QUERY_KEYS = {
   auth: "siwe-auth",

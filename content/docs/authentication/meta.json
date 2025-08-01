@@ -1,0 +1,8 @@
+{
+  "title": "Authentication",
+  "pages": [
+    "connect-wallet-button",
+    "siwe-button", 
+    "abstract-avatar"
+  ]
+}

@@ -4,7 +4,7 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData } from "../nonce/route";
 import { createPublicClient, http } from "viem";
-import { chain, getIronOptions, SiweConfigurationError } from "@/registry/new-york/blocks/siwe-auth/lib/config";
+import { chain, getIronOptions, SiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
           { status: 422 }
         );
       }
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { ok: false, message: "Verification failed" },
         { status: 500 }

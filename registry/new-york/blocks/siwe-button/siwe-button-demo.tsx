@@ -10,27 +10,30 @@ import { useSiweLogoutMutation } from "@/registry/new-york/blocks/siwe-auth/hook
 import { cn } from "@/lib/utils";
 import { type ClassValue } from "clsx";
 
-interface SiweAuthProps {
+interface SiweAuthDemoProps {
   className?: ClassValue;
   title?: string;
   description?: string;
 }
 
 /**
- * Sign-in with Ethereum Authentication Component
+ * Sign-in with Ethereum Authentication Demo Component
  * 
- * A comprehensive authentication component that handles:
+ * A comprehensive authentication demo component that showcases:
  * - Wallet connection state detection
  * - SIWE message signing and verification
  * - Authentication state management
  * - Loading states and error handling via toast notifications
+ * 
+ * This is the full-featured demo version with cards and detailed UI states.
+ * For a simple button component, use the main SiweAuth component.
  */
-export function SiweAuth({ 
+export function SiweAuthDemo({ 
   className, 
   title = "Sign in with Ethereum",
   description = "Authenticate your wallet to access protected features"
-}: SiweAuthProps) {
-  const { isConnected, address } = useAccount();
+}: SiweAuthDemoProps) {
+  const { isConnected } = useAccount();
   const { data: authData, isLoading: isAuthLoading, isFetching: isAuthFetching, error: authError } = useSiweAuthQuery();
   const signInMutation = useSiweSignInMutation();
   const logoutMutation = useSiweLogoutMutation();

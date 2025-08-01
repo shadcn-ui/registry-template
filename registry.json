@@ -143,10 +143,10 @@
       ]
     },
     {
-      "name": "siwe-auth",
+      "name": "siwe-button",
       "type": "registry:component",
-      "title": "Sign-in with Ethereum Auth",
-      "description": "A comprehensive authentication component using Sign-in with Ethereum (SIWE) with Iron Session for secure wallet-based authentication",
+      "title": "SIWE Button",
+      "description": "A streamlined SIWE authentication button that handles wallet connection, message signing, and authentication state",
       "dependencies": [
         "iron-session",
         "viem",
@@ -160,31 +160,35 @@
       },
       "files": [
         {
-          "path": "registry/new-york/blocks/siwe-auth/siwe-auth.tsx",
+          "path": "registry/new-york/blocks/siwe-button/siwe-button.tsx",
           "type": "registry:component"
         },
         {
-          "path": "registry/new-york/blocks/siwe-auth/hooks/use-siwe-auth-query.ts",
+          "path": "registry/new-york/blocks/siwe-button/siwe-button-demo.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/new-york/blocks/siwe-button/hooks/use-siwe-auth-query.ts",
           "type": "registry:hook"
         },
         {
-          "path": "registry/new-york/blocks/siwe-auth/hooks/use-siwe-sign-in-mutation.ts",
+          "path": "registry/new-york/blocks/siwe-button/hooks/use-siwe-sign-in-mutation.ts",
           "type": "registry:hook"
         },
         {
-          "path": "registry/new-york/blocks/siwe-auth/hooks/use-siwe-logout-mutation.ts",
+          "path": "registry/new-york/blocks/siwe-button/hooks/use-siwe-logout-mutation.ts",
           "type": "registry:hook"
         },
         {
-          "path": "registry/new-york/blocks/siwe-auth/lib/types.ts",
+          "path": "registry/new-york/blocks/siwe-button/lib/types.ts",
           "type": "registry:lib"
         },
         {
-          "path": "registry/new-york/blocks/siwe-auth/lib/config.ts",
+          "path": "registry/new-york/blocks/siwe-button/lib/config.ts",
           "type": "registry:lib"
         },
         {
-          "path": "registry/new-york/blocks/siwe-auth/lib/auth-server.ts",
+          "path": "registry/new-york/blocks/siwe-button/lib/auth-server.ts",
           "type": "registry:lib"
         },
         {

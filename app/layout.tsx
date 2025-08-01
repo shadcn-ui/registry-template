@@ -93,7 +93,7 @@ export default function RootLayout({
               <AGWProvider>
                 {children}
                 <TailwindIndicator />
-                <Toaster position="top-center" />
+                <Toaster />
               </AGWProvider>
             </ActiveThemeProvider>
           </LayoutProvider>

@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLoginWithAbstract } from "@abstract-foundation/agw-react";
 import { toast } from "sonner";
-import { ClientSiweConfigurationError } from "@/registry/new-york/blocks/siwe-auth/lib/types";
+import { ClientSiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/types";
 
 const QUERY_KEYS = {
   auth: "siwe-auth",
@@ -45,7 +45,7 @@ async function logoutUser(): Promise<LogoutResponse> {
  * 
  * @example
  * ```tsx
- * import { useSiweLogoutMutation } from "@/registry/new-york/blocks/siwe-auth/hooks/use-siwe-logout-mutation";
+ * import { useSiweLogoutMutation } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-logout-mutation";
  * 
  * function LogoutButton() {
  *   const logoutMutation = useSiweLogoutMutation();

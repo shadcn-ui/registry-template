@@ -16,6 +16,7 @@ import { useState } from "react"
 
 interface ConnectWalletButtonProps {
   className?: ClassValue
+  customDropdownItems?: React.ReactNode[]
 }
 
 /**
@@ -27,7 +28,7 @@ interface ConnectWalletButtonProps {
  * - Balance display with wallet and Abstract logos
  * - Dropdown menu with address copy functionality
  */
-export function ConnectWalletButton({ className }: ConnectWalletButtonProps) {
+export function ConnectWalletButton({ className, customDropdownItems }: ConnectWalletButtonProps) {
   // Wagmi hooks for wallet state and balance
   const { isConnected, status, address } = useAccount()
   const { data: balance, isLoading: isBalanceLoading } = useBalance({ address })
@@ -135,11 +136,17 @@ export function ConnectWalletButton({ className }: ConnectWalletButtonProps) {
             )}
           </div>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        {/* Disconnect option */}
-        <DropdownMenuItem onClick={logout} className="text-destructive">
-          Disconnect
-        </DropdownMenuItem>
+        {/* Custom dropdown items or default disconnect */}
+        {customDropdownItems ? (
+          customDropdownItems
+        ) : (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={logout} className="text-destructive">
+              Disconnect
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
