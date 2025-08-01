@@ -1,0 +1,156 @@
+---
+title: Abstract Avatar
+description: An avatar component that displays user profile pictures from Abstract Portal with tier-based styling
+---
+
+<ComponentPreview name="abstract-avatar" />
+
+## Installation
+
+<CodeTabs>
+
+<TabsList>
+  <TabsTrigger value="cli">CLI</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/abstract-avatar.json"
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Install the following dependencies:</Step>
+
+```bash
+npm install @tanstack/react-query wagmi viem
+```
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="abstract-avatar" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+<Step>Add the API route to your Next.js project:</Step>
+
+Create `app/api/user-profile/[address]/route.ts` with the proxy endpoint to fetch profiles from Abstract Portal backend.
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+The component automatically uses the connected wallet address from wagmi's `useAccount` hook:
+
+```tsx
+import { AbstractAvatar } from "@/components/abstract-avatar"
+
+export default function App() {
+  return (
+    <AbstractAvatar 
+      size="md"
+      showTooltip={true}
+    />
+  )
+}
+```
+
+### With Specific Address
+
+You can also provide a specific address to override the connected wallet:
+
+```tsx
+<AbstractAvatar 
+  address="0x1234567890123456789012345678901234567890"
+  size="md"
+  showTooltip={true}
+/>
+```
+
+## Examples
+
+### Size Variants
+
+```tsx
+<div className="flex items-center gap-4">
+  <AbstractAvatar size="sm" />
+  <AbstractAvatar size="md" />
+  <AbstractAvatar size="lg" />
+</div>
+```
+
+### Custom Border Color
+
+```tsx
+<AbstractAvatar 
+  size="md"
+  shineColor="#FF6B6B"
+/>
+```
+
+### Without Tooltip
+
+```tsx
+<AbstractAvatar 
+  size="md"
+  showTooltip={false}
+/>
+```
+
+### Custom Fallback
+
+```tsx
+<AbstractAvatar 
+  fallback="JD"
+  size="md"
+/>
+```
+
+## Features
+
+- **Tier-based Styling**: Automatically displays colored borders based on user tier (Bronze, Silver, Gold, Platinum, Diamond)
+- **Loading States**: Shows skeleton placeholder while fetching profile data
+- **Fallback Support**: Graceful fallback for missing profile images or data  
+- **Responsive Sizes**: Three size variants (sm, md, lg)
+- **Tooltip Integration**: Optional tooltips showing display names
+- **Server-side Proxy**: Includes API route to avoid CORS issues
+- **TypeScript Support**: Full type safety with Abstract Portal API types
+
+## API
+
+### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `address` | `string` | Connected wallet | Optional wallet address to fetch profile for (defaults to connected wallet) |
+| `fallback` | `string` | First 2 chars of address | Optional fallback text to display if image fails to load |
+| `shineColor` | `string` | Tier color | Optional custom border color (defaults to tier color) |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Avatar size variant |
+| `showTooltip` | `boolean` | `true` | Whether to show tooltip on hover |
+
+### Tier Colors
+
+- **Bronze (Tier 1)**: `#CD7F32`
+- **Silver (Tier 2)**: `#C0C0C0` (default)
+- **Gold (Tier 3)**: `#FFD700`
+- **Platinum (Tier 4)**: `#E5E4E2`
+- **Diamond (Tier 5)**: `#B9F2FF`
+
+## Requirements
+
+This component requires:
+- A Next.js project with App Router
+- React Query provider setup
+- Wagmi provider setup for wallet connection
+- The included API route (`app/api/user-profile/[address]/route.ts`) for server-side profile fetching
+
+The API route is automatically included when you install the component and handles CORS issues by proxying requests to the Abstract Portal backend.

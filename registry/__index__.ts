@@ -6,6 +6,48 @@
 import * as React from "react"
 
 export const Index: Record<string, any> = {
+  "abstract-avatar": {
+    name: "abstract-avatar",
+    description: "An avatar component that displays user profile pictures from Abstract Portal with tier-based styling and loading states",
+    type: "registry:component",
+    registryDependencies: ["avatar","tooltip","skeleton"],
+    files: [{
+      path: "registry/new-york/blocks/abstract-avatar/abstract-avatar.tsx",
+      type: "registry:component",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/abstract-avatar/hooks/use-abstract-profile.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/abstract-avatar/lib/fetch-json.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/abstract-avatar/lib/tier-colors.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/abstract-avatar/lib/address-utils.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/abstract-avatar/lib/get-user-profile.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "app/api/user-profile/[address]/route.ts",
+      type: "registry:page",
+      target: "app/api/user-profile/[address]/route.ts"
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/blocks/abstract-avatar/abstract-avatar.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "abstract-avatar"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
   "complex-component": {
     name: "complex-component",
     description: "A complex component showing hooks, libs and components.",

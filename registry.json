@@ -94,6 +94,49 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "abstract-avatar",
+      "type": "registry:component",
+      "title": "Abstract Avatar",
+      "description": "An avatar component that displays user profile pictures from Abstract Portal with tier-based styling and loading states",
+      "dependencies": [
+        "@tanstack/react-query",
+        "wagmi",
+        "viem"
+      ],
+      "registryDependencies": ["avatar", "tooltip", "skeleton"],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/abstract-avatar/abstract-avatar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-avatar/hooks/use-abstract-profile.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-avatar/lib/fetch-json.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-avatar/lib/tier-colors.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-avatar/lib/address-utils.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-avatar/lib/get-user-profile.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "app/api/user-profile/[address]/route.ts",
+          "type": "registry:page",
+          "target": "app/api/user-profile/[address]/route.ts"
+        }
+      ]
     }
   ]
 }

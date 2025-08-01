@@ -17,20 +17,20 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/registry/new-york-v4/ui/accordion"
+} from "@/registry/new-york/ui/accordion"
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "@/registry/new-york-v4/ui/alert"
-import { AspectRatio } from "@/registry/new-york-v4/ui/aspect-ratio"
-import { Button } from "@/registry/new-york-v4/ui/button"
+} from "@/registry/new-york/ui/alert"
+import { AspectRatio } from "@/registry/new-york/ui/aspect-ratio"
+import { Button } from "@/registry/new-york/ui/button"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/registry/new-york-v4/ui/tabs"
+} from "@/registry/new-york/ui/tabs"
 
 export const mdxComponents = {
   h1: ({ className, ...props }: React.ComponentProps<"h1">) => (
