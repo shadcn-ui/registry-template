@@ -22,9 +22,7 @@ interface AbstractAvatarProps {
 }
 
 /**
- * Abstract Avatar Component
- * 
- * A comprehensive avatar component that integrates with the Abstract Portal API to display:
+ * An avatar component that loads Abstract Portal user profiles to display:
  * - User profile pictures from Abstract Portal
  * - Tier-based colored borders (Bronze, Silver, Gold, Platinum, Diamond)
  * - Loading states with skeleton placeholders
@@ -46,13 +44,13 @@ export function AbstractAvatar({
   showTooltip = true,
 }: AbstractAvatarProps) {
   const { address: connectedAddress } = useAccount();
-  
+
   // Use provided address or fall back to connected wallet address
   const address = providedAddress || connectedAddress;
-  
+
   // Generate fallback from address if not provided
   const fallback = providedFallback || (address ? address.slice(2, 4).toUpperCase() : "??");
-  
+
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-10 w-10",
@@ -60,17 +58,17 @@ export function AbstractAvatar({
   };
 
   const { data: profile, isLoading } = useAbstractProfileByAddress(address);
-  
+
   // If no address available, show a skeleton loading state
   if (!address) {
     return (
-      <div 
-        className={`relative rounded-full ${sizeClasses[size]}`} 
+      <div
+        className={`relative rounded-full ${sizeClasses[size]}`}
         style={{ border: `2px solid #C0C0C0` }}
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
-          <Skeleton 
-            className={`w-full h-full rounded-full`} 
+          <Skeleton
+            className={`w-full h-full rounded-full bg-muted/50`}
           />
         </div>
       </div>
@@ -89,13 +87,13 @@ export function AbstractAvatar({
 
   if (isLoading) {
     return (
-      <div 
-        className={`relative rounded-full ${sizeClasses[size]}`} 
+      <div
+        className={`relative rounded-full ${sizeClasses[size]}`}
         style={{ border: `2px solid ${finalBorderColor}` }}
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
-          <Skeleton 
-            className={`w-full h-full rounded-full transition-transform duration-200 hover:scale-110`} 
+          <Skeleton
+            className={`w-full h-full rounded-full bg-muted/50 transition-transform duration-200 hover:scale-110`}
           />
         </div>
       </div>
@@ -103,18 +101,18 @@ export function AbstractAvatar({
   }
 
   const avatarElement = (
-    <div 
-      className={`relative rounded-full ${sizeClasses[size]}`} 
+    <div
+      className={`relative rounded-full ${sizeClasses[size]}`}
       style={{ border: `2px solid ${finalBorderColor}` }}
     >
       <div className="absolute inset-0 rounded-full overflow-hidden">
-        <Avatar 
+        <Avatar
           className={`w-full h-full transition-transform duration-200 hover:scale-110`}
         >
-          <AvatarImage 
-            src={avatarSrc} 
+          <AvatarImage
+            src={avatarSrc}
             alt={`${displayName} avatar`}
-            className="object-cover" 
+            className="object-cover"
           />
           <AvatarFallback>{fallback}</AvatarFallback>
         </Avatar>
