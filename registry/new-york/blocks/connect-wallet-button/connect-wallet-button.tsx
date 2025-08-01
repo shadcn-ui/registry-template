@@ -30,7 +30,7 @@ interface ConnectWalletButtonProps {
 export function ConnectWalletButton({ className }: ConnectWalletButtonProps) {
   // Wagmi hooks for wallet state and balance
   const { isConnected, status, address } = useAccount()
-  const { data: balance } = useBalance({ address })
+  const { data: balance, isLoading: isBalanceLoading } = useBalance({ address })
 
   // Abstract Global Wallet authentication
   const { login, logout } = useLoginWithAbstract()
@@ -55,7 +55,7 @@ export function ConnectWalletButton({ className }: ConnectWalletButtonProps) {
     return (
       <Button
         disabled
-        className={cn("cursor-pointer group w-40", className)}
+        className={cn("cursor-pointer group min-w-40", className)}
       >
         Connecting...
         <AbstractLogo className="ml-2 animate-spin" />
@@ -68,10 +68,24 @@ export function ConnectWalletButton({ className }: ConnectWalletButtonProps) {
     return (
       <Button
         onClick={login}
-        className={cn("cursor-pointer group w-40", className)}
+        className={cn("cursor-pointer group min-w-40", className)}
       >
         Connect Wallet
         <AbstractLogo className="ml-2 group-hover:animate-spin transition-transform" />
+      </Button>
+    )
+  }
+
+  // Connected but loading balance: Show loading state
+  if (isConnected && isBalanceLoading) {
+    return (
+      <Button
+        disabled
+        className={cn("cursor-pointer group min-w-40 px-3", className)}
+      >
+        <WalletIcon className="mr-1 h-4 w-4" />
+        Loading...
+        <AbstractLogo className="ml-1 h-4 w-4 animate-spin" />
       </Button>
     )
   }
@@ -86,7 +100,7 @@ export function ConnectWalletButton({ className }: ConnectWalletButtonProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className={cn("cursor-pointer group w-auto px-3", className)}
+          className={cn("cursor-pointer group min-w-40 px-3", className)}
         >
           <WalletIcon className="mr-1 h-4 w-4" />
           {formattedBalance}

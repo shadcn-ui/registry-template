@@ -112,6 +112,10 @@
           "type": "registry:component"
         },
         {
+          "path": "registry/new-york/blocks/abstract-avatar/abstract-avatar-demo.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "registry/new-york/blocks/abstract-avatar/hooks/use-abstract-profile.ts",
           "type": "registry:hook"
         },

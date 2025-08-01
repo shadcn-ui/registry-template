@@ -19,7 +19,7 @@ export async function GET(
 
     // Fetch user profile from Abstract Portal API
     const response = await fetch(
-      `${ABSTRACT_PORTAL_API_URL}/users/${address}`,
+      `${ABSTRACT_PORTAL_API_URL}/user/address/${address}`,
       {
         method: "GET",
         headers: {
@@ -39,7 +39,7 @@ export async function GET(
           { status: 404 }
         );
       }
-      
+
       return NextResponse.json(
         { error: "Failed to fetch user profile" },
         { status: response.status }

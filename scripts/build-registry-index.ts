@@ -43,9 +43,17 @@ export const Index: Record<string, any> = {`
 
     for (const item of items) {
       // Find the main component file (usually the first component or page file)
-      const componentFile = item.files.find(file => 
+      // For abstract-avatar, use the demo component for preview
+      let componentFile = item.files.find(file => 
         file.type === "registry:component" || file.type === "registry:page"
       ) || item.files[0]
+      
+      if (item.name === "abstract-avatar") {
+        const demoFile = item.files.find(file => file.path.includes("abstract-avatar-demo.tsx"))
+        if (demoFile) {
+          componentFile = demoFile
+        }
+      }
       
       const componentPath = componentFile ? `@/${componentFile.path}` : ""
 

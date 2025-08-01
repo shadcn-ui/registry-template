@@ -61,14 +61,18 @@ export function AbstractAvatar({
 
   const { data: profile, isLoading } = useAbstractProfileByAddress(address);
   
-  // If no address available, show a placeholder
+  // If no address available, show a skeleton loading state
   if (!address) {
     return (
       <div 
-        className={`relative rounded-full ${sizeClasses[size]} bg-muted flex items-center justify-center`}
+        className={`relative rounded-full ${sizeClasses[size]}`} 
         style={{ border: `2px solid #C0C0C0` }}
       >
-        <span className="text-xs text-muted-foreground">??</span>
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+          <Skeleton 
+            className={`w-full h-full rounded-full`} 
+          />
+        </div>
       </div>
     );
   }
