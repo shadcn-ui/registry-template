@@ -9,7 +9,6 @@ import {
 import { getDisplayName } from "@/registry/new-york/blocks/abstract-avatar/lib/address-utils";
 import {
   Card,
-  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
