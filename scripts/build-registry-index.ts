@@ -42,20 +42,29 @@ import * as React from "react"
 export const Index: Record<string, any> = {`
 
     for (const item of items) {
-      // Find the main component file (usually the first component or page file)
-      // For abstract-avatar, use the demo component for preview
-      let componentFile = item.files.find(file => 
-        file.type === "registry:component" || file.type === "registry:page"
-      ) || item.files[0]
+      // Check if there's a demo file in the examples directory first
+      const examplesDemoPath = `registry/new-york/examples/${item.name}-demo.tsx`
+      let componentPath = ""
       
-      if (item.name === "abstract-avatar") {
-        const demoFile = item.files.find(file => file.path.includes("abstract-avatar-demo.tsx"))
-        if (demoFile) {
-          componentFile = demoFile
+      try {
+        // Check if the examples demo file exists
+        await fs.access(path.join(process.cwd(), examplesDemoPath))
+        componentPath = `@/${examplesDemoPath}`
+      } catch {
+        // Fallback to looking for demo files in the component's own directory
+        let componentFile = item.files.find(file => 
+          file.path.includes("-demo.tsx") && file.type === "registry:component"
+        )
+        
+        // If no demo file, use the main component file
+        if (!componentFile) {
+          componentFile = item.files.find(file => 
+            file.type === "registry:component" || file.type === "registry:page"
+          ) || item.files[0]
         }
+        
+        componentPath = componentFile ? `@/${componentFile.path}` : ""
       }
-      
-      const componentPath = componentFile ? `@/${componentFile.path}` : ""
 
       index += `
   "${item.name}": {

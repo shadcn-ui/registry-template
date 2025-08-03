@@ -62,7 +62,7 @@ export function ComponentPreview({
       align={align}
       hideCode={hideCode}
       component={<Component />}
-      source={<ComponentSource name={name} collapsible={false} />}
+      source={<ComponentSource src={`registry/new-york/examples/${name}-demo.tsx`} title={`${name}-demo.tsx`} collapsible={false} />}
       {...props}
     />
   )

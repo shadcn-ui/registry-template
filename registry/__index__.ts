@@ -16,10 +16,6 @@ export const Index: Record<string, any> = {
       type: "registry:component",
       target: ""
     }, {
-      path: "registry/new-york/blocks/abstract-avatar/abstract-avatar-demo.tsx",
-      type: "registry:component",
-      target: ""
-    }, {
       path: "registry/new-york/blocks/abstract-avatar/hooks/use-abstract-profile.ts",
       type: "registry:hook",
       target: ""
@@ -45,7 +41,7 @@ export const Index: Record<string, any> = {
       target: "app/api/user-profile/[address]/route.ts"
     }],
     component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/abstract-avatar/abstract-avatar-demo.tsx")
+      const mod = await import("@/registry/new-york/examples/abstract-avatar-demo.tsx")
       const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "abstract-avatar"
       return { default: mod.default || mod[exportName] }
     }),
@@ -123,7 +119,7 @@ export const Index: Record<string, any> = {
       target: ""
     }],
     component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx")
+      const mod = await import("@/registry/new-york/examples/connect-wallet-button-demo.tsx")
       const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "connect-wallet-button"
       return { default: mod.default || mod[exportName] }
     }),
@@ -198,10 +194,6 @@ export const Index: Record<string, any> = {
       type: "registry:component",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-button/siwe-button-demo.tsx",
-      type: "registry:component",
-      target: ""
-    }, {
       path: "registry/new-york/blocks/siwe-button/hooks/use-siwe-auth-query.ts",
       type: "registry:hook",
       target: ""
@@ -251,7 +243,7 @@ export const Index: Record<string, any> = {
       target: ""
     }],
     component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/siwe-button/siwe-button.tsx")
+      const mod = await import("@/registry/new-york/examples/siwe-button-demo.tsx")
       const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "siwe-button"
       return { default: mod.default || mod[exportName] }
     }),
