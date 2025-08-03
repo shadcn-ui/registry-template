@@ -33,7 +33,7 @@ npx shadcn@latest add "https://agw-reusables.vercel.app/r/agw-provider.json"
 
 Wrap your application in the installed component inside `app/layout.tsx`:
 
-```tsx showLineNumbers {1,6,10}
+```tsx title="app/layout.tsx" showLineNumbers {1,6,10}
 import { NextAbstractWalletProvider } from "@/components/agw-provider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

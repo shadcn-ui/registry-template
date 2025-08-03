@@ -1,6 +1,55 @@
 ---
 title: AGW Provider
-description: Provider component that wraps your application with Abstract Global Wallet and React Query
+description: Wrap your application in the required component to use AGW Reusables.
 ---
 
-TODO
+## Installation
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/agw-provider.json"
+```
+
+Wrap your entire application with the AGW Provider in your root layout:
+
+```tsx title="app/layout.tsx" showLineNumbers {1,6,10}
+import { NextAbstractWalletProvider } from "@/components/agw-provider";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <NextAbstractWalletProvider>
+        <body>{children}</body>
+      </NextAbstractWalletProvider>
+    </html>
+  );
+}
+```
+
+## Configuration
+
+### Chain Configuration
+
+The provider automatically configures the blockchain network:
+- **Development**: Uses Abstract Testnet
+- **Production**: Uses Abstract Mainnet
+
+The chain configuration is handled in `config/chain.ts`:
+
+```ts
+import { abstract, abstractTestnet } from "viem/chains";
+
+export const chain =
+  process.env.NODE_ENV === "development"
+    ? abstractTestnet // Local development: Use Abstract Testnet
+    : abstract; // Production: Use Abstract Mainnet
+```
+
+### React Query Client
+
+A pre-configured React Query client is provided in `config/query-client.ts`:
+
+```ts
+import { QueryClient } from "@tanstack/react-query";
+
+export const queryClient = new QueryClient();
+```
