@@ -7,9 +7,9 @@ description: Learn what AGW Reusables is and how to install it.
 
 AGW Reusables is a collection of components and utilities for building applications on [Abstract](https://abs.xyz).
 It allows you to add features, components, and utilities to your application using single commands,
-with only one requirement: **your app uses [Next.js](https://nextjs.org/docs)**.
+with only one requirement: **your app must use [Next.js](https://nextjs.org/docs)**.
 
-Built on top of the [shadcn/ui](https://ui.shadcn.com/) library, AGW Reusables uses the [shadcn CLI](https://ui.shadcn.com/docs/cli) to add snippets of code to your project and install any of the required dependencies.
+Built on top of the [shadcn/ui](https://ui.shadcn.com/) library, AGW Reusables uses the [shadcn CLI](https://ui.shadcn.com/docs/cli) to add snippets of code to your project and install any required dependencies to use them.
 
 ## Get Started
 
@@ -23,7 +23,7 @@ Create a new project or configure an existing one using the `shadcn init` comman
 npx shadcn@latest init
 ```
 
-### 2. Install & Setup Provider
+### Setup the AGW Provider
 
 Install your first component, the [AGW Provider](/docs/essentials/agw-provider):
 
@@ -31,7 +31,7 @@ Install your first component, the [AGW Provider](/docs/essentials/agw-provider):
 npx shadcn@latest add "https://agw-reusables.vercel.app/r/agw-provider.json"
 ```
 
-Wrap your application in the `NextAbstractWalletProvider` component in `app/layout.tsx`:
+Wrap your application in the installed component inside `app/layout.tsx`:
 
 ```tsx showLineNumbers {1,6,10}
 import { NextAbstractWalletProvider } from "@/components/agw-provider";
