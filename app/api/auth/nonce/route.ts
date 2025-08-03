@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { generateSiweNonce } from "viem/siwe";
 import { getIronSession } from "iron-session";
-import { getIronOptions, SiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/config";
+import { getIronOptions, SiweConfigurationError } from "@/config/auth";
 
 export interface SessionData {
   nonce?: string;

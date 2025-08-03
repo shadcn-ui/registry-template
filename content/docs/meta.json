@@ -2,6 +2,7 @@
   "root": true,
   "pages": [
     "(root)",
+    "essentials",
     "authentication",
     "examples"
   ]

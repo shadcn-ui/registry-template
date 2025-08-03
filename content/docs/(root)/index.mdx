@@ -1,42 +1,50 @@
 ---
-title: Introduction
-description: A custom component registry built with shadcn/ui. Copy-paste components for your React applications.
+title: Installation
+description: Learn what AGW Reusables is and how to install it.
 ---
 
-# Welcome to AGW Reusables
+## Introduction
 
-**A curated collection of reusable React components built with shadcn/ui.**
+AGW Reusables is a collection of components and utilities for building applications on [Abstract](https://abs.xyz).
+It allows you to add features, components, and utilities to your application using single commands,
+with only one requirement: **your app uses [Next.js](https://nextjs.org/docs)**.
 
-AGW Reusables provides high-quality, customizable components that you can copy and paste directly into your applications. Each component is built with accessibility, performance, and developer experience in mind.
+Built on top of the [shadcn/ui](https://ui.shadcn.com/) library, AGW Reusables uses the [shadcn CLI](https://ui.shadcn.com/docs/cli) to add snippets of code to your project and install any of the required dependencies.
 
-## What's Different
+## Get Started
 
-Unlike traditional component libraries, AGW Reusables gives you:
+Follow the steps below to start using AGW Reusables.
 
-- **Full ownership** - Copy the code, it's yours to modify
-- **Zero dependencies** - No bloated packages or lock-in
-- **Tailwind CSS** - Modern utility-first styling
-- **TypeScript** - Full type safety out of the box
-- **shadcn/ui compatible** - Works seamlessly with the shadcn ecosystem
+### 1. Setup your project
 
-## Quick Start
+Create a new project or configure an existing one using the `shadcn init` command:
 
-1. **Initialize shadcn/ui** in your project:
-   ```bash
-   npx shadcn@latest init
-   ```
+```bash
+npx shadcn@latest init
+```
 
-2. **Browse components** in the sidebar and find what you need
+### 2. Install & Setup Provider
 
-3. **Copy and paste** the component code into your project
+Install your first component, the [AGW Provider](/docs/essentials/agw-provider):
 
-4. **Customize** as needed for your use case
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/agw-provider.json"
+```
 
-## Component Categories
+Wrap your application in the `NextAbstractWalletProvider` component in `app/layout.tsx`:
 
-- **UI Components** - Basic building blocks like buttons, inputs, cards
-- **Layout Components** - Grid systems, containers, navigation
-- **Interactive Components** - Modals, dropdowns, accordions
-- **Data Display** - Tables, lists, charts
+```tsx showLineNumbers {1,6,10}
+import { NextAbstractWalletProvider } from "@/components/agw-provider";
 
-Ready to get started? Check out our [getting started guide](/docs/getting-started/introduction) or browse the [components](/docs/components).
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <NextAbstractWalletProvider>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          {children}
+        </body>
+      </NextAbstractWalletProvider>
+    </html>
+  );
+}
+```

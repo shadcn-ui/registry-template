@@ -1,14 +1,8 @@
-import { abstract, abstractTestnet } from "viem/chains";
 import { SessionOptions } from "iron-session";
+import { chain } from "./chain";
 
 /**
- * Chain configuration for SIWE authentication.
- * Automatically selects between mainnet and testnet based on NODE_ENV.
- */
-export const chain = process.env.NODE_ENV === "production" ? abstract : abstractTestnet;
-
-/**
- * Custom error class for SIWE configuration issues.
+ * Custom error class for SIWE authentication configuration issues.
  * These errors should bubble up to show helpful messages to developers.
  */
 export class SiweConfigurationError extends Error {
@@ -32,7 +26,7 @@ function getSessionPassword(): string {
       "To fix this:\n" +
       "1. Generate a secure password: openssl rand -base64 32\n" +
       "2. Add it to your .env.local file:\n" +
-      "   IRON_SESSION_PASSWORD=\"your_generated_password_here\"\n" +
+      '   IRON_SESSION_PASSWORD="your_generated_password_here"\n' +
       "3. Restart your application\n\n" +
       "SECURITY WARNING: Never use a weak or default password in production!"
     );
@@ -64,3 +58,6 @@ export function getIronOptions(): SessionOptions {
     },
   };
 }
+
+// Re-export chain for authentication context
+export { chain };

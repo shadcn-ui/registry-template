@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "**/content/docs/(root)/index.mdx": "markdown"
+  },
+  "[markdown]": {
+    "editor.formatOnSave": false
+  }
+}

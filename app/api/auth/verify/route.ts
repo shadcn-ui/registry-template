@@ -4,7 +4,7 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData } from "../nonce/route";
 import { createPublicClient, http } from "viem";
-import { chain, getIronOptions, SiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/config";
+import { chain, getIronOptions, SiweConfigurationError } from "@/config/auth";
 
 export async function POST(request: NextRequest) {
   try {

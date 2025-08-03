@@ -1,0 +1,33 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "agw-provider",
+  "type": "registry:component",
+  "title": "AGW Provider",
+  "description": "Provider component that wraps your application with Abstract Global Wallet and React Query",
+  "dependencies": [
+    "@abstract-foundation/agw-react",
+    "@abstract-foundation/agw-client",
+    "wagmi",
+    "viem",
+    "@tanstack/react-query"
+  ],
+  "files": [
+    {
+      "path": "registry/new-york/blocks/agw-provider/agw-provider.tsx",
+      "content": "\"use client\";\n\nimport { AbstractWalletProvider } from \"@abstract-foundation/agw-react\";\nimport { chain } from \"@/config/chain\";\nimport { queryClient } from \"@/config/query-client\";\n\nexport function NextAbstractWalletProvider({\n  children,\n}: {\n  children: React.ReactNode;\n}) {\n  return (\n    <AbstractWalletProvider chain={chain} queryClient={queryClient}>\n      {children}\n    </AbstractWalletProvider>\n  );\n}\n",
+      "type": "registry:component"
+    },
+    {
+      "path": "config/chain.ts",
+      "content": "import { abstract, abstractTestnet } from \"viem/chains\";\n\nexport const chain =\n  process.env.NODE_ENV === \"development\"\n    ? abstractTestnet // Local development: Use Abstract Testnet\n    : abstract; // Production: Use Abstract Mainnet\n",
+      "type": "registry:lib",
+      "target": "config/chain.ts"
+    },
+    {
+      "path": "config/query-client.ts",
+      "content": "import { QueryClient } from \"@tanstack/react-query\";\n\nexport const queryClient = new QueryClient();\n",
+      "type": "registry:lib",
+      "target": "config/query-client.ts"
+    }
+  ]
+}

@@ -100,11 +100,7 @@
       "type": "registry:component",
       "title": "Abstract Avatar",
       "description": "An avatar component that displays user profile pictures from Abstract Portal with tier-based styling and loading states",
-      "dependencies": [
-        "@tanstack/react-query",
-        "wagmi",
-        "viem"
-      ],
+      "dependencies": ["@tanstack/react-query", "wagmi", "viem"],
       "registryDependencies": ["avatar", "tooltip", "skeleton"],
       "files": [
         {
@@ -139,6 +135,35 @@
           "path": "app/api/user-profile/[address]/route.ts",
           "type": "registry:page",
           "target": "app/api/user-profile/[address]/route.ts"
+        }
+      ]
+    },
+    {
+      "name": "agw-provider",
+      "type": "registry:component",
+      "title": "AGW Provider",
+      "description": "Provider component that wraps your application with Abstract Global Wallet and React Query",
+      "dependencies": [
+        "@abstract-foundation/agw-react",
+        "@abstract-foundation/agw-client",
+        "wagmi",
+        "viem",
+        "@tanstack/react-query"
+      ],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/agw-provider/agw-provider.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "config/chain.ts",
+          "type": "registry:lib",
+          "target": "config/chain.ts"
+        },
+        {
+          "path": "config/query-client.ts",
+          "type": "registry:lib",
+          "target": "config/query-client.ts"
         }
       ]
     },
@@ -184,8 +209,14 @@
           "type": "registry:lib"
         },
         {
-          "path": "registry/new-york/blocks/siwe-button/lib/config.ts",
-          "type": "registry:lib"
+          "path": "config/auth.ts",
+          "type": "registry:lib",
+          "target": "config/auth.ts"
+        },
+        {
+          "path": "config/chain.ts",
+          "type": "registry:lib",
+          "target": "config/chain.ts"
         },
         {
           "path": "registry/new-york/blocks/siwe-button/lib/auth-server.ts",

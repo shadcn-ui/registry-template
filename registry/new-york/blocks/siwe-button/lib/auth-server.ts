@@ -1,7 +1,7 @@
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData } from "@/app/api/auth/nonce/route";
-import { chain, getIronOptions, SiweConfigurationError } from "./config";
+import { chain, getIronOptions, SiweConfigurationError } from "@/config/auth";
 import { AuthUser } from "./types";
 
 /**

@@ -52,6 +52,32 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
+  "agw-provider": {
+    name: "agw-provider",
+    description: "Provider component that wraps your application with Abstract Global Wallet and React Query",
+    type: "registry:component",
+    registryDependencies: undefined,
+    files: [{
+      path: "registry/new-york/blocks/agw-provider/agw-provider.tsx",
+      type: "registry:component",
+      target: ""
+    }, {
+      path: "config/chain.ts",
+      type: "registry:lib",
+      target: "config/chain.ts"
+    }, {
+      path: "config/query-client.ts",
+      type: "registry:lib",
+      target: "config/query-client.ts"
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/blocks/agw-provider/agw-provider.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "agw-provider"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
   "complex-component": {
     name: "complex-component",
     description: "A complex component showing hooks, libs and components.",
@@ -192,9 +218,13 @@ export const Index: Record<string, any> = {
       type: "registry:lib",
       target: ""
     }, {
-      path: "registry/new-york/blocks/siwe-button/lib/config.ts",
+      path: "config/auth.ts",
       type: "registry:lib",
-      target: ""
+      target: "config/auth.ts"
+    }, {
+      path: "config/chain.ts",
+      type: "registry:lib",
+      target: "config/chain.ts"
     }, {
       path: "registry/new-york/blocks/siwe-button/lib/auth-server.ts",
       type: "registry:lib",

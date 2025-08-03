@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData } from "../nonce/route";
-import { chain, getIronOptions, SiweConfigurationError } from "@/registry/new-york/blocks/siwe-button/lib/config";
+import { chain, getIronOptions, SiweConfigurationError } from "@/config/auth";
 
 /**
  * Sign in with Ethereum - Get the currently authenticated user information.
