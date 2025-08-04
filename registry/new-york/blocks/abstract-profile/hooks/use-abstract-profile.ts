@@ -1,6 +1,6 @@
 "use client";
 
-import { getUserProfile } from "@/registry/new-york/blocks/abstract-avatar/lib/get-user-profile";
+import { getUserProfile } from "@/registry/new-york/blocks/abstract-profile/lib/get-user-profile";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 

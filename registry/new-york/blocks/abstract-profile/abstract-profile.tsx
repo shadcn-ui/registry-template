@@ -8,12 +8,12 @@ import {
   TooltipTrigger,
 } from "@/registry/new-york/ui/tooltip";
 import { Skeleton } from "@/registry/new-york/ui/skeleton";
-import { useAbstractProfileByAddress } from "@/registry/new-york/blocks/abstract-avatar/hooks/use-abstract-profile";
-import { getTierColor } from "@/registry/new-york/blocks/abstract-avatar/lib/tier-colors";
-import { getDisplayName } from "@/registry/new-york/blocks/abstract-avatar/lib/address-utils";
+import { useAbstractProfileByAddress } from "@/registry/new-york/blocks/abstract-profile/hooks/use-abstract-profile";
+import { getTierColor } from "@/registry/new-york/blocks/abstract-profile/lib/tier-colors";
+import { getDisplayName } from "@/registry/new-york/blocks/abstract-profile/lib/address-utils";
 import { useAccount } from "wagmi";
 
-interface AbstractAvatarProps {
+interface AbstractProfileProps {
   address?: string; // Optional - defaults to connected wallet
   fallback?: string; // Optional - defaults to first 2 chars of address
   shineColor?: string; // Optional now, will use tier color if not provided
@@ -22,7 +22,7 @@ interface AbstractAvatarProps {
 }
 
 /**
- * An avatar component that loads Abstract Portal user profiles to display:
+ * A profile component that loads Abstract Portal user profiles to display:
  * - User profile pictures from Abstract Portal
  * - Tier-based colored borders (Bronze, Silver, Gold, Platinum, Diamond)
  * - Loading states with skeleton placeholders
@@ -36,13 +36,13 @@ interface AbstractAvatarProps {
  * @param size - Avatar size variant (sm, md, lg)
  * @param showTooltip - Whether to show tooltip on hover
  */
-export function AbstractAvatar({
+export function AbstractProfile({
   address: providedAddress,
   fallback: providedFallback,
   shineColor,
   size = "md",
   showTooltip = true,
-}: AbstractAvatarProps) {
+}: AbstractProfileProps) {
   const { address: connectedAddress } = useAccount();
 
   // Use provided address or fall back to connected wallet address

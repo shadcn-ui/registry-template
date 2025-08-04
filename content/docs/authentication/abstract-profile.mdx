@@ -1,9 +1,9 @@
 ---
-title: Abstract Avatar
-description: An avatar component that displays user profile pictures from Abstract Portal with tier-based styling
+title: Abstract Profile
+description: A profile component that displays user profile pictures from Abstract Portal with tier-based styling
 ---
 
-<ComponentPreview name="abstract-avatar" />
+<ComponentPreview name="abstract-profile" />
 
 ## Installation
 
@@ -16,7 +16,7 @@ description: An avatar component that displays user profile pictures from Abstra
 <TabsContent value="cli">
 
 ```bash
-npx shadcn@latest add "https://agw-reusables.vercel.app/r/abstract-avatar.json"
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/abstract-profile.json"
 ```
 
 </TabsContent>
@@ -33,7 +33,7 @@ npm install @tanstack/react-query wagmi viem
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource name="abstract-avatar" />
+<ComponentSource name="abstract-profile" />
 
 <Step>Update the import paths to match your project setup.</Step>
 
@@ -52,11 +52,11 @@ Create `app/api/user-profile/[address]/route.ts` with the proxy endpoint to fetc
 The component automatically uses the connected wallet address from wagmi's `useAccount` hook:
 
 ```tsx
-import { AbstractAvatar } from "@/components/abstract-avatar"
+import { AbstractProfile } from "@/components/abstract-profile"
 
 export default function App() {
   return (
-    <AbstractAvatar 
+    <AbstractProfile 
       size="md"
       showTooltip={true}
     />
@@ -69,7 +69,7 @@ export default function App() {
 You can also provide a specific address to override the connected wallet:
 
 ```tsx
-<AbstractAvatar 
+<AbstractProfile 
   address="0x1234567890123456789012345678901234567890"
   size="md"
   showTooltip={true}
@@ -82,16 +82,16 @@ You can also provide a specific address to override the connected wallet:
 
 ```tsx
 <div className="flex items-center gap-4">
-  <AbstractAvatar size="sm" />
-  <AbstractAvatar size="md" />
-  <AbstractAvatar size="lg" />
+  <AbstractProfile size="sm" />
+  <AbstractProfile size="md" />
+  <AbstractProfile size="lg" />
 </div>
 ```
 
 ### Custom Border Color
 
 ```tsx
-<AbstractAvatar 
+<AbstractProfile 
   size="md"
   shineColor="#FF6B6B"
 />
@@ -100,7 +100,7 @@ You can also provide a specific address to override the connected wallet:
 ### Without Tooltip
 
 ```tsx
-<AbstractAvatar 
+<AbstractProfile 
   size="md"
   showTooltip={false}
 />
@@ -109,7 +109,7 @@ You can also provide a specific address to override the connected wallet:
 ### Custom Fallback
 
 ```tsx
-<AbstractAvatar 
+<AbstractProfile 
   fallback="JD"
   size="md"
 />

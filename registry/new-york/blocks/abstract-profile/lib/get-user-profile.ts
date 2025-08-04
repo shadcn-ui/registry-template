@@ -1,4 +1,4 @@
-import { fetchJson } from "@/registry/new-york/blocks/abstract-avatar/lib/fetch-json";
+import { fetchJson } from "@/registry/new-york/blocks/abstract-profile/lib/fetch-json";
 
 /**
  * The profile information returned from the Abstract Portal API

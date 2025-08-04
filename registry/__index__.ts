@@ -6,33 +6,33 @@
 import * as React from "react"
 
 export const Index: Record<string, any> = {
-  "abstract-avatar": {
-    name: "abstract-avatar",
-    description: "An avatar component that displays user profile pictures from Abstract Portal with tier-based styling and loading states",
+  "abstract-profile": {
+    name: "abstract-profile",
+    description: "A profile component that displays user profile pictures from Abstract Portal with tier-based styling and loading states",
     type: "registry:component",
     registryDependencies: ["avatar","tooltip","skeleton"],
     files: [{
-      path: "registry/new-york/blocks/abstract-avatar/abstract-avatar.tsx",
+      path: "registry/new-york/blocks/abstract-profile/abstract-profile.tsx",
       type: "registry:component",
       target: ""
     }, {
-      path: "registry/new-york/blocks/abstract-avatar/hooks/use-abstract-profile.ts",
+      path: "registry/new-york/blocks/abstract-profile/hooks/use-abstract-profile.ts",
       type: "registry:hook",
       target: ""
     }, {
-      path: "registry/new-york/blocks/abstract-avatar/lib/fetch-json.ts",
+      path: "registry/new-york/blocks/abstract-profile/lib/fetch-json.ts",
       type: "registry:lib",
       target: ""
     }, {
-      path: "registry/new-york/blocks/abstract-avatar/lib/tier-colors.ts",
+      path: "registry/new-york/blocks/abstract-profile/lib/tier-colors.ts",
       type: "registry:lib",
       target: ""
     }, {
-      path: "registry/new-york/blocks/abstract-avatar/lib/address-utils.ts",
+      path: "registry/new-york/blocks/abstract-profile/lib/address-utils.ts",
       type: "registry:lib",
       target: ""
     }, {
-      path: "registry/new-york/blocks/abstract-avatar/lib/get-user-profile.ts",
+      path: "registry/new-york/blocks/abstract-profile/lib/get-user-profile.ts",
       type: "registry:lib",
       target: ""
     }, {
@@ -41,8 +41,8 @@ export const Index: Record<string, any> = {
       target: "app/api/user-profile/[address]/route.ts"
     }],
     component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/examples/abstract-avatar-demo.tsx")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "abstract-avatar"
+      const mod = await import("@/registry/new-york/examples/abstract-profile-demo.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "abstract-profile"
       return { default: mod.default || mod[exportName] }
     }),
     categories: undefined,
@@ -74,40 +74,6 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
-  "complex-component": {
-    name: "complex-component",
-    description: "A complex component showing hooks, libs and components.",
-    type: "registry:component",
-    registryDependencies: ["card"],
-    files: [{
-      path: "registry/new-york/blocks/complex-component/page.tsx",
-      type: "registry:page",
-      target: "app/pokemon/page.tsx"
-    }, {
-      path: "registry/new-york/blocks/complex-component/components/pokemon-card.tsx",
-      type: "registry:component",
-      target: ""
-    }, {
-      path: "registry/new-york/blocks/complex-component/components/pokemon-image.tsx",
-      type: "registry:component",
-      target: ""
-    }, {
-      path: "registry/new-york/blocks/complex-component/lib/pokemon.ts",
-      type: "registry:lib",
-      target: ""
-    }, {
-      path: "registry/new-york/blocks/complex-component/hooks/use-pokemon.ts",
-      type: "registry:hook",
-      target: ""
-    }],
-    component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/complex-component/page.tsx")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "complex-component"
-      return { default: mod.default || mod[exportName] }
-    }),
-    categories: undefined,
-    meta: undefined,
-  },
   "connect-wallet-button": {
     name: "connect-wallet-button",
     description: "A connect wallet button using Abstract Global Wallet with dropdown menu when connected",
@@ -121,64 +87,6 @@ export const Index: Record<string, any> = {
     component: React.lazy(async () => {
       const mod = await import("@/registry/new-york/examples/connect-wallet-button-demo.tsx")
       const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "connect-wallet-button"
-      return { default: mod.default || mod[exportName] }
-    }),
-    categories: undefined,
-    meta: undefined,
-  },
-  "example-form": {
-    name: "example-form",
-    description: "A contact form with Zod validation.",
-    type: "registry:component",
-    registryDependencies: ["button","input","label","textarea","card"],
-    files: [{
-      path: "registry/new-york/blocks/example-form/example-form.tsx",
-      type: "registry:component",
-      target: ""
-    }],
-    component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/example-form/example-form.tsx")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "example-form"
-      return { default: mod.default || mod[exportName] }
-    }),
-    categories: undefined,
-    meta: undefined,
-  },
-  "example-with-css": {
-    name: "example-with-css",
-    description: "A login form with a CSS file.",
-    type: "registry:component",
-    registryDependencies: undefined,
-    files: [{
-      path: "registry/new-york/blocks/example-with-css/example-card.tsx",
-      type: "registry:component",
-      target: ""
-    }, {
-      path: "registry/new-york/blocks/example-with-css/example-card.css",
-      type: "registry:component",
-      target: ""
-    }],
-    component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/example-with-css/example-card.tsx")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "example-with-css"
-      return { default: mod.default || mod[exportName] }
-    }),
-    categories: undefined,
-    meta: undefined,
-  },
-  "hello-world": {
-    name: "hello-world",
-    description: "A simple hello world component",
-    type: "registry:component",
-    registryDependencies: undefined,
-    files: [{
-      path: "registry/new-york/blocks/hello-world/hello-world.tsx",
-      type: "registry:component",
-      target: ""
-    }],
-    component: React.lazy(async () => {
-      const mod = await import("@/registry/new-york/blocks/hello-world/hello-world.tsx")
-      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "hello-world"
       return { default: mod.default || mod[exportName] }
     }),
     categories: undefined,

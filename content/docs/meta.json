@@ -4,6 +4,6 @@
     "(root)",
     "essentials",
     "authentication",
-    "examples"
+    "session-keys"
   ]
 }

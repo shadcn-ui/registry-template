@@ -1,12 +1,12 @@
 "use client";
 
-import { AbstractAvatar } from "@/registry/new-york/blocks/abstract-avatar/abstract-avatar";
-import { useAbstractProfileByAddress } from "@/registry/new-york/blocks/abstract-avatar/hooks/use-abstract-profile";
+import { AbstractProfile } from "@/registry/new-york/blocks/abstract-profile/abstract-profile";
+import { useAbstractProfileByAddress } from "@/registry/new-york/blocks/abstract-profile/hooks/use-abstract-profile";
 import {
   getTierName,
   getTierColor,
-} from "@/registry/new-york/blocks/abstract-avatar/lib/tier-colors";
-import { getDisplayName } from "@/registry/new-york/blocks/abstract-avatar/lib/address-utils";
+} from "@/registry/new-york/blocks/abstract-profile/lib/tier-colors";
+import { getDisplayName } from "@/registry/new-york/blocks/abstract-profile/lib/address-utils";
 import {
   Card,
   CardContent,
@@ -51,7 +51,7 @@ function PlayerCard({ address }: { address: string }) {
     <Card className="w-80">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <AbstractAvatar address={address} size="lg" showTooltip={false} />
+          <AbstractProfile address={address} size="lg" showTooltip={false} />
           <div className="flex-1 min-w-0">
             <CardTitle className="truncate">{displayName}</CardTitle>
             <div className="flex items-center gap-2 mt-1">
@@ -92,6 +92,6 @@ function PlayerCard({ address }: { address: string }) {
   );
 }
 
-export default function AbstractAvatarDemo() {
+export default function AbstractProfileDemo() {
   return <PlayerCard address="0x1C67724aCc76821C8aD1f1F87BA2751631BAbD0c" />;
 }
