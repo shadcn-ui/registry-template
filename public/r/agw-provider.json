@@ -28,6 +28,12 @@
       "content": "import { QueryClient } from \"@tanstack/react-query\";\n\nexport const queryClient = new QueryClient();\n",
       "type": "registry:lib",
       "target": "config/query-client.ts"
+    },
+    {
+      "path": "config/viem-clients.ts",
+      "content": "import { createPublicClient, createWalletClient, http } from \"viem\";\nimport { eip712WalletActions, publicActionsL2 } from \"viem/zksync\";\nimport { chain } from \"./chain\";\n\n// Global Viem public client instance\nexport const publicClient = createPublicClient({\n    chain: chain,\n    transport: http(),\n}).extend(publicActionsL2());\n\n// Global Viem wallet client instance\nexport const walletClient = createWalletClient({\n    chain: chain,\n    transport: http(),\n}).extend(eip712WalletActions());\n",
+      "type": "registry:lib",
+      "target": "config/viem-clients.ts"
     }
   ]
 }

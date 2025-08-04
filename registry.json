@@ -15,7 +15,10 @@
         "viem",
         "@tanstack/react-query"
       ],
-      "registryDependencies": ["button", "dropdown-menu"],
+      "registryDependencies": [
+        "button",
+        "dropdown-menu"
+      ],
       "files": [
         {
           "path": "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
@@ -28,8 +31,16 @@
       "type": "registry:component",
       "title": "Abstract Profile",
       "description": "A profile component that displays user profile pictures from Abstract Portal with tier-based styling and loading states",
-      "dependencies": ["@tanstack/react-query", "wagmi", "viem"],
-      "registryDependencies": ["avatar", "tooltip", "skeleton"],
+      "dependencies": [
+        "@tanstack/react-query",
+        "wagmi",
+        "viem"
+      ],
+      "registryDependencies": [
+        "avatar",
+        "tooltip",
+        "skeleton"
+      ],
       "files": [
         {
           "path": "registry/new-york/blocks/abstract-profile/abstract-profile.tsx",
@@ -88,6 +99,11 @@
           "path": "config/query-client.ts",
           "type": "registry:lib",
           "target": "config/query-client.ts"
+        },
+        {
+          "path": "config/viem-clients.ts",
+          "type": "registry:lib",
+          "target": "config/viem-clients.ts"
         }
       ]
     },
@@ -103,7 +119,12 @@
         "@tanstack/react-query",
         "sonner"
       ],
-      "registryDependencies": ["button", "card", "sonner", "dropdown-menu"],
+      "registryDependencies": [
+        "button",
+        "card",
+        "sonner",
+        "dropdown-menu"
+      ],
       "envVars": {
         "IRON_SESSION_PASSWORD": ""
       },

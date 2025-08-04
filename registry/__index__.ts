@@ -65,6 +65,10 @@ export const Index: Record<string, any> = {
       path: "config/query-client.ts",
       type: "registry:lib",
       target: "config/query-client.ts"
+    }, {
+      path: "config/viem-clients.ts",
+      type: "registry:lib",
+      target: "config/viem-clients.ts"
     }],
     component: React.lazy(async () => {
       const mod = await import("@/registry/new-york/blocks/agw-provider/agw-provider.tsx")
