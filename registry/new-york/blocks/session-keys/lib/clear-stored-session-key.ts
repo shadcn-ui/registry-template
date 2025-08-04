@@ -1,6 +1,5 @@
 import { LOCAL_STORAGE_KEY_PREFIX, ENCRYPTION_KEY_PREFIX } from "./session-encryption-utils";
 import type { Address } from "viem";
-import { queryClient } from "@/config/query-client";
 
 /**
  * @function clearStoredSession
@@ -20,9 +19,4 @@ import { queryClient } from "@/config/query-client";
 export const clearStoredSession = (userAddress: Address) => {
     localStorage.removeItem(`${LOCAL_STORAGE_KEY_PREFIX}${userAddress}`);
     localStorage.removeItem(`${ENCRYPTION_KEY_PREFIX}${userAddress}`);
-
-    // Clear the query cache
-    queryClient.invalidateQueries({
-        queryKey: ["session-key", userAddress],
-    });
 };

@@ -15,6 +15,7 @@ import {
 } from "@/registry/new-york/ui/card";
 import { Badge } from "@/registry/new-york/ui/badge";
 import { Skeleton } from "@/registry/new-york/ui/skeleton";
+import { Separator } from "@/registry/new-york/ui/separator";
 
 function PlayerCard({ address }: { address: string }) {
   const { data: profile, isLoading } = useAbstractProfileByAddress(address);
@@ -48,7 +49,7 @@ function PlayerCard({ address }: { address: string }) {
   const claimedBadges = profile?.user?.badges?.filter((b) => b.claimed) || [];
 
   return (
-    <Card className="w-80">
+    <Card className="w-80 gap-3">
       <CardHeader>
         <div className="flex items-center gap-3">
           <AbstractProfile address={address} size="lg" showTooltip={false} />
@@ -65,6 +66,9 @@ function PlayerCard({ address }: { address: string }) {
           </div>
         </div>
       </CardHeader>
+      <div className="px-6">
+        <Separator />
+      </div>
       <CardContent>
         {claimedBadges.length > 0 && (
           <div>

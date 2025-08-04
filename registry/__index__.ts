@@ -62,10 +62,6 @@ export const Index: Record<string, any> = {
       type: "registry:lib",
       target: "config/chain.ts"
     }, {
-      path: "config/query-client.ts",
-      type: "registry:lib",
-      target: "config/query-client.ts"
-    }, {
       path: "config/viem-clients.ts",
       type: "registry:lib",
       target: "config/viem-clients.ts"
@@ -145,10 +141,6 @@ export const Index: Record<string, any> = {
       path: "config/viem-clients.ts",
       type: "registry:lib",
       target: "config/viem-clients.ts"
-    }, {
-      path: "config/query-client.ts",
-      type: "registry:lib",
-      target: "config/query-client.ts"
     }, {
       path: "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
       type: "registry:component",
