@@ -27,7 +27,7 @@ export function useSessionKey() {
             return await getStoredSession(abstractClient, address);
         },
         enabled: !!address && !!abstractClient,
-        staleTime: 1000 * 60 * 5, // 5 minutes - sessions don't change often
+        staleTime: 0, // Always refetch when invalidated
         retry: (failureCount, error) => {
             // Don't retry if it's a client/address error (these won't resolve with retry)
             if (error.message.includes("No Abstract client") || 

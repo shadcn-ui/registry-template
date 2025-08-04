@@ -1,10 +1,10 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { useAbstractClient } from "@abstract-foundation/agw-react";
 import { createAndStoreSession } from "../lib/create-and-store-session-key";
-import { queryClient } from "@/config/query-client";
+import { toast } from "sonner";
 
 /**
  * Hook to create and store Abstract sessions
@@ -13,6 +13,7 @@ import { queryClient } from "@/config/query-client";
 export function useCreateSessionKey() {
     const { data: abstractClient } = useAbstractClient();
     const { address } = useAccount();
+    const queryClient = useQueryClient();
 
     const createSessionMutation = useMutation({
         mutationFn: async () => {
@@ -25,11 +26,22 @@ export function useCreateSessionKey() {
 
             return createAndStoreSession(abstractClient, address);
         },
-        onSuccess: () => {
-            // Invalidate the session query to fo rce a refetch
-            queryClient.invalidateQueries({
+        onSuccess: async () => {
+            // Invalidate the session query to force a refetch
+            await queryClient.invalidateQueries({
                 queryKey: ["session-key", address],
             });
+            
+            // Also refetch immediately to ensure state updates
+            await queryClient.refetchQueries({
+                queryKey: ["session-key", address],
+            });
+            
+            toast.success("Session key created successfully");
+        },
+        onError: (error) => {
+            console.error("Failed to create session:", error);
+            toast.error("Failed to create session key");
         },
     });
 

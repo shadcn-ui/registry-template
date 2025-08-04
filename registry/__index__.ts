@@ -96,6 +96,72 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
+  "session-keys": {
+    name: "session-keys",
+    description: "A comprehensive session key management button that handles creation, validation, and revocation of Abstract Global Wallet session keys",
+    type: "registry:component",
+    registryDependencies: ["button","dropdown-menu"],
+    files: [{
+      path: "registry/new-york/blocks/session-keys/session-key-button.tsx",
+      type: "registry:component",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/hooks/use-session-key.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/hooks/use-create-session-key.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/hooks/use-revoke-session-key.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/lib/get-stored-session-key.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/lib/create-and-store-session-key.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/lib/clear-stored-session-key.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/lib/session-encryption-utils.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/session-keys/lib/validate-session-key.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "config/session-key-policies.ts",
+      type: "registry:lib",
+      target: "config/session-key-policies.ts"
+    }, {
+      path: "config/viem-clients.ts",
+      type: "registry:lib",
+      target: "config/viem-clients.ts"
+    }, {
+      path: "config/query-client.ts",
+      type: "registry:lib",
+      target: "config/query-client.ts"
+    }, {
+      path: "registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx",
+      type: "registry:component",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/examples/session-keys-demo.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "session-keys"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
   "siwe-button": {
     name: "siwe-button",
     description: "A streamlined SIWE authentication button that handles wallet connection, message signing, and authentication state",

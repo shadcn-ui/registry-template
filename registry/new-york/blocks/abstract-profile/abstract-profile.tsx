@@ -67,9 +67,9 @@ export function AbstractProfile({
         style={{ border: `2px solid #C0C0C0` }}
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
-          <Skeleton
-            className={`w-full h-full rounded-full bg-muted/50`}
-          />
+          <Avatar className={`w-full h-full`}>
+            <Skeleton className={`w-full h-full rounded-full bg-muted/50`} />
+          </Avatar>
         </div>
       </div>
     );
@@ -92,9 +92,9 @@ export function AbstractProfile({
         style={{ border: `2px solid ${finalBorderColor}` }}
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
-          <Skeleton
-            className={`w-full h-full rounded-full bg-muted/50 transition-transform duration-200 hover:scale-110`}
-          />
+          <Avatar className={`w-full h-full transition-transform duration-200 hover:scale-110`}>
+            <Skeleton className={`w-full h-full rounded-full bg-muted/50`} />
+          </Avatar>
         </div>
       </div>
     );
