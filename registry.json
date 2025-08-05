@@ -81,6 +81,9 @@
         "viem",
         "@tanstack/react-query"
       ],
+      "registryDependencies": [
+        "sonner"
+      ],
       "files": [
         {
           "path": "registry/new-york/blocks/agw-provider/agw-provider.tsx",

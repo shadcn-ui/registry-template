@@ -25,25 +25,27 @@ npx shadcn@latest init
 
 ### Install the AGW Provider
 
-Install your first component, the [AGW Provider](/docs/essentials/agw-provider):
+Install the required wrapper component, the [AGW Provider](/docs/essentials/agw-provider):
 
 ```bash
 npx shadcn@latest add "https://agw-reusables.vercel.app/r/agw-provider.json"
 ```
 
-### Add the wrapper component
+### Wrap your application
 
-Wrap your application in the installed component inside `app/layout.tsx`:
+Wrap your application in the installed component inside `app/layout.tsx` _(we also add the [Toaster component](https://ui.shadcn.com/docs/components/sonner) for helpful success and error messages)_.
 
-```tsx title="app/layout.tsx" showLineNumbers {1,6,10}
+```tsx title="app/layout.tsx" showLineNumbers {1,2,7,10,12}
 import { NextAbstractWalletProvider } from "@/components/agw-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <NextAbstractWalletProvider>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body>
           {children}
+          <Toaster />
         </body>
       </NextAbstractWalletProvider>
     </html>
