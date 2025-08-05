@@ -12,6 +12,8 @@ import { useAbstractProfileByAddress } from "@/registry/new-york/blocks/abstract
 import { getTierColor } from "@/registry/new-york/blocks/abstract-profile/lib/tier-colors";
 import { getDisplayName } from "@/registry/new-york/blocks/abstract-profile/lib/address-utils";
 import { useAccount } from "wagmi";
+import { cn } from "@/lib/utils";
+import { type ClassValue } from "clsx";
 
 interface AbstractProfileProps {
   address?: string; // Optional - defaults to connected wallet
@@ -19,6 +21,7 @@ interface AbstractProfileProps {
   shineColor?: string; // Optional now, will use tier color if not provided
   size?: "sm" | "md" | "lg";
   showTooltip?: boolean; // Optional tooltip
+  className?: ClassValue;
 }
 
 /**
@@ -35,6 +38,7 @@ interface AbstractProfileProps {
  * @param shineColor - Optional custom border color (defaults to tier color)
  * @param size - Avatar size variant (sm, md, lg)
  * @param showTooltip - Whether to show tooltip on hover
+ * @param className - Optional CSS classes to apply to the component
  */
 export function AbstractProfile({
   address: providedAddress,
@@ -42,6 +46,7 @@ export function AbstractProfile({
   shineColor,
   size = "md",
   showTooltip = true,
+  className,
 }: AbstractProfileProps) {
   const { address: connectedAddress } = useAccount();
 
@@ -63,7 +68,7 @@ export function AbstractProfile({
   if (!address) {
     return (
       <div
-        className={`relative rounded-full ${sizeClasses[size]}`}
+        className={cn(`relative rounded-full ${sizeClasses[size]}`, className)}
         style={{ border: `2px solid #C0C0C0` }}
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
@@ -88,7 +93,7 @@ export function AbstractProfile({
   if (isLoading) {
     return (
       <div
-        className={`relative rounded-full ${sizeClasses[size]}`}
+        className={cn(`relative rounded-full ${sizeClasses[size]}`, className)}
         style={{ border: `2px solid ${finalBorderColor}` }}
       >
         <div className="absolute inset-0 rounded-full overflow-hidden">
@@ -102,7 +107,7 @@ export function AbstractProfile({
 
   const avatarElement = (
     <div
-      className={`relative rounded-full ${sizeClasses[size]}`}
+      className={cn(`relative rounded-full ${sizeClasses[size]}`, className)}
       style={{ border: `2px solid ${finalBorderColor}` }}
     >
       <div className="absolute inset-0 rounded-full overflow-hidden">

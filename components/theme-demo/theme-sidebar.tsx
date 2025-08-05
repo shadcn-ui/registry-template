@@ -11,15 +11,15 @@ import { Separator } from '@/registry/new-york/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/registry/new-york/ui/tabs';
 import { Badge } from '@/registry/new-york/ui/badge';
 import { Label } from '@/registry/new-york/ui/label';
-import { Palette, Sun, Moon, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/registry/new-york/ui/collapsible';
+import { Palette, Sun, Moon, RotateCcw, ChevronDown, ChevronUp, Code } from 'lucide-react';
 import { popularGoogleFonts, loadGoogleFont, buildFontFamily } from '@/lib/google-fonts';
+import { ThemeCodeModal } from './theme-code-modal';
 
 export function ThemeSidebar() {
   const { mode, setMode, updateColor, resetTheme, getCurrentTheme } = useTheme();
   const currentTheme = getCurrentTheme();
   const [showCustomizer, setShowCustomizer] = useState(true);
-  const [isCustomSelected, setIsCustomSelected] = useState(false);
+  const [, setIsCustomSelected] = useState(false);
 
   // Preload common fonts on mount
   React.useEffect(() => {
@@ -335,7 +335,18 @@ export function ThemeSidebar() {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t bg-background relative z-10">
+      <div className="p-4 border-t bg-background relative z-10 space-y-2">
+        <ThemeCodeModal>
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full"
+          >
+            <Code className="h-4 w-4 mr-2" />
+            Theme Code
+          </Button>
+        </ThemeCodeModal>
+        
         <Button
           variant="outline"
           size="sm"

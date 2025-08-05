@@ -16,13 +16,14 @@ import {
 import { Badge } from "@/registry/new-york/ui/badge";
 import { Skeleton } from "@/registry/new-york/ui/skeleton";
 import { Separator } from "@/registry/new-york/ui/separator";
+import { useAccount } from "wagmi";
 
 function PlayerCard({ address }: { address: string }) {
   const { data: profile, isLoading } = useAbstractProfileByAddress(address);
 
   if (isLoading) {
     return (
-      <Card className="w-80">
+      <Card className="w-full">
         <CardHeader>
           <div className="flex items-center gap-3">
             <Skeleton className="h-12 w-12 rounded-full" />
@@ -49,7 +50,7 @@ function PlayerCard({ address }: { address: string }) {
   const claimedBadges = profile?.user?.badges?.filter((b) => b.claimed) || [];
 
   return (
-    <Card className="w-80 gap-3">
+    <Card className="w-full gap-3">
       <CardHeader>
         <div className="flex items-center gap-3">
           <AbstractProfile address={address} size="lg" showTooltip={false} />
@@ -70,9 +71,9 @@ function PlayerCard({ address }: { address: string }) {
         <Separator />
       </div>
       <CardContent>
-        {claimedBadges.length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium mb-2">Badges</h4>
+        <div>
+          <h4 className="text-sm font-medium mb-2">Badges</h4>
+          {claimedBadges.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {claimedBadges.slice(0, 3).map((badgeData) => (
                 <Badge
@@ -89,13 +90,18 @@ function PlayerCard({ address }: { address: string }) {
                 </Badge>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-sm text-muted-foreground">No badges yet</p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
 }
 
 export default function AbstractProfileDemo() {
-  return <PlayerCard address="0x1C67724aCc76821C8aD1f1F87BA2751631BAbD0c" />;
+  const { address: connectedAddress } = useAccount();
+  const defaultAddress = "0x1C67724aCc76821C8aD1f1F87BA2751631BAbD0c";
+  
+  return <PlayerCard address={connectedAddress || defaultAddress} />;
 }

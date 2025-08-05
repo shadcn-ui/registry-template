@@ -5,7 +5,7 @@ import { useTheme } from '@/store/theme-store';
 import { themePresets, generateRandomTheme } from '@/lib/theme-presets';
 import { Button } from '@/registry/new-york/ui/button';
 import { Label } from '@/registry/new-york/ui/label';
-import { Check, Palette, Dice6 } from 'lucide-react';
+import { Check, Dice6 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaletteSelectorProps {

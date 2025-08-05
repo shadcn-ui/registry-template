@@ -11,14 +11,14 @@ export default function SiweButtonDemo() {
   const isAuthenticated = authData?.ok && authData?.user?.isAuthenticated
 
   return (
-    <Card className="w-full min-w-80 max-w-md">
-      <CardHeader>
+    <Card className="w-full gap-0">
+      <CardHeader className="pb-2">
         <CardTitle>Sign in with Ethereum</CardTitle>
         <CardDescription>
           Authenticate your wallet to access protected features
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-1">
         <SiweButton className="w-full" />
         
         {/* Status indicators */}

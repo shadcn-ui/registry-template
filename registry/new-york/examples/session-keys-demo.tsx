@@ -45,7 +45,7 @@ export default function SessionKeyButtonDemo() {
     const statusInfo = getStatusInfo();
 
     return (
-        <Card className="w-full min-w-80 max-w-md gap-0 transition-all duration-300 ease-in-out">
+        <Card className="w-full gap-0 transition-all duration-300 ease-in-out">
             <CardHeader className="pb-2">
                 <CardTitle>Session Key Management</CardTitle>
                 <CardDescription>
