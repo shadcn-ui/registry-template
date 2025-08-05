@@ -82,7 +82,7 @@ export function AbstractProfile({
   const displayName = getDisplayName(profile?.user?.name || "", address);
 
   // Use tier-based color if shineColor not provided
-  const tierColor = profile?.user?.tier ? getTierColor(profile.user.tier) : getTierColor(2);
+  const tierColor = profile?.user?.tier ? getTierColor(profile.user.tier) : getTierColor(1);
   const finalBorderColor = shineColor || tierColor;
 
   if (isLoading) {

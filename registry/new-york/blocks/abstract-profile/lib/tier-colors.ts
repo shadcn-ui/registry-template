@@ -16,9 +16,9 @@ export const TIER_COLORS = {
  * @returns The hex color string for the tier
  */
 export function getTierColor(tier: number): string {
-    // Default to silver if tier is invalid or not provided
+    // Default to bronze if tier is invalid or not provided
     if (!tier || tier < 1 || tier > 5) {
-        return TIER_COLORS[2]; // Silver as default
+        return TIER_COLORS[1]; // Bronze as default
     }
 
     return TIER_COLORS[tier as keyof typeof TIER_COLORS];
@@ -39,7 +39,7 @@ export function getTierName(tier: number): string {
     } as const;
 
     if (!tier || tier < 1 || tier > 5) {
-        return "Silver"; // Default
+        return "Bronze"; // Default
     }
 
     return tierNames[tier as keyof typeof tierNames];

@@ -20,10 +20,6 @@ export const Index: Record<string, any> = {
       type: "registry:hook",
       target: ""
     }, {
-      path: "registry/new-york/blocks/abstract-profile/lib/fetch-json.ts",
-      type: "registry:lib",
-      target: ""
-    }, {
       path: "registry/new-york/blocks/abstract-profile/lib/tier-colors.ts",
       type: "registry:lib",
       target: ""

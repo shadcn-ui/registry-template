@@ -51,10 +51,6 @@
           "type": "registry:hook"
         },
         {
-          "path": "registry/new-york/blocks/abstract-profile/lib/fetch-json.ts",
-          "type": "registry:lib"
-        },
-        {
           "path": "registry/new-york/blocks/abstract-profile/lib/tier-colors.ts",
           "type": "registry:lib"
         },

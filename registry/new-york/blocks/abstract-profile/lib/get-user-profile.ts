@@ -1,5 +1,3 @@
-import { fetchJson } from "@/registry/new-york/blocks/abstract-profile/lib/fetch-json";
-
 /**
  * The profile information returned from the Abstract Portal API
  */
@@ -54,8 +52,18 @@ export type AbstractPortalProfile = {
  * @param walletAddress - The wallet address to get the profile for
  * @returns The profile information
  */
-export async function getUserProfile(walletAddress: string) {
-  return await fetchJson<AbstractPortalProfile>(
-    `/api/user-profile/${walletAddress}`
-  );
+export async function getUserProfile(walletAddress: string): Promise<AbstractPortalProfile> {
+  const response = await fetch(`/api/user-profile/${walletAddress}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = new Error(`HTTP error! status: ${response.status}`) as Error & { status?: number };
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
 }
