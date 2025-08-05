@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '@/store/theme-store';
 import { themePresets, generateRandomTheme } from '@/lib/theme-presets';
 import { Button } from '@/registry/new-york/ui/button';
@@ -14,6 +14,7 @@ interface PaletteSelectorProps {
 
 export function PaletteSelector({ onPresetSelect }: PaletteSelectorProps) {
   const { mode, lightTheme, darkTheme, setThemeState } = useTheme();
+  const [isDiceRolling, setIsDiceRolling] = useState(false);
   
   // Check if current theme matches a preset
   const currentPresetId = themePresets.find(preset => {
@@ -31,13 +32,23 @@ export function PaletteSelector({ onPresetSelect }: PaletteSelectorProps) {
     if (!preset) return;
     
     if (preset.isRandom) {
-      // Generate completely random theme
-      const randomTheme = generateRandomTheme();
-      setThemeState(prev => ({
-        ...prev,
-        lightTheme: randomTheme.light,
-        darkTheme: randomTheme.dark,
-      }));
+      // Start dice rolling animation
+      setIsDiceRolling(true);
+      
+      // Generate random theme after a short delay to show animation
+      setTimeout(() => {
+        const randomTheme = generateRandomTheme();
+        setThemeState(prev => ({
+          ...prev,
+          lightTheme: randomTheme.light,
+          darkTheme: randomTheme.dark,
+        }));
+        
+        // Stop animation after theme is applied
+        setTimeout(() => {
+          setIsDiceRolling(false);
+        }, 100);
+      }, 400); // Apply theme halfway through the animation
     } else {
       setThemeState(prev => ({
         ...prev,
@@ -78,7 +89,17 @@ export function PaletteSelector({ onPresetSelect }: PaletteSelectorProps) {
                 {/* Color preview circles or dice icon for random */}
                 <div className="flex items-center justify-center w-full h-full">
                   {preset.isRandom ? (
-                    <Dice6 className="h-4 w-4 text-muted-foreground" />
+                    <Dice6 
+                      className={cn(
+                        "h-4 w-4 text-muted-foreground transition-all duration-700 ease-in-out",
+                        isDiceRolling && [
+                          "animate-spin",
+                          "scale-110",
+                          "[animation-duration:0.7s]",
+                          "[animation-timing-function:cubic-bezier(0.68,-0.55,0.265,1.55)]"
+                        ]
+                      )}
+                    />
                   ) : (
                     <div className="flex gap-1">
                       <div 
