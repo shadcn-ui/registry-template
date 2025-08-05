@@ -1,6 +1,491 @@
 ---
-title: Session Key Button
-description: A comprehensive session key management button that handles creation, validation, and revocation of Abstract Global Wallet session keys.
+title: Local Storage Session Keys
+description: Create session keys for users to execute transactions without requiring wallet signatures for each transaction.
 ---
 
 <ComponentPreview name="session-keys" />
+
+## Installation
+
+Ensure you have installed and setup the [AGW Provider](/docs/essentials/agw-provider) wrapper component first.
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/session-keys.json"
+```
+
+## Usage
+
+```tsx title="app/page.tsx"
+import { SessionKeyButton } from "@/components/session-key-button"
+
+export default function App() {
+  return (
+    <SessionKeyButton />
+  )
+}
+```
+
+### With Custom Styling
+
+```tsx title="components/dashboard.tsx" showLineNumbers {5}
+import { SessionKeyButton } from "@/components/session-key-button"
+
+export function Dashboard() {
+  return (
+    <SessionKeyButton className="bg-purple-600 hover:bg-purple-700" />
+  )
+}
+```
+
+### Using Session Keys in Transactions
+
+```tsx title="components/mint-nft.tsx" showLineNumbers {1,2,8,13-20,25}
+import { useSessionKey } from "@/hooks/use-session-key"
+import { SessionKeyButton } from "@/components/session-key-button"
+import { Button } from "@/components/ui/button"
+
+export function MintNFT() {
+  const { data: sessionData } = useSessionKey()
+  
+  const hasActiveSession = !!sessionData?.session
+
+  const handleMintWithSession = async () => {
+    if (!sessionData?.session) return
+    
+    // Use the session key for pre-authorized transactions
+    try {
+      const result = await sessionData.session.sendTransaction({
+        to: "0xC4822AbB9F05646A9Ce44EFa6dDcda0Bf45595AA",
+        data: "0x..." // Your contract call data
+      })
+      console.log("Transaction sent:", result)
+    } catch (error) {
+      console.error("Transaction failed:", error)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <SessionKeyButton />
+      
+      {hasActiveSession && (
+        <Button onClick={handleMintWithSession}>
+          Mint NFT (No Signature Required)
+        </Button>
+      )}
+    </div>
+  )
+}
+```
+
+## What's included
+
+This command installs the following files:
+
+- [`session-key-button.tsx`](#session-key-buttontsx) - The main Session Key Button component with state management
+- [`hooks/use-session-key.ts`](#hooksuse-session-keyts) - Hook for session key validation and retrieval  
+- [`hooks/use-create-session-key.ts`](#hooksuse-create-session-keyts) - Hook for session key creation
+- [`hooks/use-revoke-session-key.ts`](#hooksuse-revoke-session-keyts) - Hook for session key revocation
+- [`lib/get-stored-session-key.ts`](#libget-stored-session-keyts) - Utility for retrieving stored session keys
+- [`lib/create-and-store-session-key.ts`](#libcreate-and-store-session-keyts) - Utility for creating and storing session keys
+- [`lib/clear-stored-session-key.ts`](#libclear-stored-session-keyts) - Utility for clearing stored session keys
+- [`lib/session-encryption-utils.ts`](#libsession-encryption-utilsts) - Encryption utilities for secure local storage
+- [`lib/validate-session-key.ts`](#libvalidate-session-keyts) - Session key validation utilities
+- [`config/session-key-policies.ts`](#configsession-key-policiest) - Configurable session key policies and permissions
+- [`config/viem-clients.ts`](#configviem-clientsts) - Pre-configured Viem clients for ZK Stack chains
+
+### `session-key-button.tsx`
+
+The main component that provides a comprehensive session key management interface with multiple states and dropdown integration.
+
+<CodeCollapsibleWrapper>
+```tsx
+"use client";
+
+import { useAccount } from "wagmi";
+import { Button } from "@/components/ui/button";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { ConnectWalletButton } from "@/components/connect-wallet-button";
+import { useSessionKey } from "@/hooks/use-session-key";
+import { useCreateSessionKey } from "@/hooks/use-create-session-key";
+import { useRevokeSessionKey } from "@/hooks/use-revoke-session-key";
+import { cn } from "@/lib/utils";
+import { type ClassValue } from "clsx";
+
+interface SessionKeyButtonProps {
+    className?: ClassValue;
+}
+
+/**
+ * Session Key Button
+ * 
+ * A comprehensive session key management button that handles:
+ * - Wallet connection via ConnectWalletButton integration
+ * - Session key creation and validation
+ * - Session key revocation with confirmation
+ * - Loading states and error handling via toast notifications
+ * 
+ * States:
+ * - Not connected: Shows "Connect Wallet" button
+ * - Connected but no session: Shows "Create Session Key" button  
+ * - Session exists: Shows "Session Active" with dropdown containing revoke option
+ */
+export function SessionKeyButton({ className }: SessionKeyButtonProps) {
+    const { isConnected } = useAccount();
+    const { data: sessionData, isLoading: isSessionLoading } = useSessionKey();
+    const createSessionMutation = useCreateSessionKey();
+    const { revokeSession, isPending: isRevoking } = useRevokeSessionKey();
+
+    // Check if user has an active session
+    const hasActiveSession = !!sessionData;
+
+    // Handle session creation
+    const handleCreateSession = () => {
+        createSessionMutation.mutate();
+    };
+
+    // Handle session revocation
+    const handleRevokeSession = async (e: React.MouseEvent) => {
+        // Prevent dropdown from closing
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (sessionData?.session) {
+            await revokeSession(sessionData.session);
+        }
+    };
+
+    // Not connected: Use ConnectWalletButton
+    if (!isConnected) {
+        return <ConnectWalletButton className={className} />;
+    }
+
+    // Connected and has active session: Show session status with dropdown
+    if (isConnected && hasActiveSession && !isSessionLoading) {
+        return (
+            <ConnectWalletButton 
+                className={className}
+                customDropdownItems={[
+                    <DropdownMenuSeparator key="sep" />,
+                    <DropdownMenuItem 
+                        key="session-info" 
+                        className="focus:bg-transparent cursor-auto"
+                    >
+                        <div className="flex items-center justify-between w-full">
+                            <span className="text-xs text-muted-foreground">Session:</span>
+                            <div className="flex items-center space-x-2">
+                                <div className="h-2 w-2 bg-green-500 rounded-full" />
+                                <span className="text-xs text-green-600 dark:text-green-400">Active</span>
+                            </div>
+                        </div>
+                    </DropdownMenuItem>,
+                    <DropdownMenuSeparator key="sep2" />,
+                    <DropdownMenuItem 
+                        key="revoke" 
+                        onClick={handleRevokeSession}
+                        disabled={isRevoking}
+                        className="text-destructive"
+                    >
+                        {isRevoking ? (
+                            <>
+                                <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                                Revoking...
+                            </>
+                        ) : (
+                            <>
+                                <RevokeIcon className="mr-2 h-4 w-4" />
+                                Revoke Session Key
+                            </>
+                        )}
+                    </DropdownMenuItem>
+                ]}
+            />
+        );
+    }
+
+    // Connected but no session OR loading: Show Create Session Key button
+    return (
+        <Button
+            onClick={handleCreateSession}
+            disabled={createSessionMutation.isPending || isSessionLoading}
+            className={cn("cursor-pointer group min-w-40", className)}
+        >
+            {createSessionMutation.isPending ? (
+                <>
+                    <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                </>
+            ) : isSessionLoading ? (
+                <>
+                    <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                    Checking...
+                </>
+            ) : (
+                <>
+                    <KeyIcon className="mr-2 h-4 w-4" />
+                    Create Session Key
+                </>
+            )}
+        </Button>
+    );
+}
+
+// Icon components
+function Spinner({ className }: { className?: ClassValue }) {
+    return (
+        <svg
+            className={cn("animate-spin", className)}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+        >
+            <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+            />
+            <path
+                className="opacity-75"
+                fill="currentColor"
+                d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+        </svg>
+    );
+}
+
+function KeyIcon({ className }: { className?: ClassValue }) {
+    return (
+        <svg
+            className={cn(className)}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"
+            />
+        </svg>
+    );
+}
+
+function RevokeIcon({ className }: { className?: ClassValue }) {
+    return (
+        <svg
+            className={cn(className)}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+            />
+        </svg>
+    );
+}
+```
+</CodeCollapsibleWrapper>
+
+### `hooks/use-session-key.ts`
+
+A React Query hook that retrieves and validates stored session keys with automatic retry logic and error handling.
+
+<CodeCollapsibleWrapper>
+```ts
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useAccount } from "wagmi";
+import { useAbstractClient } from "@abstract-foundation/agw-react";
+import { getStoredSession } from "../lib/get-stored-session-key";
+
+/**
+ * Hook to retrieve and validate the stored Abstract session
+ * @returns The session data with loading and error states
+ */
+export function useSessionKey() {
+    const { address } = useAccount();
+    const { data: abstractClient } = useAbstractClient();
+
+    return useQuery({
+        queryKey: ["session-key", address],
+        queryFn: async () => {
+            if (!abstractClient) {
+                throw new Error("No Abstract client found");
+            }
+            if (!address) {
+                throw new Error("No wallet address found");
+            }
+
+            return await getStoredSession(abstractClient, address);
+        },
+        enabled: !!address && !!abstractClient,
+        staleTime: 0, // Always refetch when invalidated
+        retry: (failureCount, error) => {
+            // Don't retry if it's a client/address error
+            if (error.message.includes("No Abstract client") || 
+                error.message.includes("No wallet address")) {
+                return false;
+            }
+            // Retry network/validation errors up to 2 times
+            return failureCount < 2;
+        },
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    });
+}
+```
+</CodeCollapsibleWrapper>
+
+### `config/session-key-policies.ts`
+
+Configuration file for defining session key permissions, including call policies, transfer policies, and fee limits.
+
+<CodeCollapsibleWrapper>
+```ts
+/**
+ * IMPORTANT: https://docs.abs.xyz/abstract-global-wallet/session-keys/going-to-production
+ * Your session key config requires approval to operate on Abstract mainnet via whitelist.
+ */
+
+import {
+    LimitType,
+    type SessionConfig,
+} from "@abstract-foundation/agw-client/sessions";
+import { parseEther, toFunctionSelector } from "viem";
+
+/**
+ * What call policies you wish to allow for the session key
+ * Learn more: https://docs.abs.xyz/abstract-global-wallet/agw-client/session-keys/createSession#param-call-policies
+ */
+export const CALL_POLICIES = [
+    {
+        target: "0xC4822AbB9F05646A9Ce44EFa6dDcda0Bf45595AA" as `0x${string}`, // Contract address
+        selector: toFunctionSelector("mint(address,uint256)"), // Allowed function
+        // Gas parameters
+        valueLimit: {
+            limitType: LimitType.Unlimited,
+            limit: BigInt(0),
+            period: BigInt(0),
+        },
+        maxValuePerUse: BigInt(0),
+        constraints: [],
+    }
+];
+
+/**
+ * What transfer policies you wish to allow for the session key
+ * Learn more: https://docs.abs.xyz/abstract-global-wallet/agw-client/session-keys/createSession#param-transfer-policies
+ */
+export const TRANSFER_POLICIES = [
+    // ... Your transfer policies here
+]
+
+export const SESSION_KEY_CONFIG: Omit<SessionConfig, "signer"> = {
+    expiresAt: BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30), // 30 days from now
+    feeLimit: {
+        limitType: LimitType.Lifetime,
+        limit: parseEther("1"), // 1 ETH lifetime gas limit
+        period: BigInt(0),
+    },
+    callPolicies: CALL_POLICIES,
+    transferPolicies: [],
+};
+```
+</CodeCollapsibleWrapper>
+
+## Features
+
+- **Abstract Global Wallet Session Keys**: Full integration with Abstract's session key system for pre-authorized transactions
+- **Policy-Based Permissions**: Configure exactly which contracts and functions your session keys can interact with
+- **Secure Local Storage**: Encrypted session key storage using browser APIs with proper security measures
+- **Automatic Validation**: Built-in session key validation and expiration handling with smart retry logic
+- **State Management Integration**: Seamless integration with wagmi and TanStack Query for optimal performance
+- **Visual Status Indicators**: Clear visual feedback showing session status with green indicators and dropdown menus
+- **Toast Notifications**: Comprehensive error handling and success feedback via Sonner integration
+- **Wallet Integration**: Extends the Connect Wallet Button with session-specific dropdown items
+- **TypeScript Support**: Full type safety with comprehensive interfaces for all session configurations
+- **Production Ready**: Includes production deployment guidance and whitelist requirements
+
+## Configuration
+
+### Customizing Session Policies
+
+Edit the `config/session-key-policies.ts` file to define what your session keys can do:
+
+```tsx
+// Allow specific contract interactions
+export const CALL_POLICIES = [
+    {
+        target: "0xYourContractAddress" as `0x${string}`,
+        selector: toFunctionSelector("yourFunction(address,uint256)"),
+        valueLimit: {
+            limitType: LimitType.Unlimited,
+            limit: BigInt(0),
+            period: BigInt(0),
+        },
+        maxValuePerUse: BigInt(0),
+        constraints: [],
+    }
+];
+
+// Set fee limits
+export const SESSION_KEY_CONFIG: Omit<SessionConfig, "signer"> = {
+    expiresAt: BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7), // 7 days
+    feeLimit: {
+        limitType: LimitType.Lifetime,
+        limit: parseEther("0.1"), // 0.1 ETH lifetime limit
+        period: BigInt(0),
+    },
+    callPolicies: CALL_POLICIES,
+    transferPolicies: TRANSFER_POLICIES,
+};
+```
+
+## API
+
+### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `className` | `ClassValue` | `undefined` | Additional CSS classes for styling customization |
+
+### Hooks
+
+#### `useSessionKey()`
+Retrieves and validates the current session key with automatic retry logic.
+
+#### `useCreateSessionKey()`  
+Handles session key creation with proper error handling and loading states.
+
+#### `useRevokeSessionKey()`
+Manages session key revocation with confirmation flow and cleanup.
+
+## States
+
+The component handles three primary states:
+
+- **Disconnected**: Shows the Connect Wallet Button for wallet connection
+- **Connected (No Session)**: Displays "Create Session Key" button with loading states
+- **Connected (Active Session)**: Shows wallet balance with dropdown containing session status and revoke option
+
+## Production Deployment
+
+**Important**: Session keys require whitelist approval for Abstract mainnet. See the [production deployment guide](https://docs.abs.xyz/abstract-global-wallet/session-keys/going-to-production) for details.
+
+## Requirements
+
+- React application with Next.js (uses "use client" directive)
+- Abstract Global Wallet provider setup ([AGW Provider](/docs/essentials/agw-provider))
+- wagmi and TanStack Query configuration
+- Sonner toast provider for notifications
+- Connect Wallet Button component (automatically included)

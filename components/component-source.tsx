@@ -9,6 +9,41 @@ import { CodeCollapsibleWrapper } from "@/components/code-collapsible-wrapper"
 import { CopyButton } from "@/components/copy-button"
 import { getIconForLanguageExtension } from "@/components/icons"
 
+/**
+ * Transforms internal registry import paths to user-facing paths
+ * This ensures the component preview shows the correct import paths
+ * that users will actually use after installation
+ */
+function transformRegistryImports(code: string): string {
+  let transformedCode = code
+
+  // 1. Transform registry hooks: @/registry/new-york/blocks/*/hooks/* → @/hooks/*
+  transformedCode = transformedCode.replace(
+    /@\/registry\/new-york\/blocks\/[^/]+\/hooks\/([^"']+)/g,
+    "@/hooks/$1"
+  )
+
+  // 2. Transform registry lib files: @/registry/new-york/blocks/*/lib/* → @/lib/*
+  transformedCode = transformedCode.replace(
+    /@\/registry\/new-york\/blocks\/[^/]+\/lib\/([^"']+)/g,
+    "@/lib/$1"
+  )
+
+  // 3. Transform registry block main components: @/registry/new-york/blocks/[dir]/[file] → @/components/[file]
+  transformedCode = transformedCode.replace(
+    /@\/registry\/new-york\/blocks\/[^/]+\/([^/"']+)(?:\.tsx?|\.jsx?)?/g,
+    "@/components/$1"
+  )
+
+  // 4. Transform registry UI components: @/registry/new-york/ui/* → @/components/ui/*
+  transformedCode = transformedCode.replace(
+    /@\/registry\/new-york\/ui\/([^"']+)/g,
+    "@/components/ui/$1"
+  )
+
+  return transformedCode
+}
+
 export async function ComponentSource({
   name,
   src,
@@ -42,6 +77,9 @@ export async function ComponentSource({
   if (!code) {
     return null
   }
+
+  // Transform registry imports to user-facing paths
+  code = transformRegistryImports(code)
 
   const lang = language ?? title?.split(".").pop() ?? "tsx"
   const highlightedCode = await highlightCode(code, lang)

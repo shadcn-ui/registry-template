@@ -1,54 +1,83 @@
 ---
 title: Connect Wallet Button
-description: A connect wallet button using Abstract Global Wallet
+description: A button that prompts users to connect to the application with their Abstract Global Wallet.
 ---
 
 <ComponentPreview name="connect-wallet-button" />
 
+
 ## Installation
 
-<CodeTabs>
-
-<TabsList>
-  <TabsTrigger value="cli">CLI</TabsTrigger>
-  <TabsTrigger value="manual">Manual</TabsTrigger>
-</TabsList>
-<TabsContent value="cli">
+Ensure you have installed and setup the [AGW Provider](/docs/essentials/agw-provider) wrapper component first.
 
 ```bash
 npx shadcn@latest add "https://agw-reusables.vercel.app/r/connect-wallet-button.json"
 ```
-
-</TabsContent>
-
-<TabsContent value="manual">
-
-<Steps>
-
-<Step>Install the following dependencies:</Step>
-
-```bash
-npm install @abstract-foundation/agw-react @abstract-foundation/agw-client wagmi viem @tanstack/react-query
-```
-
-<Step>Copy and paste the following code into your project.</Step>
-
-<ComponentSource name="connect-wallet-button" />
-
-<Step>Update the import paths to match your project setup.</Step>
-
-</Steps>
-
-</TabsContent>
-
-</CodeTabs>
 
 ## Usage
 
 ```tsx
 import { ConnectWalletButton } from "@/components/connect-wallet-button"
 
-export default function App() {
-  return <ConnectWalletButton />
+export default function ConnectWalletButtonDemo() {
+  return (
+    <ConnectWalletButton />
+  )
 }
 ```
+
+### Custom Styling
+
+```tsx
+import { ConnectWalletButton } from "@/components/connect-wallet-button"
+
+export default function CustomConnectWalletButton() {
+  return (
+    <ConnectWalletButton className="bg-blue-600 hover:bg-blue-700" />
+  )
+}
+```
+
+### Custom Dropdown Items
+
+```tsx
+import { ConnectWalletButton } from "@/components/connect-wallet-button"
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+
+export default function CustomConnectWalletButton() {
+  return (
+    <ConnectWalletButton 
+      customDropdownItems={[
+        <DropdownMenuSeparator key="separator" />,
+        <DropdownMenuItem key="profile">
+          View Profile
+        </DropdownMenuItem>,
+        <DropdownMenuItem key="settings">
+          Settings
+        </DropdownMenuItem>,
+        <DropdownMenuItem key="disconnect" className="text-destructive">
+          Disconnect
+        </DropdownMenuItem>
+      ]}
+    />
+  )
+}
+```
+
+## What's included
+
+The installation command adds the following file to your project:
+
+- [`connect-wallet-button.tsx`](#connect-wallet-buttontsx) - The button component with all states and functionality
+
+### `connect-wallet-button.tsx`
+
+A button that prompts users to connect to the application with their [Abstract Global Wallet](https://docs.abs.xyz/abstract-global-wallet/overview). 
+
+<ComponentSource src="registry/new-york/blocks/connect-wallet-button/connect-wallet-button.tsx" />
+
+#### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `customDropdownItems` | `React.ReactNode[]` | `undefined` | Custom dropdown menu items to replace the default disconnect option |

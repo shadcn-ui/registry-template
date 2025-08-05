@@ -1,129 +1,403 @@
 ---
 title: Abstract Profile
-description: A profile component that displays user profile pictures from Abstract Portal with tier-based styling
+description: A profile component that displays user profile pictures from Abstract Portal with tier-based styling and loading states
 ---
 
 <ComponentPreview name="abstract-profile" />
 
 ## Installation
 
-<CodeTabs>
-
-<TabsList>
-  <TabsTrigger value="cli">CLI</TabsTrigger>
-  <TabsTrigger value="manual">Manual</TabsTrigger>
-</TabsList>
-<TabsContent value="cli">
-
 ```bash
 npx shadcn@latest add "https://agw-reusables.vercel.app/r/abstract-profile.json"
 ```
 
-</TabsContent>
-
-<TabsContent value="manual">
-
-<Steps>
-
-<Step>Install the following dependencies:</Step>
-
-```bash
-npm install @tanstack/react-query wagmi viem
-```
-
-<Step>Copy and paste the following code into your project.</Step>
-
-<ComponentSource name="abstract-profile" />
-
-<Step>Update the import paths to match your project setup.</Step>
-
-<Step>Add the API route to your Next.js project:</Step>
-
-Create `app/api/user-profile/[address]/route.ts` with the proxy endpoint to fetch profiles from Abstract Portal backend.
-
-</Steps>
-
-</TabsContent>
-
-</CodeTabs>
-
 ## Usage
 
-The component automatically uses the connected wallet address from wagmi's `useAccount` hook:
+### Basic Usage
 
-```tsx
+The component automatically uses the connected wallet address:
+
+```tsx title="app/page.tsx" showLineNumbers {1,5}
 import { AbstractProfile } from "@/components/abstract-profile"
 
 export default function App() {
   return (
-    <AbstractProfile 
-      size="md"
-      showTooltip={true}
-    />
+    <AbstractProfile />
   )
 }
 ```
 
 ### With Specific Address
 
-You can also provide a specific address to override the connected wallet:
+Override the connected wallet with a specific address:
 
-```tsx
-<AbstractProfile 
-  address="0x1234567890123456789012345678901234567890"
-  size="md"
-  showTooltip={true}
-/>
+```tsx title="components/user-list.tsx" showLineNumbers {5-9}
+import { AbstractProfile } from "@/components/abstract-profile"
+
+export function UserList() {
+  return (
+    <AbstractProfile 
+      address="0x1234567890123456789012345678901234567890"
+      size="lg"
+      showTooltip={true}
+    />
+  )
+}
 ```
-
-## Examples
 
 ### Size Variants
 
-```tsx
-<div className="flex items-center gap-4">
-  <AbstractProfile size="sm" />
-  <AbstractProfile size="md" />
-  <AbstractProfile size="lg" />
-</div>
+Display profiles in different sizes:
+
+```tsx title="components/user-gallery.tsx" showLineNumbers {7-11}
+import { AbstractProfile } from "@/components/abstract-profile"
+
+export function UserGallery() {
+  return (
+    <div className="flex items-center gap-4">
+      {/* Small profile for compact layouts */}
+      <AbstractProfile size="sm" />
+      
+      {/* Medium profile for general use */}
+      <AbstractProfile size="md" />
+      
+      {/* Large profile for featured displays */}
+      <AbstractProfile size="lg" />
+    </div>
+  )
+}
 ```
 
-### Custom Border Color
+### Custom Styling
 
-```tsx
-<AbstractProfile 
-  size="md"
-  shineColor="#FF6B6B"
-/>
+Apply custom border colors and styling:
+
+```tsx title="components/featured-user.tsx" showLineNumbers {5-10}
+import { AbstractProfile } from "@/components/abstract-profile"
+
+export function FeaturedUser() {
+  return (
+    <AbstractProfile 
+      size="lg"
+      shineColor="#FF6B6B"
+      fallback="VIP"
+      showTooltip={false}
+    />
+  )
+}
 ```
 
-### Without Tooltip
+## What's included
 
+This command installs the following files:
+
+- [`abstract-profile.tsx`](#abstract-profiletsx) - The main Abstract Profile component with tier-based styling
+- [`hooks/use-abstract-profile.ts`](#hooksuse-abstract-profilets) - React Query hooks for profile data fetching
+- [`lib/tier-colors.ts`](#libtier-colorsts) - Tier color mapping and utilities
+- [`lib/address-utils.ts`](#libaddress-utilsts) - Address formatting and display name utilities
+- [`lib/get-user-profile.ts`](#libget-user-profilets) - Profile fetching logic with error handling
+- [`lib/fetch-json.ts`](#libfetch-jsonts) - HTTP utility for JSON API requests
+- [`app/api/user-profile/[address]/route.ts`](#apicountusersprofileapiaddressroute-ts) - Server-side API proxy to avoid CORS issues
+
+### `abstract-profile.tsx`
+
+A comprehensive profile component that handles profile fetching, tier-based styling, loading states, and responsive display options.
+
+<CodeCollapsibleWrapper>
 ```tsx
-<AbstractProfile 
-  size="md"
-  showTooltip={false}
-/>
-```
+"use client";
 
-### Custom Fallback
+import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAbstractProfileByAddress } from "@/components/abstract-profile/hooks/use-abstract-profile";
+import { getTierColor } from "@/components/abstract-profile/lib/tier-colors";
+import { getDisplayName } from "@/components/abstract-profile/lib/address-utils";
+import { useAccount } from "wagmi";
 
-```tsx
-<AbstractProfile 
-  fallback="JD"
-  size="md"
-/>
+interface AbstractProfileProps {
+  address?: string; // Optional - defaults to connected wallet
+  fallback?: string; // Optional - defaults to first 2 chars of address
+  shineColor?: string; // Optional now, will use tier color if not provided
+  size?: "sm" | "md" | "lg";
+  showTooltip?: boolean; // Optional tooltip
+}
+
+/**
+ * A profile component that loads Abstract Portal user profiles to display:
+ * - User profile pictures from Abstract Portal
+ * - Tier-based colored borders (Bronze, Silver, Gold, Platinum, Diamond)
+ * - Loading states with skeleton placeholders
+ * - Fallback support for missing profile data
+ * - Responsive size variants
+ * - Optional tooltips with display names
+ */
+export function AbstractProfile({
+  address: providedAddress,
+  fallback: providedFallback,
+  shineColor,
+  size = "md",
+  showTooltip = true,
+}: AbstractProfileProps) {
+  const { address: connectedAddress } = useAccount();
+
+  // Use provided address or fall back to connected wallet address
+  const address = providedAddress || connectedAddress;
+
+  // Generate fallback from address if not provided
+  const fallback = providedFallback || (address ? address.slice(2, 4).toUpperCase() : "??");
+
+  const sizeClasses = {
+    sm: "h-8 w-8",
+    md: "h-10 w-10",
+    lg: "h-12 w-12",
+  };
+
+  const { data: profile, isLoading } = useAbstractProfileByAddress(address);
+
+  // If no address available, show a skeleton loading state
+  if (!address) {
+    return (
+      <div
+        className={`relative rounded-full ${sizeClasses[size]}`}
+        style={{ border: `2px solid #C0C0C0` }}
+      >
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+          <Avatar className={`w-full h-full`}>
+            <Skeleton className={`w-full h-full rounded-full bg-muted/50`} />
+          </Avatar>
+        </div>
+      </div>
+    );
+  }
+
+  const avatarSrc =
+    profile?.user?.overrideProfilePictureUrl ||
+    "https://abstract-assets.abs.xyz/avatars/1-1-1.png";
+
+  const displayName = getDisplayName(profile?.user?.name || "", address);
+
+  // Use tier-based color if shineColor not provided
+  const tierColor = profile?.user?.tier ? getTierColor(profile.user.tier) : getTierColor(2);
+  const finalBorderColor = shineColor || tierColor;
+
+  if (isLoading) {
+    return (
+      <div
+        className={`relative rounded-full ${sizeClasses[size]}`}
+        style={{ border: `2px solid ${finalBorderColor}` }}
+      >
+        <div className="absolute inset-0 rounded-full overflow-hidden">
+          <Avatar className={`w-full h-full transition-transform duration-200 hover:scale-110`}>
+            <Skeleton className={`w-full h-full rounded-full bg-muted/50`} />
+          </Avatar>
+        </div>
+      </div>
+    );
+  }
+
+  const avatarElement = (
+    <div
+      className={`relative rounded-full ${sizeClasses[size]}`}
+      style={{ border: `2px solid ${finalBorderColor}` }}
+    >
+      <div className="absolute inset-0 rounded-full overflow-hidden">
+        <Avatar
+          className={`w-full h-full transition-transform duration-200 hover:scale-110`}
+        >
+          <AvatarImage
+            src={avatarSrc}
+            alt={`${displayName} avatar`}
+            className="object-cover"
+          />
+          <AvatarFallback>{fallback}</AvatarFallback>
+        </Avatar>
+      </div>
+    </div>
+  );
+
+  if (!showTooltip) {
+    return avatarElement;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {avatarElement}
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{displayName}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 ```
+</CodeCollapsibleWrapper>
+
+### `hooks/use-abstract-profile.ts`
+
+React Query hooks for fetching profile data with intelligent caching, retry logic, and error handling for different use cases.
+
+<CodeCollapsibleWrapper>
+```ts
+"use client";
+
+import { getUserProfile } from "@/components/abstract-profile/lib/get-user-profile";
+import { useQuery } from "@tanstack/react-query";
+import { useAccount } from "wagmi";
+
+/**
+ * Query keys for Abstract profile queries
+ */
+const QUERY_KEYS = {
+  profile: "abstract-profile",
+} as const;
+
+/**
+ * Hook to retrieve the Abstract Portal profile for the current connected account
+ * @returns The profile data with loading and error states
+ */
+export function useAbstractProfile() {
+  const { address } = useAccount();
+
+  return useQuery({
+    queryKey: [QUERY_KEYS.profile, address],
+    queryFn: async () => {
+      if (!address) {
+        return null;
+      }
+      return await getUserProfile(address);
+    },
+    enabled: !!address,
+    staleTime: 1000 * 60 * 1, // 1 minute
+    refetchOnWindowFocus: false,
+  });
+}
+
+/**
+ * Hook to retrieve the Abstract Portal profile for a specific address
+ * @param address - The address to get the profile for
+ * @returns The profile data with loading and error states
+ */
+export function useAbstractProfileByAddress(address: string | undefined) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.profile, address],
+    queryFn: async () => {
+      if (!address) {
+        return null;
+      }
+      return await getUserProfile(address);
+    },
+    enabled: !!address,
+    staleTime: 1000 * 60 * 5, // 5 minutes (longer for other users)
+    refetchOnWindowFocus: false,
+    retry: (failureCount, error: Error & { status?: number }) => {
+      // Don't retry if it's a 404 (profile doesn't exist) or similar client errors
+      if (error?.status && error?.status >= 400 && error?.status < 500) {
+        return false;
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+```
+</CodeCollapsibleWrapper>
+
+### `lib/tier-colors.ts`
+
+Tier color mapping system that provides consistent styling based on Abstract Portal tier status.
+
+<CodeCollapsibleWrapper>
+```ts
+/**
+ * Maps tier numbers to their corresponding colors
+ * 1 = Bronze, 2 = Silver, 3 = Gold, 4 = Platinum, 5 = Diamond
+ */
+export const TIER_COLORS = {
+    1: "#CD7F32", // Bronze
+    2: "#C0C0C0", // Silver  
+    3: "#FFD700", // Gold
+    4: "#E5E4E2", // Platinum
+    5: "#B9F2FF", // Diamond
+} as const;
+
+/**
+ * Gets the color for a given tier number
+ * @param tier - The tier number (1-5)
+ * @returns The hex color string for the tier
+ */
+export function getTierColor(tier: number): string {
+    // Default to silver if tier is invalid or not provided
+    if (!tier || tier < 1 || tier > 5) {
+        return TIER_COLORS[2]; // Silver as default
+    }
+
+    return TIER_COLORS[tier as keyof typeof TIER_COLORS];
+}
+
+/**
+ * Gets the tier name from tier number
+ * @param tier - The tier number (1-5)
+ * @returns The tier name
+ */
+export function getTierName(tier: number): string {
+    const tierNames = {
+        1: "Bronze",
+        2: "Silver",
+        3: "Gold",
+        4: "Platinum",
+        5: "Diamond",
+    } as const;
+
+    if (!tier || tier < 1 || tier > 5) {
+        return "Silver"; // Default
+    }
+
+    return tierNames[tier as keyof typeof tierNames];
+}
+```
+</CodeCollapsibleWrapper>
 
 ## Features
 
-- **Tier-based Styling**: Automatically displays colored borders based on user tier (Bronze, Silver, Gold, Platinum, Diamond)
-- **Loading States**: Shows skeleton placeholder while fetching profile data
-- **Fallback Support**: Graceful fallback for missing profile images or data  
-- **Responsive Sizes**: Three size variants (sm, md, lg)
-- **Tooltip Integration**: Optional tooltips showing display names
-- **Server-side Proxy**: Includes API route to avoid CORS issues
-- **TypeScript Support**: Full type safety with Abstract Portal API types
+- **Abstract Portal Integration**: Direct integration with Abstract Portal's profile system for verified user data
+- **Tier-Based Visual Hierarchy**: Automatically displays colored borders reflecting user tier status (Bronze, Silver, Gold, Platinum, Diamond)
+- **Responsive Design System**: Three carefully designed size variants (sm, md, lg) for different layout contexts
+- **Smart Loading States**: Elegant skeleton placeholders that maintain layout consistency during data fetching
+- **Graceful Fallbacks**: Robust fallback system for missing profile images, names, or connection issues
+- **Interactive Enhancements**: Smooth hover animations and optional tooltips for enhanced user experience
+- **Server-Side Proxy**: Includes Next.js API route to handle CORS restrictions and provide optimal caching
+- **Intelligent Caching**: Differentiated cache strategies for connected users vs. external profiles
+- **Error Recovery**: Smart retry logic that handles different error types appropriately
+- **TypeScript Integration**: Complete type safety with comprehensive Abstract Portal API interfaces
+
+## Configuration
+
+### Customizing Tier Colors
+
+You can modify the tier color system by editing the `lib/tier-colors.ts` file:
+
+```tsx
+// Add custom tier colors
+export const TIER_COLORS = {
+    1: "#8B4513", // Custom Bronze
+    2: "#708090", // Custom Silver  
+    3: "#DAA520", // Custom Gold
+    4: "#C0C0C0", // Custom Platinum
+    5: "#00CED1", // Custom Diamond
+} as const;
+```
+
+### API Endpoint Configuration  
+
+The component uses a server-side proxy at `/api/user-profile/[address]` which you can customize in the included API route file.
 
 ## API
 
@@ -133,24 +407,33 @@ You can also provide a specific address to override the connected wallet:
 | --- | --- | --- | --- |
 | `address` | `string` | Connected wallet | Optional wallet address to fetch profile for (defaults to connected wallet) |
 | `fallback` | `string` | First 2 chars of address | Optional fallback text to display if image fails to load |
-| `shineColor` | `string` | Tier color | Optional custom border color (defaults to tier color) |
-| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Avatar size variant |
-| `showTooltip` | `boolean` | `true` | Whether to show tooltip on hover |
+| `shineColor` | `string` | Tier color | Optional custom border color (defaults to tier-based color) |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Avatar size variant for different layout contexts |
+| `showTooltip` | `boolean` | `true` | Whether to show tooltip with display name on hover |
 
-### Tier Colors
+### Hooks
 
-- **Bronze (Tier 1)**: `#CD7F32`
-- **Silver (Tier 2)**: `#C0C0C0` (default)
-- **Gold (Tier 3)**: `#FFD700`
-- **Platinum (Tier 4)**: `#E5E4E2`
-- **Diamond (Tier 5)**: `#B9F2FF`
+#### `useAbstractProfile()`
+Fetches profile data for the currently connected wallet with optimized caching (1 minute stale time).
+
+#### `useAbstractProfileByAddress(address)`
+Fetches profile data for any specific address with longer caching (5 minutes stale time) and smart retry logic.
+
+### Tier System
+
+| Tier | Name | Color | Hex Code |
+| --- | --- | --- | --- |
+| 1 | Bronze | Bronze | `#CD7F32` |
+| 2 | Silver | Silver | `#C0C0C0` |
+| 3 | Gold | Gold | `#FFD700` |
+| 4 | Platinum | Platinum | `#E5E4E2` |
+| 5 | Diamond | Diamond | `#B9F2FF` |
 
 ## Requirements
 
-This component requires:
-- A Next.js project with App Router
-- React Query provider setup
-- Wagmi provider setup for wallet connection
-- The included API route (`app/api/user-profile/[address]/route.ts`) for server-side profile fetching
+- Next.js project with App Router for the API proxy route
+- TanStack Query provider setup for data fetching and caching
+- wagmi provider setup for wallet connection (when using default connected wallet)
+- Abstract Portal API access (handled automatically through the proxy)
 
-The API route is automatically included when you install the component and handles CORS issues by proxying requests to the Abstract Portal backend.
+The API route is automatically included and configured to handle CORS restrictions while providing optimal caching and error handling for the Abstract Portal backend.

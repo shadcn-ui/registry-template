@@ -1,74 +1,31 @@
 ---
-title: SIWE Button
-description: A streamlined SIWE authentication button that handles wallet connection, message signing, and authentication state.
+title: SIWE Authentication
+description: A SIWE authentication system with server-side utilities for protecting routes and API endpoints.
 ---
 
 <ComponentPreview name="siwe-button" />
 
 ## Installation
 
-<CodeTabs>
-
-<TabsList>
-  <TabsTrigger value="cli">CLI</TabsTrigger>
-  <TabsTrigger value="manual">Manual</TabsTrigger>
-</TabsList>
-<TabsContent value="cli">
+Ensure you have installed and setup the [AGW Provider](/docs/essentials/agw-provider) wrapper component first.
 
 ```bash
 npx shadcn@latest add "https://agw-reusables.vercel.app/r/siwe-button.json"
 ```
 
-</TabsContent>
-
-<TabsContent value="manual">
-
-<Steps>
-
-<Step>Install the following dependencies:</Step>
+Generate a secure password for `iron-session` using `openssl`:
 
 ```bash
-npm install siwe iron-session viem wagmi @tanstack/react-query sonner
+openssl rand -base64 32
 ```
 
-<Step>Copy and paste the following code into your project.</Step>
+Add the password to your `.env.local` file:
 
-<ComponentSource name="siwe-button" />
-
-<Step>Update the import paths to match your project setup.</Step>
-
-<Step>Set up environment variables:</Step>
-
-```bash
-# Generate using: openssl rand -base64 32
-IRON_SESSION_PASSWORD="your_secure_password_here"
+```bash title=".env.local"
+IRON_SESSION_PASSWORD="your_secure_password_here"  # Ensure it's wrapped in double quotes
 ```
-
-</Steps>
-
-</TabsContent>
-
-</CodeTabs>
-
-## About
-
-The SIWE Button provides streamlined Sign-in with Ethereum (SIWE) authentication using Iron Session for secure server-side session management. It integrates seamlessly with wagmi for wallet connectivity and uses TanStack Query for state management.
-
-## Features
-
-- **Wallet Integration**: Automatically detects wallet connection status
-- **SIWE Protocol**: Implements the Sign-in with Ethereum standard
-- **Secure Sessions**: Uses Iron Session for server-side session management  
-- **Server-side Utilities**: Safe authentication checking for API routes and Server Components
-- **Logout Functionality**: Complete logout flow with session cleanup
-- **Environment-based Chain Selection**: Automatically switches between mainnet and testnet
-- **Toast Notifications**: Success/error feedback via Sonner
-- **Loading States**: Comprehensive loading and error state handling
-- **TypeScript**: Full TypeScript support with proper types
 
 ## Usage
-
-### Basic Usage
 
 ```tsx
 import { SiweButton } from "@/components/siwe-button"
@@ -78,49 +35,128 @@ export default function App() {
 }
 ```
 
-### Using the Hooks Separately
+### Using Hooks
 
+<CodeCollapsibleWrapper>
 ```tsx
-import { useSiweAuthQuery } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-auth-query"
-import { useSiweSignInMutation } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-sign-in-mutation"
-import { useSiweLogoutMutation } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-logout-mutation"
+"use client"
 
-function MyComponent() {
-  const { data: authData, isLoading } = useSiweAuthQuery()
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ConnectWalletButton } from "@/components/connect-wallet-button"
+import { useAccount } from "wagmi"
+import { useSiweAuthQuery } from "@/hooks/use-siwe-auth-query"
+import { useSiweSignInMutation } from "@/hooks/use-siwe-sign-in-mutation"
+import { useSiweLogoutMutation } from "@/hooks/use-siwe-logout-mutation"
+
+export default function SiweButtonDemo() {
+  const { address, isConnected } = useAccount()
+  const { data: authData, isLoading: isAuthLoading } = useSiweAuthQuery()
   const signInMutation = useSiweSignInMutation()
   const logoutMutation = useSiweLogoutMutation()
 
   const isAuthenticated = authData?.ok && authData?.user?.isAuthenticated
 
   return (
-    <div>
-      {isAuthenticated ? (
-        <div>
-          <p>Welcome! Address: {authData.user.address}</p>
-          <button 
-            onClick={() => logoutMutation.mutate()}
-            disabled={logoutMutation.isPending}
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Sign in with Ethereum</CardTitle>
+        <CardDescription>
+          Authenticate your wallet to access protected features
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {!isConnected ? (
+          <ConnectWalletButton className="w-full" />
+        ) : !isAuthenticated ? (
+          <Button
+            onClick={() => signInMutation.mutate()}
+            disabled={signInMutation.isPending || isAuthLoading}
+            className="w-full"
           >
-            {logoutMutation.isPending ? "Signing out..." : "Sign Out"}
-          </button>
-        </div>
-      ) : (
-        <button onClick={() => signInMutation.mutate()}>
-          Sign In
-        </button>
-      )}
-    </div>
+            {signInMutation.isPending ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-transparent border-t-current" />
+                Signing Message...
+              </>
+            ) : isAuthLoading ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-transparent border-t-current" />
+                Checking Status...
+              </>
+            ) : (
+              "Sign Authentication Message"
+            )}
+          </Button>
+        ) : (
+          <div className="space-y-3">
+            <Button
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              variant="destructive"
+              className="w-full"
+            >
+              {logoutMutation.isPending ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-transparent border-t-current" />
+                  Signing Out...
+                </>
+              ) : (
+                "Sign Out"
+              )}
+            </Button>
+          </div>
+        )}
+
+        {isConnected && (
+          <div className="space-y-2 pt-4 border-t">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <div className="flex items-center space-x-2">
+                {isAuthLoading ? (
+                  <>
+                    <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
+                    <span className="text-sm text-blue-600 dark:text-blue-400">Checking</span>
+                  </>
+                ) : isAuthenticated ? (
+                  <>
+                    <div className="h-2 w-2 bg-green-500 rounded-full" />
+                    <span className="text-sm text-green-600 dark:text-green-400">Authenticated</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="h-2 w-2 bg-yellow-500 rounded-full" />
+                    <span className="text-sm text-yellow-600 dark:text-yellow-400">Connected</span>
+                  </>
+                )}
+              </div>
+            </div>
+            {address && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Address:</span>
+                <span className="text-sm font-mono">
+                  {address.slice(0, 6)}...{address.slice(-4)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 ```
+</CodeCollapsibleWrapper>
 
-### Server-side Authentication
+### Server-side Utilities
 
-The component includes server-side utilities for safely checking authentication state in API routes and Server Components:
+Included are utilities for checking authentication status in server components and API routes.
 
+#### Server Component
+
+<CodeCollapsibleWrapper>
 ```tsx
-// In a Server Component
-import { getServerAuthUser } from "@/registry/new-york/blocks/siwe-button/lib/auth-server"
+import { getServerAuthUser } from "@/lib/auth-server"
 
 export default async function ProtectedPage() {
   const auth = await getServerAuthUser()
@@ -137,108 +173,131 @@ export default async function ProtectedPage() {
   )
 }
 ```
+</CodeCollapsibleWrapper>
 
+#### API Route
+
+<CodeCollapsibleWrapper>
 ```tsx
-// In an API route
-import { requireServerAuth } from "@/registry/new-york/blocks/siwe-button/lib/auth-server"
+import { NextResponse } from "next/server";
+import { requireServerAuth } from "@/lib/auth-server";
 
 export async function GET() {
   try {
-    const user = await requireServerAuth()
-    
+    const user = await requireServerAuth();
+
     // User is guaranteed to be authenticated here
-    const userData = await getUserData(user.address)
-    return NextResponse.json(userData)
-    
+    // For example, you could fetch user data from a database
+    // Return some demo user data, or redirect to a protected page
+    const userData = {
+      address: user.address,
+      chainId: user.chainId,
+      isAuthenticated: user.isAuthenticated,
+      expirationTime: user.expirationTime,
+      message: "This is protected data only available to authenticated users",
+      timestamp: new Date().toISOString()
+    };
+
+    return NextResponse.json(userData);
+
   } catch (error) {
     return NextResponse.json(
-      { error: error.message }, 
+      { error: error instanceof Error ? error.message : "Authentication required" },
       { status: 401 }
-    )
+    );
   }
 }
 ```
+</CodeCollapsibleWrapper>
 
-```tsx
-// Simple boolean check
-import { isServerAuthenticated } from "@/registry/new-york/blocks/siwe-button/lib/auth-server"
+## What's included
 
-export default async function HomePage() {
-  const isAuthenticated = await isServerAuthenticated()
-  
-  return (
-    <div>
-      {isAuthenticated ? (
-        <p>Welcome back!</p>
-      ) : (
-        <p>Please sign in</p>
-      )}
-    </div>
-  )
-}
-```
+This command installs the following files:
 
-## API Routes
+- `/components`
+  - [`siwe-button.tsx`](#siwe-buttontsx) - A button that prompts the user to connect their Abstract Global Wallet and sign the SIWE message to authenticate with your application.
 
-The component includes four API routes that handle the SIWE flow:
+- `/app/api/auth`
+  - [`nonce/route.ts`](#apiauthnonceroutets) - API route for generating nonces
+  - [`verify/route.ts`](#apiauthverifyroutets) - API route for verifying SIWE messages
+  - [`user/route.ts`](#apiauthuserroutets) - API route for getting user auth status
+  - [`logout/route.ts`](#apiauthlogoutroutets) - API route for logging out
 
-- `POST /api/auth/nonce` - Generates unique nonces for SIWE messages
-- `POST /api/auth/verify` - Verifies signed messages and creates sessions
-- `GET /api/auth/user` - Returns current authentication state
-- `POST /api/auth/logout` - Destroys the current session
+- `/config`
+  - [`auth.ts`](#authts) - [Iron Session](https://github.com/vvo/iron-session) [configuration object](https://github.com/vvo/iron-session?tab=readme-ov-file#session-options)
 
-## Configuration
+- `/hooks`
+  - [`use-siwe-auth-query.ts`](#use-siwe-auth-queryts) - Hook for checking authentication status
+  - [`use-siwe-sign-in-mutation.ts`](#use-siwe-sign-in-mutationts) - Hook for signing in with SIWE
+  - [`use-siwe-logout-mutation.ts`](#use-siwe-logout-mutationts) - Hook for logging out
 
-You can customize the chain and session options by modifying the config file:
+- `/lib`
+  - [`auth-server.ts`](#auth-serverts) - Server-side authentication utilities
+  - [`types.ts`](#typests) - TypeScript type definitions
 
-```tsx
-// registry/new-york/blocks/siwe-button/lib/config.ts
-import { mainnet } from "viem/chains"
+### `siwe-button.tsx`
 
-// Use a different chain
-export const chain = mainnet
+A button that prompts the user to connect their Abstract Global Wallet and sign the SIWE message to authenticate with your application.
 
-// Customize session options
-export const ironOptions: SessionOptions = {
-  password: process.env.IRON_SESSION_PASSWORD!,
-  cookieName: "my-app-session",
-  cookieOptions: {
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-  },
-}
-```
+<ComponentSource src="registry/new-york/blocks/siwe-button/siwe-button.tsx" />
 
-## Props
+### `use-siwe-auth-query.ts`
 
-### SiweButton
+React Query hook for checking current authentication status.
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `className` | `ClassValue` | `undefined` | Additional CSS classes |
+<ComponentSource src="registry/new-york/blocks/siwe-button/hooks/use-siwe-auth-query.ts" />
 
-## Server-side Utilities
+### `use-siwe-sign-in-mutation.ts`
 
-### getServerAuthUser()
+React Query mutation hook for prompting the user to sign the SIWE message to authenticate with your application. Requires a connected wallet.
 
-Returns comprehensive authentication state with user data or error information.
+<ComponentSource src="registry/new-york/blocks/siwe-button/hooks/use-siwe-sign-in-mutation.ts" />
 
-**Returns:** `Promise<ServerAuthResult>`
+### `use-siwe-logout-mutation.ts`
 
-### requireServerAuth()
+React Query mutation hook for deleting the user's session (signing out).
 
-Requires authentication and throws an error if not authenticated. Useful for API routes.
+<ComponentSource src="registry/new-york/blocks/siwe-button/hooks/use-siwe-logout-mutation.ts" />
 
-**Returns:** `Promise<AuthUser>`
-**Throws:** `Error` if not authenticated
+### `types.ts`
 
-### isServerAuthenticated()
+TypeScript type definitions for SIWE authentication including session data, authentication responses, and configuration error handling.
 
-Simple boolean check for authentication status.
+<ComponentSource src="registry/new-york/blocks/siwe-button/lib/types.ts" />
 
-**Returns:** `Promise<boolean>`
+### `auth.ts`
 
-### getServerAuthAddress()
+A config file for [Iron Session](https://github.com/vvo/iron-session) options.
 
-Gets the authenticated user's address safely.
+<ComponentSource src="config/auth.ts" />
 
-**Returns:** `Promise<string | null>`
+### `auth-server.ts`
+
+Server-side authentication utilities for safely checking authentication state in API routes, Server Components, and middleware. See [Server-side Utilities](#server-side-utilities) for more details and examples.
+
+<ComponentSource src="registry/new-york/blocks/siwe-button/lib/auth-server.ts" />
+
+### `app/api/auth/nonce/route.ts`
+
+API route for generating unique nonces required for SIWE message creation.
+
+<ComponentSource src="/app/api/auth/nonce/route.ts" />
+
+### `app/api/auth/verify/route.ts`
+
+API route for verifying SIWE messages with session validation and expiration checking.
+
+<ComponentSource src="/app/api/auth/verify/route.ts" />
+
+### `app/api/auth/user/route.ts`
+
+API route for retrieving current authenticated user information with session validation and expiration checking.
+
+<ComponentSource src="/app/api/auth/user/route.ts" />
+
+### `app/api/auth/logout/route.ts`
+
+API route for handling logout functionality with complete session cleanup and destruction.
+
+<ComponentSource src="/app/api/auth/logout/route.ts" />
+

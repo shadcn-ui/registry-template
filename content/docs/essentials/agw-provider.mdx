@@ -1,13 +1,19 @@
 ---
 title: AGW Provider
-description: Wrap your application in the required component to use AGW Reusables.
+description: An AGW wrapper component for using AGW Reusables.
 ---
+
+The AGW Provider wraps your application in the required provider components ([wagmi](https://wagmi.sh/react/api/WagmiProvider) and [Tanstack Query](https://tanstack.com/query/latest/docs/framework/react/reference/QueryClientProvider)) required to use Abstract Global Wallet hooks, wagmi hooks, and Tanstack queries and mutations.
+
+In addition, it also installs helpful config files for working with ZK Stack chains _(i.e., for Abstract)_ when using [Viem](https://viem.sh/zksync), including the [public client](https://viem.sh/zksync/client) and [wallet client](https://viem.sh/zksync/client).
 
 ## Installation
 
 ```bash
 npx shadcn@latest add "https://agw-reusables.vercel.app/r/agw-provider.json"
 ```
+
+## Usage
 
 Wrap your entire application with the AGW Provider in your root layout:
 
@@ -25,15 +31,49 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-## Configuration
 
-### Chain Configuration
+## What's included
 
-The provider automatically configures the blockchain network:
-- **Development**: Uses Abstract Testnet
-- **Production**: Uses Abstract Mainnet
+This command installs the following files:
 
-The chain configuration is handled in `config/chain.ts`:
+- [`components/agw-provider.tsx`](#agw-providertsx) - The main AGW Provider component
+- [`config/chain.ts`](#chaints) - Chain configuration for Abstract networks
+- [`config/viem-clients.ts`](#viem-clientsts) - Pre-configured Viem clients for ZK Stack chains
+
+
+### `agw-provider.tsx`
+
+A wrapper component to enable the use of AGW Reusables, wagmi, and Tanstack Query.
+
+<CodeCollapsibleWrapper>
+```tsx
+"use client";
+
+import { AbstractWalletProvider } from "@abstract-foundation/agw-react";
+import { QueryClient } from "@tanstack/react-query";
+import { chain } from "@/config/chain";
+
+const queryClient = new QueryClient();
+
+export function NextAbstractWalletProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AbstractWalletProvider chain={chain} queryClient={queryClient}>
+      {children}
+    </AbstractWalletProvider>
+  );
+}
+```
+</CodeCollapsibleWrapper>
+
+### `chain.ts`
+
+A global `chain` constant that is environmentally aware and automatically selects the appropriate Abstract network (testnet for local development, mainnet for production).
+
+<CodeCollapsibleWrapper>
 
 ```ts
 import { abstract, abstractTestnet } from "viem/chains";
@@ -43,13 +83,29 @@ export const chain =
     ? abstractTestnet // Local development: Use Abstract Testnet
     : abstract; // Production: Use Abstract Mainnet
 ```
+</CodeCollapsibleWrapper>
 
-### React Query Client
+### `viem-clients.ts`
 
-A pre-configured React Query client is provided in `config/query-client.ts`:
+Pre-configured Viem public and wallet client setup for Abstract (ZK Stack):
+
+<CodeCollapsibleWrapper>
 
 ```ts
-import { QueryClient } from "@tanstack/react-query";
+import { createPublicClient, createWalletClient, http } from "viem";
+import { eip712WalletActions, publicActionsL2 } from "viem/zksync";
+import { chain } from "./chain";
 
-export const queryClient = new QueryClient();
+// Global Viem public client instance
+export const publicClient = createPublicClient({
+    chain: chain,
+    transport: http(),
+}).extend(publicActionsL2());
+
+// Global Viem wallet client instance
+export const walletClient = createWalletClient({
+    chain: chain,
+    transport: http(),
+}).extend(eip712WalletActions());
 ```
+</CodeCollapsibleWrapper>
