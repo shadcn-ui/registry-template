@@ -1,4 +1,5 @@
 import { ThemeColors } from '@/store/theme-store';
+import { popularGoogleFonts } from '@/lib/google-fonts';
 
 export interface ThemePreset {
   id: string;
@@ -8,12 +9,122 @@ export interface ThemePreset {
     light: Partial<ThemeColors>;
     dark: Partial<ThemeColors>;
   };
+  isRandom?: boolean;
 }
 
 // Helper to create color-only themes (excluding layout properties)
 const createColorTheme = (base: ThemeColors, overrides: Partial<ThemeColors>): Partial<ThemeColors> => {
   const { radius, "font-sans": fontSans, "letter-spacing": letterSpacing, "shadow-blur": shadowBlur, "shadow-opacity": shadowOpacity, ...colorsOnly } = { ...base, ...overrides };
   return colorsOnly;
+};
+
+// Random theme generation utilities
+const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+const randomFloat = (min: number, max: number) => Math.random() * (max - min) + min;
+
+const generateRandomRadius = () => {
+  const radiusOptions = ['0rem', '0.125rem', '0.25rem', '0.375rem', '0.5rem', '0.75rem', '1rem', '1.5rem'];
+  return radiusOptions[randomInt(0, radiusOptions.length - 1)];
+};
+
+const generateRandomFont = () => {
+  const fonts = popularGoogleFonts.filter(font => font.category === 'sans-serif');
+  const randomFont = fonts[randomInt(0, fonts.length - 1)];
+  return `"${randomFont.family}", ui-sans-serif, system-ui, sans-serif`;
+};
+
+const generateRandomLetterSpacing = () => {
+  const spacings = ['-0.05em', '-0.025em', '0em', '0.025em', '0.05em', '0.1em'];
+  return spacings[randomInt(0, spacings.length - 1)];
+};
+
+const generateRandomShadow = () => {
+  const blur = randomInt(5, 25);
+  const opacity = randomFloat(0.05, 0.3).toFixed(2);
+  return { blur: `${blur}px`, opacity };
+};
+
+export const generateRandomTheme = (): { light: ThemeColors; dark: ThemeColors } => {
+  // Generate base colors
+  const primaryHue = randomInt(0, 360);
+  const secondaryHue = (primaryHue + randomInt(30, 180)) % 360;
+  const accentHue = (primaryHue + randomInt(60, 120)) % 360;
+  
+  // Random layout properties
+  const radius = generateRandomRadius();
+  const fontSans = generateRandomFont();
+  const letterSpacing = generateRandomLetterSpacing();
+  const shadow = generateRandomShadow();
+  
+  // Generate light theme
+  const lightPrimary = `${primaryHue} ${randomInt(60, 90)}% ${randomInt(15, 35)}%`;
+  const lightSecondary = `${secondaryHue} ${randomInt(20, 60)}% ${randomInt(85, 95)}%`;
+  const lightAccent = `${accentHue} ${randomInt(30, 70)}% ${randomInt(88, 96)}%`;
+  const lightBackground = `${randomInt(0, 60)} ${randomInt(0, 10)}% ${randomInt(98, 100)}%`;
+  const lightForeground = `${randomInt(200, 260)} ${randomInt(8, 15)}% ${randomInt(3, 8)}%`;
+  
+  const lightTheme: ThemeColors = {
+    background: lightBackground,
+    foreground: lightForeground,
+    card: lightBackground,
+    "card-foreground": lightForeground,
+    popover: lightBackground,
+    "popover-foreground": lightForeground,
+    primary: lightPrimary,
+    "primary-foreground": `${randomInt(0, 60)} ${randomInt(0, 10)}% ${randomInt(95, 100)}%`,
+    secondary: lightSecondary,
+    "secondary-foreground": `${secondaryHue} ${randomInt(60, 90)}% ${randomInt(8, 15)}%`,
+    muted: lightSecondary,
+    "muted-foreground": `${randomInt(200, 260)} ${randomInt(3, 8)}% ${randomInt(40, 50)}%`,
+    accent: lightAccent,
+    "accent-foreground": `${accentHue} ${randomInt(60, 90)}% ${randomInt(8, 15)}%`,
+    destructive: `${randomInt(0, 20)} ${randomInt(80, 95)}% ${randomInt(55, 65)}%`,
+    "destructive-foreground": `${randomInt(0, 60)} ${randomInt(0, 10)}% ${randomInt(95, 100)}%`,
+    border: `${randomInt(200, 260)} ${randomInt(5, 15)}% ${randomInt(85, 92)}%`,
+    input: `${randomInt(200, 260)} ${randomInt(5, 15)}% ${randomInt(85, 92)}%`,
+    ring: lightPrimary,
+    radius,
+    "font-sans": fontSans,
+    "letter-spacing": letterSpacing,
+    "shadow-blur": shadow.blur,
+    "shadow-opacity": shadow.opacity,
+  };
+  
+  // Generate dark theme (adjust lightness values)
+  const darkPrimary = `${primaryHue} ${randomInt(60, 90)}% ${randomInt(60, 80)}%`;
+  const darkSecondary = `${secondaryHue} ${randomInt(15, 40)}% ${randomInt(12, 20)}%`;
+  const darkAccent = `${accentHue} ${randomInt(30, 70)}% ${randomInt(12, 20)}%`;
+  const darkBackground = `${randomInt(200, 260)} ${randomInt(8, 15)}% ${randomInt(3, 8)}%`;
+  const darkForeground = `${randomInt(0, 60)} ${randomInt(0, 10)}% ${randomInt(95, 100)}%`;
+  
+  const darkTheme: ThemeColors = {
+    background: darkBackground,
+    foreground: darkForeground,
+    card: darkBackground,
+    "card-foreground": darkForeground,
+    popover: darkBackground,
+    "popover-foreground": darkForeground,
+    primary: darkPrimary,
+    "primary-foreground": `${randomInt(200, 260)} ${randomInt(5, 15)}% ${randomInt(8, 15)}%`,
+    secondary: darkSecondary,
+    "secondary-foreground": darkForeground,
+    muted: darkSecondary,
+    "muted-foreground": `${randomInt(200, 260)} ${randomInt(3, 8)}% ${randomInt(60, 70)}%`,
+    accent: darkAccent,
+    "accent-foreground": darkForeground,
+    destructive: `${randomInt(0, 20)} ${randomInt(60, 80)}% ${randomInt(25, 35)}%`,
+    "destructive-foreground": darkForeground,
+    border: `${randomInt(200, 260)} ${randomInt(3, 8)}% ${randomInt(12, 20)}%`,
+    input: `${randomInt(200, 260)} ${randomInt(3, 8)}% ${randomInt(12, 20)}%`,
+    ring: `${randomInt(200, 260)} ${randomInt(40, 60)}% ${randomInt(80, 90)}%`,
+    radius,
+    "font-sans": fontSans,
+    "letter-spacing": letterSpacing,
+    "shadow-blur": shadow.blur,
+    "shadow-opacity": shadow.opacity,
+  };
+  
+  return { light: lightTheme, dark: darkTheme };
 };
 
 // Default shadcn theme (colors only, no layout properties)
@@ -200,24 +311,13 @@ export const themePresets: ThemePreset[] = [
     },
   },
   {
-    id: 'teal',
-    name: 'Teal',
-    description: 'Cool teal theme',
+    id: 'random',
+    name: 'Random',
+    description: 'Generate completely random theme',
+    isRandom: true,
     colors: {
-      light: createColorTheme(defaultLight, {
-        primary: "173 80% 40%",
-        "primary-foreground": "0 0% 98%",
-        accent: "173 80% 96%",
-        "accent-foreground": "173 80% 10%",
-        ring: "173 80% 40%",
-      }),
-      dark: createColorTheme(defaultDark, {
-        primary: "173 80% 40%",
-        "primary-foreground": "0 0% 98%",
-        accent: "173 80% 15%",
-        "accent-foreground": "173 80% 90%",
-        ring: "173 80% 40%",
-      }),
+      light: {},
+      dark: {},
     },
   },
 ];
