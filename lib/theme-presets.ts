@@ -14,7 +14,13 @@ export interface ThemePreset {
 
 // Helper to create color-only themes (excluding layout properties)
 const createColorTheme = (base: ThemeColors, overrides: Partial<ThemeColors>): Partial<ThemeColors> => {
-  const { radius: _, "font-sans": __, "letter-spacing": ___, "shadow-blur": ____, "shadow-opacity": _____, ...colorsOnly } = { ...base, ...overrides };
+  const merged = { ...base, ...overrides };
+  const layoutProperties: readonly string[] = ['radius', 'font-sans', 'letter-spacing', 'shadow-blur', 'shadow-opacity'];
+  
+  const colorsOnly = Object.fromEntries(
+    Object.entries(merged).filter(([key]) => !layoutProperties.includes(key))
+  ) as Partial<ThemeColors>;
+  
   return colorsOnly;
 };
 
