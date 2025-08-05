@@ -7,6 +7,8 @@ import { LayoutProvider } from "@/hooks/use-layout"
 import { ActiveThemeProvider } from "@/components/active-theme"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider as DemoThemeProvider } from "@/store/theme-store"
+import { ThemeScript } from "@/components/theme-demo/theme-script"
 import { AGWProvider } from "@/components/agw-provider"
 import { Toaster } from "@/registry/new-york/ui/sonner"
 
@@ -65,6 +67,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <ThemeScript />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -88,15 +91,17 @@ export default function RootLayout({
         )}
       >
         <ThemeProvider>
-          <LayoutProvider>
-            <ActiveThemeProvider>
-              <AGWProvider>
-                {children}
-                <TailwindIndicator />
-                <Toaster />
-              </AGWProvider>
-            </ActiveThemeProvider>
-          </LayoutProvider>
+          <DemoThemeProvider>
+            <LayoutProvider>
+              <ActiveThemeProvider>
+                <AGWProvider>
+                  {children}
+                  <TailwindIndicator />
+                  <Toaster />
+                </AGWProvider>
+              </ActiveThemeProvider>
+            </LayoutProvider>
+          </DemoThemeProvider>
         </ThemeProvider>
       </body>
     </html>
