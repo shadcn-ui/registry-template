@@ -182,6 +182,15 @@ const defaultDark: ThemeColors = {
 
 export const themePresets: ThemePreset[] = [
   {
+    id: 'default',
+    name: 'Default',
+    description: 'Classic shadcn/ui theme',
+    colors: {
+      light: createColorTheme(defaultLight, {}),
+      dark: createColorTheme(defaultDark, {}),
+    },
+  },
+  {
     id: 'green',
     name: 'Green',
     description: 'Fresh Pantone green theme',
@@ -200,15 +209,6 @@ export const themePresets: ThemePreset[] = [
         "accent-foreground": "125 80% 80%",
         ring: "125 60% 55%",
       }),
-    },
-  },
-  {
-    id: 'default',
-    name: 'Default',
-    description: 'Classic shadcn/ui theme',
-    colors: {
-      light: createColorTheme(defaultLight, {}),
-      dark: createColorTheme(defaultDark, {}),
     },
   },
   {

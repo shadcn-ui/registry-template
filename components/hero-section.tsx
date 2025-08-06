@@ -65,18 +65,11 @@ export function HeroSection() {
             <Button asChild size="lg" className="w-full sm:w-auto">
               <Link href="/docs" className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4" />
-                Browse Components
+                Get Started
               </Link>
             </Button>
             
             <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-              <Link href="/docs/getting-started" className="flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                Quick Start
-              </Link>
-            </Button>
-            
-            <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto">
               <Link 
                 href="https://github.com/jarrodwatts/agw-reusables" 
                 target="_blank"
@@ -84,7 +77,7 @@ export function HeroSection() {
                 className="flex items-center gap-2"
               >
                 <Code2 className="h-4 w-4" />
-                View on GitHub
+                View GitHub
                 <ExternalLink className="h-3 w-3" />
               </Link>
             </Button>
