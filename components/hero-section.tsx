@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, BookOpen, Code2, Download, ExternalLink, Zap } from "lucide-react"
+import { BookOpen, Code2, ExternalLink } from "lucide-react"
 import { Button } from "@/registry/new-york/ui/button"
 import { Badge } from "@/registry/new-york/ui/badge"
 
@@ -41,18 +41,18 @@ export function HeroSection() {
               shadcn/ui Compatible Registry
             </Badge>
           </div>
-          
+
           <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Copy. Paste. Ship.
             </span>
           </h1>
-          
+
           <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Interactive demo of customizable components. See live theme controls below, 
+            Interactive demo of customizable components. See live theme controls below,
             then{" "}
-            <Link 
-              href="/docs" 
+            <Link
+              href="/docs"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
               explore the docs
@@ -68,10 +68,10 @@ export function HeroSection() {
                 Get Started
               </Link>
             </Button>
-            
+
             <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-              <Link 
-                href="https://github.com/jarrodwatts/agw-reusables" 
+              <Link
+                href="https://github.com/jarrodwatts/agw-reusables"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
