@@ -10,6 +10,7 @@ import AbstractProfileDemo from '@/registry/new-york/examples/abstract-profile-d
 import ConnectWalletButtonDemo from '@/registry/new-york/examples/connect-wallet-button-demo';
 import SiweButtonDemo from '@/registry/new-york/examples/siwe-button-demo';
 import SessionKeysDemo from '@/registry/new-york/examples/session-keys-demo';
+import { DemoCTAOverlay } from '@/components/demo-cta-overlay';
 
 function ComponentShowcase() {
   const { address, isConnected } = useAccount();
@@ -63,7 +64,7 @@ function ComponentShowcase() {
 
 export function ThemePreview() {
   return (
-    <div className="w-full h-full theme-container">
+    <div className="w-full h-full theme-container relative">
       <ScrollArea className="h-full">
         <div className="p-6">
           <div className="mb-6">
@@ -76,6 +77,7 @@ export function ThemePreview() {
           <ComponentShowcase />
         </div>
       </ScrollArea>
+      <DemoCTAOverlay />
     </div>
   );
 }

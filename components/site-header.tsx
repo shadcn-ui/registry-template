@@ -51,6 +51,9 @@ export function SiteHeader() {
                 navItems={siteConfig.navItems}
               />
             </div>
+            <Button asChild size="sm" className="hidden sm:flex">
+              <Link href="/docs">Get Started</Link>
+            </Button>
             <Separator
               orientation="vertical"
               className="ml-2 hidden lg:block"

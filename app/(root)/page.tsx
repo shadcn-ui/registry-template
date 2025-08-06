@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { DemoLayout } from "@/components/theme-demo/demo-layout"
+import { HeroSection } from "@/components/hero-section"
 
 const title = "Abstract Global Wallet Components"
 const description =
@@ -34,9 +35,28 @@ export const metadata: Metadata = {
 
 export default function IndexPage() {
   return (
-    <div className="flex flex-1 flex-col p-4">
-      <div className="w-full max-w-[1600px] mx-auto h-full">
-        <DemoLayout />
+    <div className="flex flex-1 flex-col bg-gradient-to-b from-background to-muted/20">
+      <HeroSection />
+      <div className="relative flex flex-1 flex-col">
+        <div className="relative p-4">
+          <div className="relative w-full max-w-[1600px] mx-auto h-full">
+            {/* Glow effect positioned relative to demo content */}
+            <div 
+              className="absolute w-[1800px] h-[900px] rounded-full pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse 85% 60% at 50% 40%, rgb(from var(--primary) r g b / 0.3) 0%, rgb(from var(--primary) r g b / 0.15) 50%, transparent 75%)',
+                filter: 'blur(80px)',
+                animation: 'glowPulse 4s ease-in-out infinite',
+                left: '50%',
+                top: '-8%',
+                zIndex: 0,
+              }}
+            />
+            <div className="relative z-10">
+              <DemoLayout />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
