@@ -32,7 +32,7 @@ export function DemoCTAOverlay() {
             </Button>
             
             <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href="/docs/getting-started" className="flex items-center gap-2">
+              <Link href="/docs/getting-started" className="flex items-center gap-2 justify-start">
                 <Copy className="h-3 w-3" />
                 Get Started Guide
               </Link>
