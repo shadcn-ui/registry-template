@@ -182,6 +182,27 @@ const defaultDark: ThemeColors = {
 
 export const themePresets: ThemePreset[] = [
   {
+    id: 'green',
+    name: 'Green',
+    description: 'Fresh Pantone green theme',
+    colors: {
+      light: createColorTheme(defaultLight, {
+        primary: "125 100% 35%",
+        "primary-foreground": "0 0% 98%",
+        accent: "125 100% 95%",
+        "accent-foreground": "125 100% 10%",
+        ring: "125 100% 35%",
+      }),
+      dark: createColorTheme(defaultDark, {
+        primary: "125 60% 55%",
+        "primary-foreground": "125 100% 10%",
+        accent: "125 50% 20%",
+        "accent-foreground": "125 80% 80%",
+        ring: "125 60% 55%",
+      }),
+    },
+  },
+  {
     id: 'default',
     name: 'Default',
     description: 'Classic shadcn/ui theme',
@@ -208,27 +229,6 @@ export const themePresets: ThemePreset[] = [
         accent: "221 83% 15%",
         "accent-foreground": "221 83% 90%",
         ring: "221 83% 53%",
-      }),
-    },
-  },
-  {
-    id: 'green',
-    name: 'Green',
-    description: 'Fresh green theme',
-    colors: {
-      light: createColorTheme(defaultLight, {
-        primary: "142 76% 36%",
-        "primary-foreground": "0 0% 98%",
-        accent: "142 76% 95%",
-        "accent-foreground": "142 76% 10%",
-        ring: "142 76% 36%",
-      }),
-      dark: createColorTheme(defaultDark, {
-        primary: "142 76% 36%",
-        "primary-foreground": "0 0% 98%",
-        accent: "142 76% 15%",
-        "accent-foreground": "142 76% 90%",
-        ring: "142 76% 36%",
       }),
     },
   },

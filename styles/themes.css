@@ -30,25 +30,25 @@
 }
 
 .theme-green .theme-container {
-  --primary: var(--color-lime-600);
-  --primary-foreground: var(--color-lime-50);
-  --ring: var(--color-lime-400);
-  --chart-1: var(--color-green-300);
-  --chart-2: var(--color-green-500);
-  --chart-3: var(--color-green-600);
-  --chart-4: var(--color-green-700);
-  --chart-5: var(--color-green-800);
-  --sidebar-primary: var(--color-lime-600);
-  --sidebar-primary-foreground: var(--color-lime-50);
-  --sidebar-ring: var(--color-lime-400);
+  --primary: hsl(125 100% 35%);
+  --primary-foreground: hsl(0 0% 98%);
+  --ring: hsl(125 100% 35%);
+  --chart-1: hsl(125 100% 80%);
+  --chart-2: hsl(125 100% 60%);
+  --chart-3: hsl(125 100% 35%);
+  --chart-4: hsl(125 100% 25%);
+  --chart-5: hsl(125 100% 15%);
+  --sidebar-primary: hsl(125 100% 35%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-ring: hsl(125 100% 35%);
 
   @variant dark {
-    --primary: var(--color-lime-600);
-    --primary-foreground: var(--color-lime-50);
-    --ring: var(--color-lime-900);
-    --sidebar-primary: var(--color-lime-500);
-    --sidebar-primary-foreground: var(--color-lime-50);
-    --sidebar-ring: var(--color-lime-900);
+    --primary: hsl(125 60% 55%);
+    --primary-foreground: hsl(125 100% 10%);
+    --ring: hsl(125 60% 55%);
+    --sidebar-primary: hsl(125 60% 55%);
+    --sidebar-primary-foreground: hsl(125 100% 10%);
+    --sidebar-ring: hsl(125 60% 55%);
   }
 }
 
