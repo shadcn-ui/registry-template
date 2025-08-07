@@ -11,124 +11,136 @@ description: A configurable multi-step onboarding dialog that guides users throu
 npx shadcn@latest add "https://agw-reusables.vercel.app/r/onboarding-dialog.json"
 ```
 
-## Setup
+Add the `<OnboardDialog />` to your `app/layout.tsx`:
 
-First, add the `<Onboarder />` to your app root (like Sonner's `<Toaster />`):
+```tsx title="app/layout.tsx" showLineNumbers {2, 10}
+import { NextAbstractWalletProvider } from "@/components/agw-provider";
+import { OnboardDialog } from "@/components/onboard-dialog";
 
-```tsx
-// In your layout.tsx or _app.tsx
-import { Onboarder } from "@/components/onboarder"
-
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html>
-      <body>
-        {children}
-        <Onboarder />
-      </body>
+    <html lang="en">
+      <NextAbstractWalletProvider>
+        <body>
+          {children}
+          <OnboardDialog />
+        </body>
+      </NextAbstractWalletProvider>
     </html>
-  )
+  );
 }
 ```
 
 ## Usage
 
-Now you can call `requireOnboarding()` from anywhere in your app:
+Use the `useOnboarding()` hook to gate actions behind onboarding requirements:
 
 ```tsx
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { onboarding } from "@/lib/require-onboarding"
+import { useOnboarding } from "@/hooks/use-onboarding"
 
 export default function MyComponent() {
+  const { ready, require } = useOnboarding({
+    connectWallet: true,
+    signWithEthereum: true,
+    createSessionKey: true,
+  })
+
   const handleProtectedAction = () => {
-    onboarding.full(() => {
-      // This only runs when all onboarding steps are complete
-      console.log("Action executed!")
-    })
+    // This shows the dialog if not ready, returns false to cancel execution
+    if (!require()) return
+    
+    // This code only runs if user is fully onboarded
+    console.log("Action executed!")
   }
 
   return (
     <Button onClick={handleProtectedAction}>
-      Execute Protected Action
+      {ready ? "Execute Action" : "Complete Onboarding First"}
     </Button>
   )
 }
 ```
 
-### Convenience Functions
+### Step Configuration
 
-Use the built-in convenience functions for common patterns:
+Configure which onboarding steps are required:
 
 ```tsx
-import { onboarding } from "@/lib/require-onboarding"
-
 // Just wallet connection
-onboarding.connectWallet(() => console.log("Wallet connected!"))
+const { ready, require } = useOnboarding({
+  connectWallet: true,
+})
 
 // Wallet + SIWE authentication  
-onboarding.authenticate(() => console.log("Authenticated!"))
+const { ready, require } = useOnboarding({
+  connectWallet: true,
+  signWithEthereum: true,
+})
 
 // Full onboarding (all steps)
-onboarding.full(() => console.log("Fully onboarded!"))
+const { ready, require } = useOnboarding({
+  connectWallet: true,
+  signWithEthereum: true,
+  createSessionKey: true,
+})
 ```
 
-### Custom Step Configuration
+### Hook API
 
-Use `requireOnboarding()` directly for custom step combinations:
+The `useOnboarding()` hook returns the following:
+
+- `ready: boolean` - True when all required steps are completed
+- `pending: boolean` - True when the onboarding dialog is currently open
+- `require(): boolean` - Shows dialog if not ready, returns `true` if ready (use for early returns)
+- `showDialog(): void` - Manually show the onboarding dialog
+
+### Advanced Usage
+
+#### Manual Dialog Control
+
+Use `showDialog()` to manually trigger the onboarding dialog:
 
 ```tsx
-import { requireOnboarding } from "@/lib/require-onboarding"
+const { ready, showDialog } = useOnboarding({
+  connectWallet: true,
+  signWithEthereum: true,
+})
 
-const handleAction = () => {
-  requireOnboarding(
-    {
-      connectWallet: true,
-      signWithEthereum: false,  // Skip SIWE
-      createSessionKey: true,
-    },
-    () => console.log("Custom onboarding complete!"),
-    () => console.log("Dialog closed") // Optional onComplete callback
-  )
-}
+return (
+  <div>
+    <p>Status: {ready ? "Ready" : "Not Ready"}</p>
+    <Button onClick={showDialog}>
+      Show Onboarding
+    </Button>
+  </div>
+)
 ```
 
-### Legacy Component Usage
+#### Reactive UI Based on Status
 
-You can still use the component directly if needed:
+Use the `ready` and `pending` flags to create reactive interfaces:
 
 ```tsx
-"use client"
+const { ready, pending, require } = useOnboarding({
+  connectWallet: true,
+  signWithEthereum: true,
+  createSessionKey: true,
+})
 
-import { useState } from "react"
-import { OnboardingDialog } from "@/components/onboarding-dialog"
-import { Button } from "@/components/ui/button"
-
-export default function LegacyDemo() {
-  const [isOpen, setIsOpen] = useState(false)
-
-  return (
-    <>
-      <Button onClick={() => setIsOpen(true)}>
-        Start Onboarding
-      </Button>
-      
-      <OnboardingDialog
-        steps={{
-          connectWallet: true,
-          signWithEthereum: true,
-          createSessionKey: true,
-        }}
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        onComplete={() => {
-          console.log("Onboarding completed!")
-          setIsOpen(false)
-        }}
-      />
-    </>
-  )
-}
+return (
+  <Button
+    onClick={() => {
+      if (!require()) return
+      performAction()
+    }}
+    disabled={pending}
+    variant={ready ? "default" : "secondary"}
+  >
+    {pending ? "Onboarding..." : ready ? "Execute Action" : "Setup Required"}
+  </Button>
+)
 ```
 

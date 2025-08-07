@@ -1,40 +1,34 @@
 "use client"
 
 import { Button } from "@/registry/new-york/ui/button"
-import { requireOnboarding, onboarding } from "@/registry/new-york/blocks/onboarding-dialog/lib/require-onboarding"
-import { Onboarder } from "@/registry/new-york/blocks/onboarding-dialog/onboarder"
+import { useOnboarding } from "@/registry/new-york/blocks/onboarding-dialog/hooks/use-onboarding"
 import { toast } from "sonner"
-import { useAccount } from "wagmi"
-import { useSiweAuthQuery } from "@/registry/new-york/blocks/siwe-button/hooks/use-siwe-auth-query"
-import { useSessionKey } from "@/registry/new-york/blocks/session-keys/hooks/use-session-key"
 
 export default function OnboardingDialogDemo() {
-  // Get current state for display
-  const { isConnected } = useAccount()
-  const { data: authData } = useSiweAuthQuery()
-  const { data: sessionData } = useSessionKey()
-  
-  const isAuthenticated = !!(authData?.ok && authData?.user?.isAuthenticated)
-  const hasActiveSession = !!sessionData
+  // Use the onboarding hook with full onboarding requirements
+  const { ready, require } = useOnboarding({
+    connectWallet: true,
+    signWithEthereum: true,
+    createSessionKey: true,
+  })
 
   // Determine current status for display
   const getStatusMessage = () => {
-    const isReady = isConnected && isAuthenticated && hasActiveSession
-    
-    if (isReady) {
+    if (ready) {
       return <span className="text-green-600">✓ Ready: all steps completed, action will execute</span>
     }
 
-    // Show what's missing
-    if (!isConnected) {
-      return <span className="text-orange-600">Not connected: will ask for wallet connection</span>
-    } else if (!isAuthenticated) {
-      return <span className="text-orange-600">Not authenticated: will ask to sign message</span>
-    } else if (!hasActiveSession) {
-      return <span className="text-orange-600">No session key: will ask to create session key</span>
-    }
+    return <span className="text-orange-600">Not ready: will show onboarding dialog when action is clicked</span>
+  }
 
-    return <span className="text-muted-foreground">Checking authentication status...</span>
+  const handleAction = () => {
+    // This will show the dialog if not ready, or continue if ready
+    if (!require()) return
+    
+    // This code only runs if the user is fully onboarded
+    toast.success("🎉 Action executed successfully!", {
+      description: "This only runs when onboarding is complete."
+    })
   }
 
   return (
@@ -47,13 +41,7 @@ export default function OnboardingDialogDemo() {
 
         <div className="space-y-2">
           <Button
-            onClick={() => {
-              onboarding.full(() => {
-                toast.success("🎉 Action executed successfully!", {
-                  description: "This only runs when onboarding is complete."
-                })
-              })
-            }}
+            onClick={handleAction}
             className="w-full"
           >
             Execute Action
@@ -65,8 +53,6 @@ export default function OnboardingDialogDemo() {
           </p>
         </div>
       </div>
-      
-      <Onboarder />
     </div>
   )
 }

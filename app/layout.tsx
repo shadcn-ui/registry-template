@@ -10,6 +10,7 @@ import { ThemeProvider as DemoThemeProvider } from "@/store/theme-store"
 import { ThemeScript } from "@/components/theme-demo/theme-script"
 import { AGWProvider } from "@/components/agw-provider"
 import { Toaster } from "@/registry/new-york/ui/sonner"
+import { OnboardDialog } from "@/registry/new-york/blocks/onboarding-dialog/onboard-dialog"
 
 import "@/styles/globals.css"
 
@@ -93,6 +94,7 @@ export default function RootLayout({
                 {children}
                 <TailwindIndicator />
                 <Toaster />
+                <OnboardDialog />
               </AGWProvider>
             </ActiveThemeProvider>
           </LayoutProvider>
