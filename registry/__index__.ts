@@ -48,7 +48,7 @@ export const Index: Record<string, any> = {
     name: "agw-provider",
     description: "Provider component that wraps your application with Abstract Global Wallet and React Query",
     type: "registry:component",
-    registryDependencies: undefined,
+    registryDependencies: ["sonner"],
     files: [{
       path: "registry/new-york/blocks/agw-provider/agw-provider.tsx",
       type: "registry:component",
@@ -83,6 +83,28 @@ export const Index: Record<string, any> = {
     component: React.lazy(async () => {
       const mod = await import("@/registry/new-york/examples/connect-wallet-button-demo.tsx")
       const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "connect-wallet-button"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
+  "onboarding-dialog": {
+    name: "onboarding-dialog",
+    description: "A configurable multi-step onboarding dialog that guides users through AGW authentication (wallet connection, SIWE, session keys) with progress indication",
+    type: "registry:component",
+    registryDependencies: ["dialog","button","connect-wallet-button","siwe-button","session-keys"],
+    files: [{
+      path: "registry/new-york/blocks/onboarding-dialog/onboarding-dialog.tsx",
+      type: "registry:component",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/onboarding-dialog/hooks/use-require-onboarding.ts",
+      type: "registry:hook",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/examples/onboarding-dialog-demo.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "onboarding-dialog"
       return { default: mod.default || mod[exportName] }
     }),
     categories: undefined,

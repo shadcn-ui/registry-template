@@ -84,6 +84,12 @@ export function ThemeScript() {
         } else {
           root.classList.remove('dark');
         }
+
+        // Update meta theme color
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+          metaTheme.setAttribute('content', mode === 'dark' ? '#0a0a0a' : '#ffffff');
+        }
       } catch (e) {
         console.warn('Theme script error:', e);
       }

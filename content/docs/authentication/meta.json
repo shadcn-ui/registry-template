@@ -3,6 +3,7 @@
   "pages": [
     "connect-wallet-button",
     "siwe-button", 
-    "abstract-profile"
+    "abstract-profile",
+    "onboarding-dialog"
   ]
 }

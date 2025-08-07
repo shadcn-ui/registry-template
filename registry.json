@@ -252,6 +252,36 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "onboarding-dialog",
+      "type": "registry:component",
+      "title": "Onboarding Dialog",
+      "description": "A configurable multi-step onboarding dialog that guides users through AGW authentication (wallet connection, SIWE, session keys) with progress indication",
+      "dependencies": [
+        "@abstract-foundation/agw-react",
+        "@abstract-foundation/agw-client",
+        "wagmi",
+        "viem",
+        "@tanstack/react-query"
+      ],
+      "registryDependencies": [
+        "dialog",
+        "button",
+        "connect-wallet-button",
+        "siwe-button",
+        "session-keys"
+      ],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/onboarding-dialog/onboarding-dialog.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/new-york/blocks/onboarding-dialog/hooks/use-require-onboarding.ts",
+          "type": "registry:hook"
+        }
+      ]
     }
   ]
 }

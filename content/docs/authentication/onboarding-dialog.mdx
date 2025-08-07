@@ -1,0 +1,134 @@
+---
+title: Onboarding Dialog
+description: A configurable multi-step onboarding dialog that guides users through AGW authentication steps with progress indication.
+---
+
+<ComponentPreview name="onboarding-dialog" />
+
+## Installation
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/onboarding-dialog.json"
+```
+
+## Setup
+
+First, add the `<Onboarder />` to your app root (like Sonner's `<Toaster />`):
+
+```tsx
+// In your layout.tsx or _app.tsx
+import { Onboarder } from "@/components/onboarder"
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Onboarder />
+      </body>
+    </html>
+  )
+}
+```
+
+## Usage
+
+Now you can call `requireOnboarding()` from anywhere in your app:
+
+```tsx
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { onboarding } from "@/lib/require-onboarding"
+
+export default function MyComponent() {
+  const handleProtectedAction = () => {
+    onboarding.full(() => {
+      // This only runs when all onboarding steps are complete
+      console.log("Action executed!")
+    })
+  }
+
+  return (
+    <Button onClick={handleProtectedAction}>
+      Execute Protected Action
+    </Button>
+  )
+}
+```
+
+### Convenience Functions
+
+Use the built-in convenience functions for common patterns:
+
+```tsx
+import { onboarding } from "@/lib/require-onboarding"
+
+// Just wallet connection
+onboarding.connectWallet(() => console.log("Wallet connected!"))
+
+// Wallet + SIWE authentication  
+onboarding.authenticate(() => console.log("Authenticated!"))
+
+// Full onboarding (all steps)
+onboarding.full(() => console.log("Fully onboarded!"))
+```
+
+### Custom Step Configuration
+
+Use `requireOnboarding()` directly for custom step combinations:
+
+```tsx
+import { requireOnboarding } from "@/lib/require-onboarding"
+
+const handleAction = () => {
+  requireOnboarding(
+    {
+      connectWallet: true,
+      signWithEthereum: false,  // Skip SIWE
+      createSessionKey: true,
+    },
+    () => console.log("Custom onboarding complete!"),
+    () => console.log("Dialog closed") // Optional onComplete callback
+  )
+}
+```
+
+### Legacy Component Usage
+
+You can still use the component directly if needed:
+
+```tsx
+"use client"
+
+import { useState } from "react"
+import { OnboardingDialog } from "@/components/onboarding-dialog"
+import { Button } from "@/components/ui/button"
+
+export default function LegacyDemo() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <Button onClick={() => setIsOpen(true)}>
+        Start Onboarding
+      </Button>
+      
+      <OnboardingDialog
+        steps={{
+          connectWallet: true,
+          signWithEthereum: true,
+          createSessionKey: true,
+        }}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        onComplete={() => {
+          console.log("Onboarding completed!")
+          setIsOpen(false)
+        }}
+      />
+    </>
+  )
+}
+```
+

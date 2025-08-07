@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 import { LayoutProvider } from "@/hooks/use-layout"
 import { ActiveThemeProvider } from "@/components/active-theme"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeProvider as DemoThemeProvider } from "@/store/theme-store"
 import { ThemeScript } from "@/components/theme-demo/theme-script"
 import { AGWProvider } from "@/components/agw-provider"
@@ -72,9 +71,6 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                if (localStorage.theme === 'dark' || ((!('theme' in localStorage) || localStorage.theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.querySelector('meta[name="theme-color"]').setAttribute('content', '${META_THEME_COLORS.dark}')
-                }
                 if (localStorage.layout) {
                   document.documentElement.classList.add('layout-' + localStorage.layout)
                 }
@@ -90,19 +86,17 @@ export default function RootLayout({
           fontVariables
         )}
       >
-        <ThemeProvider>
-          <DemoThemeProvider>
-            <LayoutProvider>
-              <ActiveThemeProvider>
-                <AGWProvider>
-                  {children}
-                  <TailwindIndicator />
-                  <Toaster />
-                </AGWProvider>
-              </ActiveThemeProvider>
-            </LayoutProvider>
-          </DemoThemeProvider>
-        </ThemeProvider>
+        <DemoThemeProvider>
+          <LayoutProvider>
+            <ActiveThemeProvider>
+              <AGWProvider>
+                {children}
+                <TailwindIndicator />
+                <Toaster />
+              </AGWProvider>
+            </ActiveThemeProvider>
+          </LayoutProvider>
+        </DemoThemeProvider>
       </body>
     </html>
   )

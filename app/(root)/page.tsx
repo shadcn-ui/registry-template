@@ -2,9 +2,9 @@ import { Metadata } from "next"
 import { DemoLayout } from "@/components/theme-demo/demo-layout"
 import { HeroSection } from "@/components/hero-section"
 
-const title = "Abstract Global Wallet Components"
+const title = "AGW Reusables"
 const description =
-  "Interactive demo showcasing customizable theme controls and Abstract Global Wallet components. Adjust colors in real-time and see how they apply to authentication, profiles, and wallet interfaces."
+  "A collection of components and features to build apps on Abstract."
 
 export const dynamic = "force-static"
 export const revalidate = false
@@ -41,7 +41,7 @@ export default function IndexPage() {
         <div className="relative p-4">
           <div className="relative w-full max-w-[1600px] mx-auto h-full">
             {/* Glow effect positioned relative to demo content */}
-            <div 
+            <div
               className="absolute w-[1800px] h-[900px] rounded-full pointer-events-none"
               style={{
                 background: 'radial-gradient(ellipse 85% 60% at 50% 40%, rgb(from var(--primary) r g b / 0.3) 0%, rgb(from var(--primary) r g b / 0.15) 50%, transparent 75%)',
