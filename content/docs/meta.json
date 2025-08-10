@@ -4,6 +4,7 @@
     "(root)",
     "essentials",
     "authentication",
-    "session-keys"
+    "session-keys",
+    "wallet-data"
   ]
 }

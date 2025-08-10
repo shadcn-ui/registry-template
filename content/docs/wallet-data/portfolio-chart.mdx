@@ -1,0 +1,111 @@
+---
+title: Portfolio Chart
+description: An interactive area chart that displays Abstract Global Wallet portfolio value over time with multiple time period selections
+---
+
+<ComponentPreview name="portfolio-chart" />
+
+## Installation
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/portfolio-chart.json"
+```
+
+## Usage
+
+### Basic Usage
+
+```tsx
+import { PortfolioChart } from "@/components/portfolio-chart"
+
+export default function Dashboard() {
+  return (
+    <PortfolioChart 
+      address="0xfE8f62b2ec3f6594499C94D02c7bE15394Ef53EE"
+    />
+  )
+}
+```
+
+### Advanced Usage
+
+```tsx
+import { PortfolioChart } from "@/components/portfolio-chart"
+
+export default function Portfolio() {
+  return (
+    <div className="space-y-6">
+      {/* Default 7-day view */}
+      <PortfolioChart 
+        address="0xfE8f62b2ec3f6594499C94D02c7bE15394Ef53EE"
+      />
+      
+      {/* Start with 30-day view */}
+      <PortfolioChart 
+        address="0xfE8f62b2ec3f6594499C94D02c7bE15394Ef53EE"
+        defaultPeriod="30d"
+        className="border rounded-lg p-4"
+      />
+    </div>
+  )
+}
+```
+
+### With Dynamic Address
+
+```tsx
+import { PortfolioChart } from "@/components/portfolio-chart"
+import { useAccount } from "wagmi"
+
+export default function UserPortfolio() {
+  const { address } = useAccount()
+  
+  if (!address) {
+    return <div>Please connect your wallet</div>
+  }
+  
+  return (
+    <PortfolioChart 
+      address={address}
+      defaultPeriod="7d"
+    />
+  )
+}
+```
+
+## API Reference
+
+### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `address` | `string` | - | **Required.** The Abstract Global Wallet address to display portfolio data for |
+| `className` | `ClassValue` | `undefined` | Custom CSS classes for styling |
+| `defaultPeriod` | `"1h" \| "1d" \| "7d" \| "30d" \| "1y"` | `"7d"` | The default time period to display when the component loads |
+
+## What's included
+
+The installation command adds the following files to your project:
+
+- [`portfolio-chart.tsx`](#portfolio-charttsx) - Main chart component
+- [`use-portfolio-data.ts`](#use-portfolio-datats) - Data fetching hook
+- [`portfolio-utils.ts`](#portfolio-utilsts) - Formatting utilities
+
+### portfolio-chart.tsx
+
+The main component to fetch and display the portfolio data.
+
+<ComponentSource src="registry/new-york/blocks/portfolio-chart/portfolio-chart.tsx" />
+
+### use-portfolio-data.ts
+
+A hook for fetching portfolio data for a given Abstract Global Wallet address.
+
+<ComponentSource src="registry/new-york/blocks/portfolio-chart/hooks/use-portfolio-data.ts" />
+
+### portfolio-utils.ts
+
+A utility file for formatting portfolio data.
+
+<ComponentSource src="registry/new-york/blocks/portfolio-chart/lib/portfolio-utils.ts" />
+

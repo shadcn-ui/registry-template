@@ -3,13 +3,14 @@
 import React from 'react';
 import { ScrollArea } from '@/registry/new-york/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/registry/new-york/ui/card';
-import { Wallet } from 'lucide-react';
+import { Wallet, TrendingUp } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { AbstractProfile } from '@/registry/new-york/blocks/abstract-profile/abstract-profile';
 import AbstractProfileDemo from '@/registry/new-york/examples/abstract-profile-demo';
 import ConnectWalletButtonDemo from '@/registry/new-york/examples/connect-wallet-button-demo';
 import SiweButtonDemo from '@/registry/new-york/examples/siwe-button-demo';
 import SessionKeysDemo from '@/registry/new-york/examples/session-keys-demo';
+import PortfolioChartDemo from '@/registry/new-york/examples/portfolio-chart-demo';
 import { DemoCTAOverlay } from '@/components/demo-cta-overlay';
 
 function ComponentShowcase() {
@@ -57,6 +58,13 @@ function ComponentShowcase() {
       <div className="w-full break-inside-avoid mb-4">
         <SessionKeysDemo />
       </div>
+
+      {/* Portfolio Chart - Natural height */}
+      <Card className="w-full break-inside-avoid mb-4">
+        <CardContent>
+          <PortfolioChartDemo />
+        </CardContent>
+      </Card>
     </div>
   );
 }

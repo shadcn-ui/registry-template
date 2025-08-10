@@ -110,6 +110,32 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
+  "portfolio-chart": {
+    name: "portfolio-chart",
+    description: "An interactive area chart that displays Abstract Global Wallet portfolio value over time with multiple time period selections",
+    type: "registry:component",
+    registryDependencies: ["chart","button","skeleton"],
+    files: [{
+      path: "registry/new-york/blocks/portfolio-chart/portfolio-chart.tsx",
+      type: "registry:component",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/portfolio-chart/hooks/use-portfolio-data.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/portfolio-chart/lib/portfolio-utils.ts",
+      type: "registry:lib",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/examples/portfolio-chart-demo.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "portfolio-chart"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
   "session-keys": {
     name: "session-keys",
     description: "A comprehensive session key management button that handles creation, validation, and revocation of Abstract Global Wallet session keys",

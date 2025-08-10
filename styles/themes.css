@@ -1,5 +1,5 @@
 .theme-default .theme-container {
-  --chart-1: var(--color-blue-300);
+  --chart-1: 213 92% 76%;
   --chart-2: var(--color-blue-500);
   --chart-3: var(--color-blue-600);
   --chart-4: var(--color-blue-700);
@@ -13,7 +13,7 @@
   --sidebar-primary: var(--color-blue-600);
   --sidebar-primary-foreground: var(--color-blue-50);
   --sidebar-ring: var(--color-blue-400);
-  --chart-1: var(--color-blue-300);
+  --chart-1: 213 92% 76%;
   --chart-2: var(--color-blue-500);
   --chart-3: var(--color-blue-600);
   --chart-4: var(--color-blue-700);
@@ -226,7 +226,7 @@
 }
 
 .theme-scaled .theme-container {
-  --chart-1: var(--color-blue-300);
+  --chart-1: 213 92% 76%;
   --chart-2: var(--color-blue-500);
   --chart-3: var(--color-blue-600);
   --chart-4: var(--color-blue-700);

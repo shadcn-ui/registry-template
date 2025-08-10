@@ -282,6 +282,36 @@
           "type": "registry:hook"
         }
       ]
+    },
+    {
+      "name": "portfolio-chart",
+      "type": "registry:component",
+      "title": "Portfolio Chart",
+      "description": "An interactive area chart that displays Abstract Global Wallet portfolio value over time with multiple time period selections",
+      "dependencies": [
+        "@tanstack/react-query",
+        "recharts",
+        "date-fns"
+      ],
+      "registryDependencies": [
+        "chart",
+        "button",
+        "skeleton"
+      ],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/portfolio-chart/portfolio-chart.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/new-york/blocks/portfolio-chart/hooks/use-portfolio-data.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "registry/new-york/blocks/portfolio-chart/lib/portfolio-utils.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }
