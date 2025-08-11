@@ -1,0 +1,335 @@
+---
+title: useOptimisticWriteContract
+description: An experimental hook for optimistic transaction execution using Abstract's unstable_sendRawTransactionWithDetailedOutput endpoint to get instant transaction feedback
+---
+
+<ComponentPreview name="use-optimistic-write-contract" />
+
+The `useOptimisticWriteContract` hook leverages Abstract's experimental `unstable_sendRawTransactionWithDetailedOutput` endpoint to provide instant transaction feedback without waiting for block confirmation. This enables truly optimistic UI updates for better user experience.
+
+## Installation
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/use-optimistic-write-contract.json"
+```
+
+## Usage
+
+### Basic Usage
+
+```tsx
+import { useOptimisticWriteContract } from "@/hooks/use-optimistic-write-contract"
+
+const EXAMPLE_ABI = [
+  {
+    name: "transfer",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "amount", type: "uint256" }
+    ],
+    outputs: [{ name: "", type: "bool" }]
+  }
+] as const
+
+export default function TransferButton() {
+  const {
+    writeContract,
+    isPending,
+    isSuccess,
+    error,
+    data
+  } = useOptimisticWriteContract()
+
+  const handleTransfer = () => {
+    writeContract({
+      address: "0x1234567890123456789012345678901234567890",
+      abi: EXAMPLE_ABI,
+      functionName: "transfer",
+      args: ["0xRecipientAddress", BigInt("1000000000000000000")],
+      onSuccess: (data, startTime) => {
+        const responseTime = Date.now() - startTime
+        console.log(`✅ Transaction confirmed in ${responseTime}ms`)
+        console.log(`Transaction hash: ${data.transactionHash}`)
+      },
+      onError: (error) => {
+        console.error("❌ Transaction failed:", error.message)
+      }
+    })
+  }
+
+  return (
+    <button 
+      onClick={handleTransfer}
+      disabled={isPending}
+    >
+      {isPending ? "Processing..." : "Transfer Tokens"}
+    </button>
+  )
+}
+```
+
+### Advanced Usage with Performance Monitoring
+
+<CodeCollapsibleWrapper>
+```tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { useOptimisticWriteContract } from "@/hooks/use-optimistic-write-contract"
+import { usePublicClient } from "wagmi"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+const CONTRACT_ABI = [
+  {
+    name: "mint",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [{ name: "amount", type: "uint256" }],
+    outputs: []
+  }
+] as const
+
+export default function OptimisticMintDemo() {
+  const [metrics, setMetrics] = useState<{
+    optimisticTime?: number
+    blockTime?: number
+    startTime?: number
+  }>({})
+  const [isConfirmed, setIsConfirmed] = useState(false)
+  
+  const publicClient = usePublicClient()
+  const {
+    writeContract,
+    isPending,
+    isSuccess,
+    error,
+    data,
+    reset
+  } = useOptimisticWriteContract()
+
+  // Poll for block confirmation
+  const pollForConfirmation = async (hash: string, startTime: number) => {
+    if (!publicClient) return
+
+    try {
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: hash as `0x${string}`,
+        timeout: 30000
+      })
+
+      if (receipt) {
+        const blockTime = Date.now() - startTime
+        setMetrics(prev => ({ ...prev, blockTime }))
+        setIsConfirmed(true)
+      }
+    } catch (error) {
+      console.error("Failed to get transaction receipt:", error)
+    }
+  }
+
+  const handleMint = async () => {
+    setIsConfirmed(false)
+    setMetrics({})
+    reset()
+
+    writeContract({
+      address: "0x1234567890123456789012345678901234567890",
+      abi: CONTRACT_ABI,
+      functionName: "mint",
+      args: [BigInt("1000000000000000000")],
+      onSuccess: (data, startTime) => {
+        const optimisticTime = Date.now() - startTime
+        
+        setMetrics({ startTime, optimisticTime })
+        
+        // Start polling for block confirmation
+        if (publicClient) {
+          pollForConfirmation(data.transactionHash, startTime)
+        }
+      },
+      onError: (error) => {
+        console.error("Transaction failed:", error)
+        setMetrics({})
+      }
+    })
+  }
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Optimistic Transaction Demo</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Button
+          onClick={handleMint}
+          disabled={isPending}
+          className="w-full"
+        >
+          {isPending ? "Processing..." : "Mint NFT"}
+        </Button>
+
+        {error && (
+          <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+            {error.message}
+          </div>
+        )}
+
+        {metrics.optimisticTime && (
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Optimistic Response:</span>
+              <span className="font-mono">{metrics.optimisticTime}ms</span>
+            </div>
+            {metrics.blockTime && (
+              <div className="flex justify-between">
+                <span>Block Confirmation:</span>
+                <span className="font-mono">{metrics.blockTime}ms</span>
+              </div>
+            )}
+            {isSuccess && !isConfirmed && (
+              <div className="text-blue-600">
+                ⏳ Waiting for block confirmation...
+              </div>
+            )}
+            {isConfirmed && (
+              <div className="text-green-600">
+                ✅ Transaction confirmed on-chain
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+```
+</CodeCollapsibleWrapper>
+
+### Using with React Query
+
+<CodeCollapsibleWrapper>
+```tsx
+import { useMutation } from "@tanstack/react-query"
+import { useOptimisticWriteContract } from "@/hooks/use-optimistic-write-contract"
+import { toast } from "sonner"
+
+export function useOptimisticMint() {
+  const { writeContractAsync } = useOptimisticWriteContract()
+
+  return useMutation({
+    mutationFn: async (amount: bigint) => {
+      return writeContractAsync({
+        address: "0x1234567890123456789012345678901234567890",
+        abi: MINT_ABI,
+        functionName: "mint",
+        args: [amount],
+        onSuccess: (data, startTime) => {
+          const responseTime = Date.now() - startTime
+          toast.success(`Transaction confirmed in ${responseTime}ms`)
+        }
+      })
+    },
+    onError: (error) => {
+      toast.error(`Transaction failed: ${error.message}`)
+    }
+  })
+}
+```
+</CodeCollapsibleWrapper>
+
+## API Reference
+
+### Hook Return Values
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `writeContract` | `function` | Synchronous function to execute a contract write (fire-and-forget) |
+| `writeContractAsync` | `function` | Async function to execute a contract write (returns Promise) |
+| `isPending` | `boolean` | Whether a transaction is currently being processed |
+| `isLoading` | `boolean` | Alias for `isPending` (backward compatibility) |
+| `isSuccess` | `boolean` | Whether the optimistic response was successful |
+| `isError` | `boolean` | Whether an error occurred |
+| `data` | `OptimisticTransactionResponse \| undefined` | The optimistic transaction response data |
+| `error` | `Error \| undefined` | Error object if the transaction failed |
+| `reset` | `function` | Reset the hook state |
+
+### Configuration Options
+
+```tsx
+type OptimisticWriteConfig = WriteContractParameters & {
+  onSuccess?: (data: OptimisticTransactionResponse, startTime: number) => void
+  onError?: (error: Error) => void
+}
+```
+
+### OptimisticTransactionResponse
+
+```tsx
+interface OptimisticTransactionResponse {
+  transactionHash: `0x${string}`
+  storageLogs: StorageLog[]
+  events: OptimisticEvent[]
+}
+```
+
+## Performance Benefits
+
+The optimistic execution provides significant performance improvements:
+
+- **Instant Feedback**: Get transaction results in ~100-500ms instead of waiting 2-15 seconds for block confirmation
+- **Better UX**: Update your UI immediately with confidence
+- **Error Handling**: Receive detailed error messages for failed transactions quickly
+
+## Important Considerations
+
+<div className="border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950 p-4 my-4">
+  <div className="font-semibold text-yellow-800 dark:text-yellow-200">⚠️ Experimental Feature</div>
+  <p className="text-yellow-700 dark:text-yellow-300 mt-1">
+    This hook uses Abstract's <code>unstable_sendRawTransactionWithDetailedOutput</code> endpoint, which is experimental and may change. Use in production at your own risk.
+  </p>
+</div>
+
+### When to Use
+
+- **High-frequency transactions**: Trading, gaming, or social applications
+- **User experience critical**: Applications where immediate feedback is essential  
+- **Non-critical operations**: Where eventual consistency is acceptable
+
+### When NOT to Use
+
+- **Financial critical operations**: Large transfers or critical financial operations
+- **Security sensitive**: Operations requiring guaranteed on-chain confirmation
+- **External system integration**: When other systems depend on confirmed transactions
+
+## What's included
+
+This command installs the following files:
+
+- `/hooks`
+  - [`use-optimistic-write-contract.ts`](#use-optimistic-write-contractts) - Main hook for optimistic contract writes
+
+- `/lib`
+  - [`abstract-api.ts`](#abstract-apits) - Abstract API client for optimistic transactions
+  - [`types.ts`](#typests) - TypeScript type definitions
+
+### `use-optimistic-write-contract.ts`
+
+The main hook that provides optimistic contract write functionality with instant feedback.
+
+<ComponentSource src="registry/new-york/blocks/use-optimistic-write-contract/hooks/use-optimistic-write-contract.ts" />
+
+### `abstract-api.ts`
+
+API client for Abstract's optimistic transaction endpoint with error handling and user-friendly error messages.
+
+<ComponentSource src="registry/new-york/blocks/use-optimistic-write-contract/lib/abstract-api.ts" />
+
+### `types.ts`
+
+TypeScript type definitions for optimistic transaction responses and API structures.
+
+<ComponentSource src="registry/new-york/blocks/use-optimistic-write-contract/lib/types.ts" />
+

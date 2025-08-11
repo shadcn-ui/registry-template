@@ -5,6 +5,7 @@
     "essentials",
     "authentication",
     "session-keys",
-    "wallet-data"
+    "wallet-data",
+    "experimental"
   ]
 }

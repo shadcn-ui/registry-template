@@ -312,6 +312,32 @@
           "type": "registry:lib"
         }
       ]
+    },
+    {
+      "name": "use-optimistic-write-contract",
+      "type": "registry:hook",
+      "title": "useOptimisticWriteContract",
+      "description": "An experimental hook for optimistic transaction execution using Abstract's unstable_sendRawTransactionWithDetailedOutput endpoint to get instant transaction feedback",
+      "dependencies": [
+        "wagmi",
+        "viem",
+        "@tanstack/react-query"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/use-optimistic-write-contract/hooks/use-optimistic-write-contract.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "registry/new-york/blocks/use-optimistic-write-contract/lib/types.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/use-optimistic-write-contract/lib/abstract-api.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

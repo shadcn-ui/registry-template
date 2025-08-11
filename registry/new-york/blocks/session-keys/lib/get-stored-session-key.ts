@@ -35,13 +35,13 @@ export const getStoredSession = async (
     const encryptedData = localStorage.getItem(
         `${LOCAL_STORAGE_KEY_PREFIX}${userAddress}`
     );
-    
+
     if (!encryptedData) return null;
 
     try {
         const key = await getEncryptionKey(userAddress);
         const decryptedData = await decrypt(encryptedData, key);
-        
+
         const sessionData: StoredSessionData = JSON.parse(decryptedData, (_, value) => {
             // Handle bigint deserialization
             if (typeof value === "string" && /^\d+$/.test(value)) {
@@ -56,7 +56,7 @@ export const getStoredSession = async (
 
         // Check if stored call policies match current configuration
         const storedPoliciesJson = JSON.stringify(
-            sessionData.session.callPolicies, 
+            sessionData.session.callPolicies,
             (_, value) => typeof value === "bigint" ? value.toString() : value
         );
         const currentPoliciesJson = JSON.stringify(

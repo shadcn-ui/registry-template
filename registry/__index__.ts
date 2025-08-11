@@ -264,4 +264,30 @@ export const Index: Record<string, any> = {
     categories: undefined,
     meta: undefined,
   },
+  "use-optimistic-write-contract": {
+    name: "use-optimistic-write-contract",
+    description: "An experimental hook for optimistic transaction execution using Abstract's unstable_sendRawTransactionWithDetailedOutput endpoint to get instant transaction feedback",
+    type: "registry:hook",
+    registryDependencies: [],
+    files: [{
+      path: "registry/new-york/blocks/use-optimistic-write-contract/hooks/use-optimistic-write-contract.ts",
+      type: "registry:hook",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/use-optimistic-write-contract/lib/types.ts",
+      type: "registry:lib",
+      target: ""
+    }, {
+      path: "registry/new-york/blocks/use-optimistic-write-contract/lib/abstract-api.ts",
+      type: "registry:lib",
+      target: ""
+    }],
+    component: React.lazy(async () => {
+      const mod = await import("@/registry/new-york/examples/use-optimistic-write-contract-demo.tsx")
+      const exportName = Object.keys(mod).find(key => typeof mod[key] === 'function' || typeof mod[key] === 'object') || "use-optimistic-write-contract"
+      return { default: mod.default || mod[exportName] }
+    }),
+    categories: undefined,
+    meta: undefined,
+  },
 }

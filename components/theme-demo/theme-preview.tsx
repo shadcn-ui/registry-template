@@ -3,7 +3,7 @@
 import React from 'react';
 import { ScrollArea } from '@/registry/new-york/ui/scroll-area';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/registry/new-york/ui/card';
-import { Wallet, TrendingUp } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { AbstractProfile } from '@/registry/new-york/blocks/abstract-profile/abstract-profile';
 import AbstractProfileDemo from '@/registry/new-york/examples/abstract-profile-demo';
