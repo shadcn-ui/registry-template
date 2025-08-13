@@ -6,6 +6,7 @@
     "authentication",
     "session-keys",
     "wallet-data",
+    "config",
     "experimental"
   ]
 }

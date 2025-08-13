@@ -48,13 +48,15 @@ export function PortfolioChart({
   defaultPeriod = "7d"
 }: PortfolioChartProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<typeof TIME_PERIODS[number]["key"]>(defaultPeriod)
-  const { data, isLoading, isError, error } = usePortfolioData(address, selectedPeriod)
+  const { data: portfolioResult, isLoading, isError, error } = usePortfolioData(address, selectedPeriod)
 
-  const chartData = data?.map((item) => ({
+  const chartData = portfolioResult?.data?.map((item) => ({
     timestamp: item.startTimestamp,
     value: parseFloat(item.totalUsdValue),
     formattedTime: formatTimestamp(item.startTimestamp, selectedPeriod),
   })) ?? []
+
+  const currentValue = portfolioResult?.currentValue ?? 0
 
   if (isError) {
     return (
@@ -77,9 +79,9 @@ export function PortfolioChart({
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">Portfolio Value</h3>
-          {!isLoading && chartData.length > 0 && (
+          {!isLoading && currentValue > 0 && (
             <p className="text-sm text-muted-foreground">
-              {formatCurrency(chartData[chartData.length - 1]?.value ?? 0)} current value
+              {formatCurrency(currentValue)} current value
             </p>
           )}
         </div>

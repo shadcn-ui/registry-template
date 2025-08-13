@@ -1,0 +1,116 @@
+---
+title: Abstract Contracts
+description: Common contract addresses and ABIs for tokens and DEX infrastructure on Abstract
+---
+
+## Installation
+
+```bash
+npx shadcn@latest add "https://agw-reusables.vercel.app/r/abstract-contracts.json"
+```
+
+## Usage
+
+### Basic Usage
+
+Import and use the contract configuration directly:
+
+```tsx
+import { ABSTRACT_CONTRACTS, ABSTRACT_NETWORKS } from "@/components/abstract-contracts"
+
+// Access contracts directly
+const wethAddress = ABSTRACT_CONTRACTS.tokens.weth.addresses.mainnet
+// "0x3439153EB7AF838Ad19d56E1571FBD09333C2809"
+
+const usdcTestnet = ABSTRACT_CONTRACTS.tokens.usdc.addresses.testnet  
+// "0xe4C7fBB0a626ed208021ccabA6Be1566905E2dFc"
+```
+
+### Network-Aware Access
+
+Use helper functions to get contract info based on network:
+
+```tsx
+import { getContract, ABSTRACT_NETWORKS } from "@/components/abstract-contracts"
+
+// Get contract for specific network
+const wethContract = getContract("weth", ABSTRACT_NETWORKS.MAINNET)
+console.log(wethContract?.address) // "0x3439153EB7AF838Ad19d56E1571FBD09333C2809"
+console.log(wethContract?.name)    // "Wrapped Ether"
+```
+
+### With wagmi/viem
+
+```tsx
+import { useContractRead } from "wagmi"
+import { ABSTRACT_CONTRACTS, WETH9_ABI } from "@/components/abstract-contracts"
+
+function TokenBalance({ userAddress }: { userAddress: string }) {
+  const { data: balance } = useContractRead({
+    address: ABSTRACT_CONTRACTS.tokens.weth.addresses.mainnet,
+    abi: WETH9_ABI,
+    functionName: 'balanceOf',
+    args: [userAddress],
+  })
+
+  return <div>WETH Balance: {balance?.toString()}</div>
+}
+```
+
+## Available Contracts
+
+### Tokens
+- **WETH9**: Wrapped Ether contract
+- **USDC**: Circle's USD Coin stablecoin  
+- **USDT**: Tether USD stablecoin (mainnet only)
+
+### DEX Infrastructure  
+- **UniswapV2Factory**: Factory for creating Uniswap V2 pairs
+- **UniswapV2Router02**: Router for Uniswap V2 swaps and liquidity
+- **UniswapV3Factory**: Factory for creating Uniswap V3 pools
+- **QuoterV2**: Uniswap V3 quoter for getting swap quotes
+- **SwapRouter02**: Uniswap V3 router for executing swaps
+
+## Network Support
+
+The component automatically detects your current network and shows the appropriate contract addresses:
+
+- **Abstract Mainnet** (Chain ID: 2741)
+- **Abstract Testnet** (Chain ID: 11124)
+
+## API Reference
+
+### getContract(contractKey, chainId, throwOnMissing?)
+
+Returns contract information for the specified contract and network.
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `contractKey` | `string` | - | Key of the contract (e.g., "weth", "usdc") |
+| `chainId` | `NetworkId` | - | Network ID (2741 for mainnet, 11124 for testnet) |
+| `throwOnMissing` | `boolean` | `false` | Throw error if contract/address not found |
+
+### ABSTRACT_NETWORKS
+
+Constants for Abstract network chain IDs:
+- `MAINNET`: 2741
+- `TESTNET`: 11124
+
+## What's included
+
+The installation command adds the following files to your project:
+
+- [`abstract-contracts.tsx`](#abstract-contractstsx) - Main component with searchable interface
+- [`lib/types.ts`](#libtypests) - TypeScript interfaces and types
+- [`lib/contracts.ts`](#libcontractsts) - Contract definitions and ABI placeholders
+- [`lib/utils.ts`](#libutilsts) - Network utilities and helper functions
+
+### File descriptions
+
+<ComponentSource src="registry/new-york/blocks/abstract-contracts/abstract-contracts.tsx" />
+
+<ComponentSource src="registry/new-york/blocks/abstract-contracts/lib/contracts.ts" />
+
+<ComponentSource src="registry/new-york/blocks/abstract-contracts/lib/utils.ts" />
+
+<ComponentSource src="registry/new-york/blocks/abstract-contracts/lib/types.ts" />

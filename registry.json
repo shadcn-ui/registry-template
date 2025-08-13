@@ -338,6 +338,32 @@
           "type": "registry:lib"
         }
       ]
+    },
+    {
+      "name": "abstract-contracts",
+      "type": "registry:lib",
+      "title": "Abstract Contracts",
+      "description": "Configuration for common Abstract network contract addresses and ABIs for tokens and DEX infrastructure",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/abstract-contracts/abstract-contracts.tsx",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-contracts/lib/types.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-contracts/lib/contracts.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/new-york/blocks/abstract-contracts/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
     }
   ]
 }

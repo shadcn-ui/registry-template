@@ -1,11 +1,9 @@
 ---
 title: useOptimisticWriteContract
-description: An experimental hook for optimistic transaction execution using Abstract's unstable_sendRawTransactionWithDetailedOutput endpoint to get instant transaction feedback
+description: An experimental hook for optimistic transaction execution using Abstract's unstable_sendRawTransactionWithDetailedOutput endpoint to get instant transaction feedback.
 ---
 
 <ComponentPreview name="use-optimistic-write-contract" />
-
-The `useOptimisticWriteContract` hook leverages Abstract's experimental `unstable_sendRawTransactionWithDetailedOutput` endpoint to provide instant transaction feedback without waiting for block confirmation. This enables truly optimistic UI updates for better user experience.
 
 ## Installation
 
@@ -17,6 +15,35 @@ npx shadcn@latest add "https://agw-reusables.vercel.app/r/use-optimistic-write-c
 
 ### Basic Usage
 
+```tsx
+import { useOptimisticWriteContract } from "@/hooks/use-optimistic-write-contract"
+
+export default function TransferButton() {
+  const { writeContract, isPending } = useOptimisticWriteContract()
+
+  const handleTransfer = () => {
+    writeContract({
+      address: "0x1234567890123456789012345678901234567890",
+      abi: TRANSFER_ABI,
+      functionName: "transfer",
+      args: ["0xRecipientAddress", BigInt("1000000000000000000")],
+      onSuccess: (data, startTime) => {
+        console.log(`Transaction confirmed in ${Date.now() - startTime}ms`)
+      }
+    })
+  }
+
+  return (
+    <button onClick={handleTransfer} disabled={isPending}>
+      {isPending ? "Processing..." : "Transfer Tokens"}
+    </button>
+  )
+}
+```
+
+### Complete Example
+
+<CodeCollapsibleWrapper>
 ```tsx
 import { useOptimisticWriteContract } from "@/hooks/use-optimistic-write-contract"
 
@@ -33,13 +60,14 @@ const EXAMPLE_ABI = [
   }
 ] as const
 
-export default function TransferButton() {
+export default function CompleteTransferExample() {
   const {
     writeContract,
     isPending,
     isSuccess,
     error,
-    data
+    data,
+    reset
   } = useOptimisticWriteContract()
 
   const handleTransfer = () => {
@@ -60,15 +88,27 @@ export default function TransferButton() {
   }
 
   return (
-    <button 
-      onClick={handleTransfer}
-      disabled={isPending}
-    >
-      {isPending ? "Processing..." : "Transfer Tokens"}
-    </button>
+    <div>
+      <button onClick={handleTransfer} disabled={isPending}>
+        {isPending ? "Processing..." : "Transfer Tokens"}
+      </button>
+      
+      {error && (
+        <div className="text-red-600 mt-2">
+          Error: {error.message}
+        </div>
+      )}
+      
+      {isSuccess && (
+        <div className="text-green-600 mt-2">
+          ✅ Transaction successful!
+        </div>
+      )}
+    </div>
   )
 }
 ```
+</CodeCollapsibleWrapper>
 
 ### Advanced Usage with Performance Monitoring
 
@@ -254,7 +294,6 @@ export function useOptimisticMint() {
 | `isError` | `boolean` | Whether an error occurred |
 | `data` | `OptimisticTransactionResponse \| undefined` | The optimistic transaction response data |
 | `error` | `Error \| undefined` | Error object if the transaction failed |
-| `reset` | `function` | Reset the hook state |
 
 ### Configuration Options
 
@@ -274,35 +313,6 @@ interface OptimisticTransactionResponse {
   events: OptimisticEvent[]
 }
 ```
-
-## Performance Benefits
-
-The optimistic execution provides significant performance improvements:
-
-- **Instant Feedback**: Get transaction results in ~100-500ms instead of waiting 2-15 seconds for block confirmation
-- **Better UX**: Update your UI immediately with confidence
-- **Error Handling**: Receive detailed error messages for failed transactions quickly
-
-## Important Considerations
-
-<div className="border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950 p-4 my-4">
-  <div className="font-semibold text-yellow-800 dark:text-yellow-200">⚠️ Experimental Feature</div>
-  <p className="text-yellow-700 dark:text-yellow-300 mt-1">
-    This hook uses Abstract's <code>unstable_sendRawTransactionWithDetailedOutput</code> endpoint, which is experimental and may change. Use in production at your own risk.
-  </p>
-</div>
-
-### When to Use
-
-- **High-frequency transactions**: Trading, gaming, or social applications
-- **User experience critical**: Applications where immediate feedback is essential  
-- **Non-critical operations**: Where eventual consistency is acceptable
-
-### When NOT to Use
-
-- **Financial critical operations**: Large transfers or critical financial operations
-- **Security sensitive**: Operations requiring guaranteed on-chain confirmation
-- **External system integration**: When other systems depend on confirmed transactions
 
 ## What's included
 
