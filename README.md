@@ -18,6 +18,18 @@ This is a template for creating a custom registry using Next.js.
 - Every registry item are compatible with the `shadcn` CLI.
 - We have also added v0 integration using the `Open in v0` api.
 
+## Environment Configuration
+
+For the "Open in v0" feature to work properly, you need to set the correct deployment URL:
+
+1. Copy `.env.example` to `.env`
+2. Update `NEXT_PUBLIC_BASE_URL` to your deployed registry URL (e.g., `https://registry-template.vercel.app`)
+
+```bash
+cp .env.example .env
+# Edit .env and set NEXT_PUBLIC_BASE_URL to your deployment URL
+```
+
 ## Documentation
 
 Visit the [shadcn documentation](https://ui.shadcn.com/docs/registry) to view the full documentation.
