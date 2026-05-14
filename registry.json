@@ -61,6 +61,26 @@
       ]
     },
     {
+      "name": "instagram-giveaway-form",
+      "type": "registry:component",
+      "title": "Instagram Giveaway Form",
+      "description": "An Instagram giveaway sign-up form built with shadcn components.",
+      "registryDependencies": [
+        "button",
+        "card",
+        "input",
+        "label",
+        "separator",
+        "tabs"
+      ],
+      "files": [
+        {
+          "path": "registry/new-york/blocks/instagram-giveaway-form/instagram-giveaway-form.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
       "name": "example-with-css",
       "type": "registry:component",
       "title": "Example with CSS",

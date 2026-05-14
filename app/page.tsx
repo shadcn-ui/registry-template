@@ -4,6 +4,7 @@ import { HelloWorld } from "@/registry/new-york/blocks/hello-world/hello-world"
 import { ExampleForm } from "@/registry/new-york/blocks/example-form/example-form"
 import PokemonPage from "@/registry/new-york/blocks/complex-component/page"
 import { ExampleCard } from "@/registry/new-york/blocks/example-with-css/example-card"
+import { InstagramGiveawayForm } from "@/registry/new-york/blocks/instagram-giveaway-form/instagram-giveaway-form"
 // This page displays items from the custom registry.
 // You are free to implement this with your own design as needed.
 
@@ -62,6 +63,18 @@ export default function Home() {
           </div>
           <div className="flex items-center justify-center min-h-[400px] relative">
             <ExampleCard />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4 border rounded-lg p-4 min-h-[450px] relative">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm text-muted-foreground sm:pl-3">
+              An Instagram giveaway sign-up form.
+            </h2>
+            <OpenInV0Button name="instagram-giveaway-form" className="w-fit" />
+          </div>
+          <div className="flex items-center justify-center min-h-[600px] relative">
+            <InstagramGiveawayForm />
           </div>
         </div>
       </main>
